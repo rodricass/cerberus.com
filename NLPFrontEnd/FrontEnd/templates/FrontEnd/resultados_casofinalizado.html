@@ -1,0 +1,73 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load tz %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
+    <div class="row">
+        <div class="col-md-3">
+            <div id="titulo_columna">
+                <span id="titulo" style="margin-left:6rem !important">Resultados</span>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-8">
+            <div class="contenedor_documentos">
+                <div class="row headers-tabla">
+                    <div class="col-md-2 col-md-offset-1">
+                        Estado 
+                    </div>
+                    <div class="col-md-3" id="fecha" style="margin-left:0.5rem">
+                        Fecha y hora 
+                    </div>
+                    <div class="col-md-2 col-md-offset-1">
+                        Búsqueda 
+                    </div>
+                    <div class="col-md-2" id="opciones">
+                        Abrir 
+                    </div>
+                </div>
+                {% for resultado in resultados %}
+                    <div class="row fila">
+                        <div class="col-md-2">
+                            <div class="nombre_doc estado" style="margin-left:7.5rem !important">
+                                {% if resultados.estado %}
+                                    <img src="..\imagenes\check.png" >
+                                {% else %}
+                                    <img src="..\imagenes\error.png" >
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="nombre_doc" style="margin-left: 7rem">
+                                {{resultado.fecha|localtime|date:"d/m/Y"}}
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="nombre_doc" style="margin-left:5rem" >
+                                {{resultado.fecha|localtime|date:"H:i"}}
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-md-offset-1">
+                            <div class="nombre_doc" >
+                                {{resultado.busqueda}}
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-md-offset-1" style="margin-left:8rem!important">
+                            <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="vacio" style="margin-left:25%">No hay resultados asociados al caso</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </div>
+        
+{% endblock content %}
+
+{% block scripts %} 
+{% endblock scripts %}

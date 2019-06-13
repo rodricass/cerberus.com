@@ -1,0 +1,30 @@
+
+{% if user.is_authenticated %}
+<form id="logoutForm" action="/logout" method="post" class="navbar-right" style="margin-bottom: 0 !important">
+    {% csrf_token %}
+    <ul class="nav navbar-nav navbar-right">
+        {% if user.is_superuser %}
+            <li>
+                <div id="usuario">
+                    <a class="glyphicon glyphicon-user navbar-brand" href="{% url 'admin:index' %}" style="margin-left:0.2rem;color:#212121 !important; position:relative; padding-top:1.9rem"></a>
+                    <a href="{% url 'admin:index' %}" style="color:#212121 !important; position:relative; padding-top:2rem" class="navbar-brand" >{{ user.username }}</a>
+                </div>
+            </li>
+        {% else %}
+            <li id="usuario">
+                <span class="glyphicon glyphicon-user navbar-brand" style="margin-left:0.2rem;color:#212121 !important;position:relative; padding-top:1.9rem"></span>
+                <span style="color:#212121 !important;position:relative; padding-top:2rem" class="navbar-brand" >{{ user.username }}</span>
+            </li>
+        {% endif %}
+        <li><a href="{% url 'logout' %}"><span class="headers">CERRAR SESIÓN</span></a></li>
+    </ul>
+
+</form>
+
+{% else %}
+
+<ul class="nav navbar-nav navbar-right">
+    <li><a style="margin-top:0.7rem;" href="{% url 'login' %}">INICIAR SESIÓN</a></li>
+</ul>
+
+{% endif %}

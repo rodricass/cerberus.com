@@ -1,0 +1,195 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block container %}
+{% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
+    <div class="row" style="margin-top: 4rem; height: 85%; width: 100%">
+        <div class="col-md-3" style="margin-left:2rem">
+            <div id="jumboside" class="jumbotron" style="margin-bottom:0 !important">
+                <button id="arrow-left" style="top:12.3rem" title="Búsqueda guiada" class="btn flechas" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}'"><i class="far fa-compass"></i></button>
+                <button id="arrow-right" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}'"><i class="fas fa-brain" ></i></button>
+                {% if caso.nombre|length < 10 %}
+                    <h1 id="titulo" title="{{caso.nombre}}">{{caso.nombre}}</h1>
+                {% else %}
+                    <h1 id="titulo" title="{{caso.nombre}}">{{caso.nombre|truncatechars:8}}</h1>
+                {% endif %}
+                <p id="caso">Buscador general</p>
+            </div>
+            {% if expresion != null %}
+                <div id="palabra" class="jumbotron">
+                    <h4 title="{{expresion}}">
+                        {% if expresion|length < 24 %}
+                            "{{expresion}}"
+                        {% else %}
+                            "{{expresion|truncatechars:20}}..."
+                        {% endif %}
+                    </h4>
+                </div>
+            {% endif %}
+            <div id="panel" style="width:100%">
+                    <form id="buscar" action="{% url 'buscador_general' caso_id=caso.id%}" method="post">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                    </form>
+                    
+                    {% if expresion == null %}
+                        <button id="botonBuscar" form="buscar" title="Buscar" class="btn btn-block" type="submit" >Buscar</button>
+                    {% else %}
+                        {% if res|length != 0 %}    
+                            <button id="btn-save" form="guardar" type="submit" title="Guardar búsqueda" class="btn botones3" data-toggle="modal" data-target="#modalAdvice"><i class="fas fa-save"></i></button>
+                            <button id="btn-buscar" form="buscar" title="Buscar" class="btn botones3" style="margin-left:2% !important" type="submit" >Buscar</button>
+                        {% else %}
+                            <button id="botonBuscar" form="buscar" title="Buscar" class="btn btn-block" type="submit" >Buscar</button>
+                        {% endif %}
+                    {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div id="jumbocenter" class="jumbotron">
+                <div id="cabeza">
+                    <div class="row">
+                        {% if expresion != null %}
+                            <div class="col-md-5">
+                                <h2 id="titulo2">{{expresion}}</h2>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="col-md-2">
+                                    <p style="position:relative; margin-top:2rem; margin-left: 4.3rem" >Destacar </p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p style="position:relative; margin-top:2rem; margin-left:10rem" >Párrafo </p>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="head" style="position:relative; margin-left:10rem">Posición </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="head" style="position:relative;text-align:center;margin-top:-1rem; margin-left: 11rem;text-align-last:center">Ver párrafo </p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="cuerpo" style="margin-top:2rem">
+                    {% if expresion != null %} 
+                        <form id="guardar" action="{% url 'guardar_resultadoGeneral' caso_id=caso.id expresion=expresion %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="resultado_json" value="{{json}}">
+                        </form>
+                    {% endif %}
+                    {% for fila in res %}
+                        {% for aparicion in fila.4 %}
+                        <div class="row info">
+                            <div class="col-md-5">
+                                {% if fila.0|length < 38 %}
+                                    <p title="{{fila.0}}">{{fila.0}}</p>
+                                {% else %}
+                                    <p title="{{fila.0}}">{{fila.0|truncatechars:38}}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2 ">
+                                <input class="checks" form="guardar" name="checks3[]" value="{{fila.5}}.{{aparicion}}" type="checkbox" style="margin-left:6.5rem !important;margin-top:1rem !important">
+                            </div>
+                            <div class="col-md-1" >
+                                <div style="margin-left:3.7rem; text-align:center; margin-top:-0.5rem;">
+                                    {{fila.2}}
+                                </div>
+                            </div>
+                            <div class="col-md-1" >
+                                <div style="margin-left:7.3rem; text-align:center; margin-top:-0.5rem">
+                                    {{aparicion}}
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <p class="plus2" style="margin-left:11rem; margin-top:1rem" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=fila.1 %}" data-docNombre="{{fila.0}}" data-posInicial="{{aparicion}}" data-string="{{expresion}}" data-parrafo="{{fila.3}}" data-parrafoNro="{{fila.2}}"></i></p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% empty %}
+                        {% if expresion != null %} 
+                            <p class="vacio">No hay ninguna coincidencia</p>
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modalDetalles" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body">
+                <p id="aparicion_original"><span class="detalles"><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id="ap_string"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro"></span></p>
+                <p><span class="detalles"><i>Posición inicial: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_inicial"></span></p>
+                <form id="ver_form" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Guardar resultado?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="guardar">Guardar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var pos_inicial = button.data('posinicial')
+            var string = button.data('string')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            var pos_final = pos_inicial + string.length
+            var partial_string = parrafo.substring(pos_inicial, pos_final);
+            parrafo = parrafo.replace(new RegExp(partial_string), "<span style='background-color:#ffff8d'>"+partial_string+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            $('#ap_string').html(string)
+            $('#ver_form').attr('action', url)
+            $('#ap_string').html(string)
+            $('#parrafo_nro').html(parrafo_nro)
+            $('#pos_inicial').html(pos_inicial)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto').html(parrafo)
+        })
+    </script>
+    <script src="{% static 'FrontEnd/scripts/my_scripts/buscador.js' %}"></script>
+{% endblock scripts %}
+ 

@@ -1,0 +1,120 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load tz %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
+    <div class="row">
+        <div class="buscador col-md-11">
+            <form id="ver_form" action="{% url 'resultados' %}" style="margin-top:8rem;" method="post"  class="form">
+                {% csrf_token %}
+                    <div class="col-md-3">
+                        <h4 style="font-size:20px !important">Ver resultados de caso:</h4>
+                    </div>
+                    <div class="col-md-5">
+                        {% bootstrap_form form_elegir %}
+                    </div>
+                    <div class="col-md-3">
+                        {% buttons %}
+                            <button type="submit" id="btn1" form="ver_form" class="botones btn">Buscar</button>
+                        {% endbuttons %}
+                    </div>
+            </form>
+        </div>
+    </div>
+    <hr class="barra"/>
+    
+    {% if inicial == False %} 
+        <div class="row" style="overflow-y:auto; overflow-x:hidden; width:70%; margin-left:18%; height:66%">
+            <div class="row headers-tabla">
+                <div class="col-md-2 col-md-offset-1">
+                    Estado 
+                </div>
+                <div class="col-md-2" id="fecha">
+                    Fecha y hora 
+                </div>
+                <div class="col-md-2 col-md-offset-1">
+                    Búsqueda 
+                </div>
+                <div class="col-md-2" id="opciones">
+                    Opciones 
+                </div>
+            </div>
+            
+            {% for resultado in resultados %}
+                <div class="row fila">
+                    <div class="col-md-2">
+                        <div class="nombre_doc estado" >
+                            {% if resultado.estado %}
+                                <i class="far fa-check-circle" title="Búsqueda actualizada" style="font-size:18px; margin-top:0.2rem; color:#388e3c"></i>
+                            {% else %}
+                                <i class="far fa-times-circle" title="Búsqueda desactualizada" style="font-size:18px; margin-top:0.2rem; color:#d32f2f"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-1">
+                        <div class="nombre_doc" >
+                            {{resultado.fecha|localtime|date:"d/m/Y"}}
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="nombre_doc" style="margin-left:2rem" >
+                            {{resultado.fecha|localtime|date:"H:i"}}
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-1">
+                        <div class="nombre_doc" >
+                            {{resultado.busqueda}}
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-1">
+                        <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
+                    </div>
+                    <div class="col-md-2">
+                        <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultado' caso_id=caso_id resultado_id=resultado.id tipo=resultado.busqueda %}"><i class="fas fa-trash"></i></button>
+                        
+                    </div>
+                </div>
+            {% empty %}
+                <p class="vacio">No hay resultados asociados al caso</p>
+            {% endfor %}
+        </div>
+        
+        
+    {% endif %}
+    
+
+<div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Eliminar resultado?</p>
+            <form id="borrarForm" action="" method="post">
+                {% csrf_token %}
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            console.log(event.relatedTarget)
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            console.log(recipient)
+            $('#borrarForm').attr('action', recipient)
+        })
+    </script>
+{% endblock scripts %}

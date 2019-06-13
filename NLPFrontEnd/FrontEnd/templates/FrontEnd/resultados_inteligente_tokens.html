@@ -1,0 +1,124 @@
+﻿{% extends "FrontEnd/layout_resultados.html" %}
+
+{% block header %}
+    <div class="col-md-1">
+        <i class="far fa-star" style="margin-top:2.2rem; margin-left:4.2rem; color:#616161"></i>
+    </div>
+    <div class="col-md-4">
+        <h2 id="titulo2">{{header.tipo}}</h2>
+    </div>
+    <div class="col-md-7">
+        <div class="col-md-4">
+            <p class="head" style="text-align:center">Categoría </p>
+        </div>
+        <div class="col-md-3">
+            <p class="head">Base léxica </p>
+        </div>
+        <div class="col-md-2">
+            <p class="head" style="margin-left:2rem">Tipo </p>
+        </div>
+        <div class="col-md-2">
+            <p class="fuente" style="position:relative; margin-top:0.8rem; margin-left:4.5rem" >Ver más </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% for tupla in tuplas %}
+        <div class="row info">
+            <div class="col-md-1">
+                {% if tupla.destacado %}
+                    <i class="fas fa-star" style="font-size:15px; color:#757575; margin-top: 0.6rem"></i>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if tupla.aparicion|length < 28 %}
+                    <p title="{{tupla.aparicion}}" class="fuente">{{tupla.aparicion}}</p>
+                {% else %}
+                    <p title="{{tupla.aparicion}}" class="fuente">{{tupla.aparicion|truncatechars:25}}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <div class="col-md-2 col-md-offset-1">
+                   <div class="parrafo_nro fuente" >{{tupla.categoria}}</div>
+                </div>
+                <div class="col-md-2 col-md-offset-2">
+                    <div class="pos_inicial fuente" style="margin-top:-0.5rem">{{tupla.lema}}</div>
+                </div>
+                <div class="col-md-3 col-md-offset-1">
+                    <div class="pos_final fuente" style="margin-top:-0.5rem">{{tupla.tipo}}</div>
+                </div>
+                <div class="col-md-1">
+                    <p class="plus2" style="margin-left:-3.2rem !important; margin-top:0.8rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=tupla.doc.id %}" data-docNombre="{{tupla.doc.titulo}}" data-aparicion="{{tupla.aparicion}}" data-categoria="{{tupla.categoria}}" data-lema="{{tupla.lema}}" data-tipo="{{tupla.tipo}}" data-parrafo="{{tupla.parrafo.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" ></i></p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        {% if tipo != "Búsqueda" %} 
+            <p class="vacio">No hay ninguna coincidencia</p>
+        {% endif %}
+    {% endfor %}
+
+    <div id="modalDetallesToken" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body">
+                <p><span class="detalles"><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id="aparicion" style="font-size:14px"></span></p>
+                <p><span class="detalles"><i>Base léxica: &nbsp;&nbsp;&nbsp;</i></span><span id="lema" style="font-size:14px"></span></p>
+                <p><span class="detalles"><i>Categoría: &nbsp;&nbsp;&nbsp;</i></span><span id="categoria" style="font-size:14px"></span></p>
+                <p><span class="detalles"><i>Tipo: &nbsp;&nbsp;&nbsp;</i></span><span id="tipo" style="font-size:14px"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro2" style="font-size:14px"></span></p>
+                <form id="ver_form2" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc2" style="font-size:14px"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto2" style="max-height:35%; overflow-y:auto; overflow-x:hidden; font-size:14px"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('#modalDetallesToken').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var aparicion = button.data('aparicion')
+            var categoria = button.data('categoria')
+            var lema = button.data('lema')
+            var tipo = button.data('tipo')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            parrafo = parrafo.replace(new RegExp(aparicion,'g'), "<span style='background-color:#ffff8d'>"+aparicion+"</span>")
+            console.log(parrafo)
+            var parrafo_nro = button.data('parrafonro')
+            console.log(parrafo_nro)
+            $('#aparicion').html(aparicion)
+            $('#ver_form2').attr('action', url)
+            $('#parrafo_nro2').html(parrafo_nro)
+            $('#tipo').html(tipo)
+            $('#lema').html(lema)
+            $('#categoria').html(categoria)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc2').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc2').html(subdoc + "...")
+                $('#nombre_doc2').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto2').html(parrafo)
+        })
+    </script>
+{% endblock scripts %}

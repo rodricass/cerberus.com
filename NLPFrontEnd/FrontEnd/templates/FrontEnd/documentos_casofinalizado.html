@@ -1,0 +1,53 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <div class="row">
+        <div class="col-md-3">
+            <div id="titulo_columna">
+                <span id="titulo">Documentos</span>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-8">
+            <div class="contenedor_documentos">
+                <div class="row headers-tabla">
+                    <div class="col-md-2 col-md-offset-1" id="documento">
+                        Documento 
+                    </div>
+                    <div class="col-md-2 col-md-offset-6" id="opciones">
+                        Opciones 
+                    </div>
+                </div>
+                {% for documento in documentos %}
+                    <div class="row fila">
+                        <div class="col-md-6 col-md-offset-1">
+                            <div class="nombre_doc" title="{{documento}}">
+                                {% if documento.titulo|length < 50 %}
+                                    {{documento}}
+                                {% else %}
+                                    {{documento.titulo|truncatechars:50}}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-md-offset-1">
+                            <button title="Abrir" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-folder-open"></i></a></button>
+                        </div>
+                        <div class="col-md-1 col-md-offset-1">
+                            <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note"></i></a></button>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="vacio" style="margin-left:25%">No hay documentos asociados al caso</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </div>
+        
+
+{% endblock content %}
+
+{% block scripts %} 
+{% endblock scripts %}

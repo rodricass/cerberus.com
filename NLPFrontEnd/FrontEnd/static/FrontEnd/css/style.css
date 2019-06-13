@@ -1,0 +1,154 @@
+/*START LAYOUT.HTML*/
+
+body {
+    font-family: "Segoe UI",Arial,sans-serif;
+}
+
+button, .btn {
+    font-size: 15px;
+}
+
+.navbar-header:hover, .nav>li>a:hover {
+    background-color: #263238;
+    height: 6rem;
+}
+
+.navbar-header {
+    font-size: 18px;
+}
+
+.navbar-nav > li > a {
+    padding-bottom: 20px !important;
+}
+
+.navbar-nav > li > a:focus {
+    padding-bottom: 20px !important;
+    height: 6rem !important;
+}
+
+.navbar-brand {
+    color: #212121;
+}
+
+.nav li a {
+    color:white;
+}
+
+.nav > li > a:focus {
+    outline-style: none;
+    height: 100%;
+    background-color: #263238;
+}
+
+#usuario:focus {
+    outline-style: none;
+    height: 100%;
+    background-color: #263238;
+}
+
+.navbar-nav, .navbar-header {
+    font-family: "Segoe UI",Arial,sans-serif;
+    font-size: 15px;
+}
+
+.nav:focus {
+    outline-style: none;
+    background-color: #263238;
+}
+
+.navbar {
+    border-color: #37474f;
+    background-color: #37474f;
+}
+
+.close:focus {
+    outline-style: none;
+}
+
+#nombre {
+    margin-top: 0.8rem;
+    margin-right: 2rem;
+    color: white;
+    font-size: 23px;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+
+.navbar-header {
+    margin-left: -7% !important;
+    padding-left: 3%;
+    margin-right: 4% !important;
+}
+
+.navbar-right {
+    margin-right: -40px !important;
+}
+
+.casos {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 13px 15px;
+    position: relative;
+    height: 6.8rem;
+    top: -0.8rem;
+}
+
+.btn:focus {
+    outline-style: none;
+}
+
+
+.casos:hover {
+    background-color: #263238;
+    height: 6.8rem;
+}
+
+.dropdown {
+    height: 6rem;
+}
+
+.casos:focus {
+    background-color: #263238;
+}
+
+
+.dropdown-menu > li > a {
+    color: #333 !important;
+    padding: 9px 15px;
+}
+
+.headers {
+    position:relative;
+    top:0.6rem;
+}
+
+#usuario:hover {
+    background-color: #263238;
+    height: 6rem;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus{
+    background-color: #e0e0e0;
+}
+
+.divider {
+    margin: 0 !important;
+}
+
+.dropdown-menu {
+    padding: 0;
+}
+
+body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom {
+    margin-right: 0 !important;
+}
+
+/*END LAYOUT.HTML*/
+
+
+
+
+
+
+
+

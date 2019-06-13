@@ -1,0 +1,126 @@
+﻿{% extends "FrontEnd/layout_resultados.html" %}
+
+{% block header %}
+    <div class="col-md-1">
+        <i class="far fa-star" style="margin-top:2.2rem; margin-left:4.2rem; color:#616161"></i>
+    </div>
+    <div class="col-md-6">
+        <h2 id="titulo2">{{header.tipo}}</h2>
+    </div>
+    <div class="col-md-5">
+        <div class="col-md-7">
+            <p class="head">Cantidad total </p>
+        </div>
+        <div class="col-md-4">
+            <p class="head fuente" >Ver más </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% for tupla in tuplas %}
+        <div class="row info">
+            <div class="col-md-1">
+                {% if tupla.1 %}
+                    <i class="fas fa-star" style="font-size:15px; color:#757575; margin-top: 0.6rem"></i>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                {% if tupla.0|length < 43 %}
+                    <p title="{{tupla.0}}" class="fuente">{{tupla.0}}</p>
+                {% else %}
+                    <p title="{{tupla.0}}" class="fuente">{{tupla.0|truncatechars:43}}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-5">
+                <div class="col-md-2 col-md-offset-1">
+                   <div class="cant_total fuente" style="margin-left:1rem; margin-top:-0.5rem" >{{tupla.2}}</div>
+                </div>
+                <div class="col-md-2 col-md-offset-1">
+                    <div class="dropdown">
+                      <button class="btn dropdown-toggle btn-drop" data-toggle="dropdown" style="width:auto; margin-left:5rem">
+                        <span class="plus_guiado fuente">Documentos</span>&nbsp;&nbsp;&nbsp;
+                        <span class="caret" style="color:#424242"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                          {% for guiada in tupla.3 %}
+                            <li>
+                                <a href="#" title="{{guiada.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=guiada.0 %}" data-docNombre="{{guiada.1}}" data-posInicial="{{guiada.2}}" data-string="{{tupla.0}}" data-posFinal="{{guiada.3}}" data-parrafo="{{guiada.4}}" data-parrafoNro="{{guiada.5}}">
+                                {% if guiada.1|length < 30 %}
+                                    {{guiada.1}}
+                                {% else %}
+                                    {{guiada.1|truncatechars:30}}
+                                {% endif %}
+                                </a>
+                            </li>
+                          {% endfor %}
+                      </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        {% if tipo != "Búsqueda" %} 
+            <p class="vacio">No hay ninguna coincidencia</p>
+        {% endif %}
+    {% endfor %}
+
+    <div id="modalDetalles" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body" style="font-size:14px">
+                <p id="aparicion_original"><span class="detalles"><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id="ap_string"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro"></span></p>
+                <p><span class="detalles"><i>Posición inicial: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_inicial"></span></p>
+                <p><span class="detalles"><i>Posición final: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_final"></span></p>
+                <form id="ver_form" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+      </div>
+    </div>    
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+       $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var pos_inicial = button.data('posinicial')
+            var pos_final = button.data('posfinal')
+            var string = button.data('string')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            $('#ap_string').html(string)
+            $('#ver_form').attr('action', url)
+            $('#ap_string').html(string)
+            $('#parrafo_nro').html(parrafo_nro)
+            $('#pos_inicial').html(pos_inicial)
+            $('#pos_final').html(pos_final)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto').html(parrafo)
+        })
+    </script>
+{% endblock scripts %}

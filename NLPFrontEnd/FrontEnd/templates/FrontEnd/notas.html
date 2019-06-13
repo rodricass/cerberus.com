@@ -1,0 +1,142 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/notas.css' %}" />
+    
+    <div class="row" style="margin-top:4%">
+        <div class="col-md-7" id="cuerpo">
+            {% if tipo == 'documento' %}
+            {% if descripcion != "" %}
+                <div class="row desc_doc" style="background-color:#eeeeee">
+                    <div class="col-md-10" style="column-fill:auto; word-wrap: break-word !important; margin-left:3rem;" data-toggle="modal" data-target="#modalDescripcion" data-whatever="{{descripcion}}">
+                        <p class="descripcion" style="font-size:20px; width: 58rem;">
+                            {% if descripcion|length < 175 %}
+                                {{descripcion}}
+                            {% else %}
+                                {{descripcion|truncatechars:175}}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+            {% endif %}
+            <div class="row" style="overflow-y:auto; overflow-x:hidden; height:60%">
+            {% for nota in notas %}
+                <div class="row {%if nota.nota|length <= 80 %} fila {% else %} fila2 {% endif %}" >
+                    <div class="col-md-10" style="column-fill:auto; word-wrap: break-word !important; margin-left:3rem;" data-toggle="modal" data-target="#modalAdvice" data-whatever="{{nota.nota}}">
+                        <p class="descripcion">{{nota.descripcion}}</p>
+                        <p class="nota">
+                            {% if nota.nota|length < 180 %}
+                                {{nota.nota}}
+                            {% else %}
+                                {{nota.nota|truncatechars:180}}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="close trash" data-toggle="modal" data-target="#modalEliminar" title="Descartar nota" data-whatever="{% url 'eliminar_nota' id=id id_nota=nota.id tipo=tipo %}"><i class="far fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="vacio">No hay notas creadas</p>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-4">
+            <div id="titulo">Nueva nota</div>
+            <hr />
+            <form action="{% url 'notas' id=id tipo=tipo %}" method="post" id="panel">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button id="crearNota" class="btn btn-block" type="submit" >Crear</button>
+            </form>
+        </div>
+    </div>
+    
+    
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12" style="column-fill:auto; word-wrap: break-word !important; height:25rem; overflow-y:auto">
+                    <div id="contenidoNota"></div>
+                    
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn eliminarNota btn-block" data-toggle="modal" data-target="#modalEliminar" >Eliminar nota&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalDescripcion" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12" style="column-fill:auto; word-wrap: break-word !important;">
+                    <div id="descripcion_modal"></div>
+                    
+                </div>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Eliminar nota?</p>
+            <form id="borrarForm" action="" method="post">
+                {% csrf_token %}
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+{% endblock content %}
+
+
+{% block scripts %} 
+    <script>
+        $('#modalAdvice').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('whatever')
+        $('#contenidoNota').html(recipient)
+        })
+        $('#modalDescripcion').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var recipient = button.data('whatever')
+        $('#descripcion_modal').html(recipient)
+        })
+
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            console.log(event.relatedTarget)
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            console.log(recipient)
+            $('#borrarForm').attr('action', recipient)
+        })
+    </script>
+{% endblock scripts %}

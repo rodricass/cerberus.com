@@ -1,0 +1,112 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <div class="row">
+        <div class="buscador col-md-11">
+            <form id="editar_form" action="{% url 'documentos' %}" style="margin-top:8rem;" method="post"  class="form">
+                {% csrf_token %}
+                    <div class="col-md-3">
+                        <h4 style="font-size:20px !important">Ver documentos de caso:</h4>
+                    </div>
+                    <div class="col-md-5">
+                        {% bootstrap_form form %}
+                    </div>
+                    <div class="col-md-3">
+                        {% buttons %}
+                            <button type="submit" id="btn1" form="editar_form" class="botones btn">Buscar</button>
+                        {% endbuttons %}
+                    </div>
+            </form>
+        </div>
+    </div>
+    <hr class="barra"/>
+    {% if inicial == False %} 
+        <div class="row" style="overflow-y:auto; overflow-x:hidden; width:80%; margin-left:13%; height:66%">
+            {% for documento in documentos %}
+                <div class="row fila">
+                    <div class="col-md-6 col-md-offset-1">
+                        <div class="nombre_doc" title="{{documento}}">
+                            {% if documento.titulo|length < 70 %}
+                                {{documento}}
+                            {% else %}
+                                {{documento.titulo|truncatechars:70}}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-1">
+                        <button title="Descargar" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-download"></i></a></button>
+                    </div>
+                    <div class="col-md-1">
+                        <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note"></i></a></button>
+                    </div>
+                    <div class="col-md-1">
+                        {% if documento.propietario_doc != user %}
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                        {% else %}
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc' id_doc=documento.id id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="vacio">No hay documentos asociados al caso</p>
+            {% endfor %}
+        </div>
+        <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docDocumentos' caso_id=id_caso %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
+        
+        
+    {% endif %}
+
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal_advice_content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Usted no es el propietario del actual documento: <br />¿Desea solicitar su eliminación?</h4>
+          </div>
+          <div class="modal-body">
+            <form id="enviar_form" action="" method="post"  class="form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos.html' }}">
+                <textarea rows="6" cols="70" name="mensaje" form="enviar_form" placeholder="Motivo por el cual desea su eliminación" required></textarea>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="enviar_form">Solicitar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Eliminar documento?</p>
+            <form id="borrarForm" action="" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos.html' }}">
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    {% include 'FrontEnd/modales.html' %}
+    
+{% endblock content %}
+
+{% block scripts %} 
+     <script src="{% static 'FrontEnd/scripts/my_scripts/documentos.js' %}"></script>
+     <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
+{% endblock scripts %}

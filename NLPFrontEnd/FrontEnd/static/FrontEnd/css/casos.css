@@ -1,0 +1,431 @@
+body {
+    font-family: "Segoe UI",Arial,sans-serif;
+}
+
+textarea {
+    resize: none;
+}
+
+input, textarea {
+    max-width: none !important;
+}
+
+.editar {
+    cursor: pointer;
+    position: relative;
+    top: -13.1rem;
+    left: 46.8rem;
+    background-color: transparent;
+    color: #428bca;
+}
+
+.editar:hover {
+    color: #2a6496;
+    background-color: transparent;
+}
+
+.editar:focus {
+    outline-style: none;
+    color: #2a6496;
+}
+
+.btn-adjuntar {
+    position: relative;
+    display: inline-block;
+    top: -8.7rem;
+    right: 2.2rem;
+    border: none;
+    background-color: transparent;
+    color: #428bca;
+}
+
+.btn-adjuntar:hover {
+    color: #2a6496;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-adjuntar:focus {
+    outline-style: none;
+    color: #2a6496;
+
+}
+
+.btn-nota {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    top: -4.4rem;
+    right: -16.8rem;
+}
+
+.btn-compartir {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    color: #428bca;
+    top: -8.7rem;
+    right: 0.8rem;
+}
+
+.btn-compartir:hover {
+    color: #2a6496;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-compartir:focus {
+    outline-style: none;
+    color: #2a6496;
+
+}
+
+.botones_panel2 {
+    background-color: transparent;
+    color: #428bca;
+    position: relative;
+    right: -17rem;
+    top: -4.4rem;
+    padding: 6px 8px !important;
+}
+
+.botones_panel2:hover {
+    color: #2a6496;
+}
+
+.botones_panel2:focus {
+    outline-style: none;
+    color: #2a6496;
+}
+
+
+.buscar {
+    cursor: pointer;
+    position: relative;
+    right: 0;
+    top: 0;
+    color: white !important;
+}
+
+.buscar_general {
+    top: -4.4rem;
+    right: -1.5rem;
+}
+
+.buscar_intel {
+    margin-right: 16rem;
+    top: -7.3rem;
+    right: -6rem;
+}
+
+.buscar_guiada {
+    margin-right: 11.3rem;
+    top: -1.4rem;
+    right: -10.7rem;
+}
+
+.caso {
+    position: absolute;
+    top: 0;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+#crear_caso {
+    position: fixed;
+    width: 22rem;
+    height: 5rem;
+    background-color: #ffa726;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#crear_caso:hover {
+    background-color: #ef6c00;
+}
+
+#crear_caso:focus {
+     outline-style: none;
+}
+
+.panel-heading {
+    height: 6.5rem;
+}
+
+#eliminar_caso {
+    display: none;
+    position: fixed;
+    width: 22rem;
+    height: 5rem;
+    margin-top: 7rem;
+    background-color: #f44336;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#eliminar_caso:hover {
+    background-color: #c62828;
+}
+
+#finalizar_caso {
+    display: none;
+    position: fixed;
+    width: 22rem;
+    height: 5rem;
+    background-color: #66bb6a;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#finalizar_caso:hover {
+    background-color: #43a047;
+}
+
+#seleccionar_casos {
+    background-color: #1e88e5;
+    position: fixed;
+    margin-top: 7rem;
+    width: 22rem;
+    height: 5rem;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#seleccionar_casos:hover {
+    background-color: #1565c0;
+}
+
+#cancelar_seleccion {
+    display: none;
+    position: fixed;
+    margin-top: 14rem;
+    width: 22rem;
+    height: 5rem;
+    background-color: #1e88e5;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#cancelar_seleccion:hover {
+    background-color: #1565c0;
+}
+
+.checkboxes {
+    cursor: pointer;
+    position: absolute;
+    right: 2.5rem;
+    top: 1rem;
+    width: 25px;
+    height: 20px;
+    display: none;
+}
+
+.jumbocenter {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 13px !important;
+    background-color: #e0e0e0;
+    margin-left: 0.5rem;
+    height: 4.5rem;
+    width: 15rem;
+}
+
+.botones_mover {
+    height: 0;
+    margin-left: -15rem;
+}
+
+.titulo {
+    font-size: 15px;
+    margin-bottom: 2rem;
+}
+
+.comentario {
+    text-align:justify;
+    font-size: 10px;
+}
+
+.botones-compartir {
+    width: 160%;
+    margin-top: 0.5rem;
+    margin-left: 20%;
+}
+
+.botones-compartir:focus {
+    outline-style:none;
+}
+
+#conPrivilegios {
+    background-color: #1e88e5;
+    color:white;
+
+}#conPrivilegios:hover {
+    background-color: #1565c0;
+}
+
+#sinPrivilegios {
+    background-color: #82b1ff;
+    color: white;
+
+}#sinPrivilegios:hover {
+    background-color: #448aff;
+}
+
+#cancelar-compartir {
+    background-color: #f44336;
+    color: white;
+
+}#cancelar-compartir:hover {
+    background-color: #c62828;
+}
+
+#aclaracion {
+    display: none;
+    margin-top: 21rem;
+    width: 22rem;
+}
+
+.close:focus {
+    outline-style: none;
+}
+
+.modal-advice2 {
+    margin-top: 1rem;
+    font-size: 18px;
+    text-align: center;
+}
+
+.modal-body2 {
+    padding-top: 10px
+}
+
+.modal-content2 {
+    border-radius: 10px;
+    width: 85%;
+    margin-left: 10%;
+}
+
+.modal {
+    overflow-y: hidden !important;
+}
+
+.modal2 {
+    margin-top: 5%;
+}
+
+.modal-footer2 {
+    margin-top: 0;
+}
+
+.cancelar2 {
+    display: inline-block;
+    border-color: #1e88e5;
+    background-color: white;
+    border-radius: 10px;
+    color: #1e88e5;
+    width: 20rem;
+    font-weight: bold;
+    margin-right: 1.8rem;
+}
+
+.cancelar2:hover {
+    background-color: #bbdefb;
+    color: #1e88e5;
+}
+
+.cancelar2:focus {
+    outline-style: none;
+    background-color: #bbdefb;
+    color: #1e88e5;
+}
+
+.aceptar2 {
+    background-color: #1e88e5;
+    color: white;
+    width: 20rem;
+    border-radius: 10px;
+}
+
+.aceptar2:hover {
+    background-color: #1565c0;
+    color: white;
+}
+
+.aceptar2:focus {
+    outline-style: none;
+    background-color: #1565c0;
+    color: white;
+}
+
+.btns-casos:focus {
+    color: #2a6496;
+}
+
+/*******START CASOS FINALIZADOS********/
+.botones_panel {
+    background-color: transparent;
+    color: #428bca;
+    position: relative;
+    right: -7rem;
+}
+
+.botones_panel:hover {
+    color: #2a6496;
+}
+
+.botones_panel:focus {
+    outline-style:none;
+    color: #2a6496;
+}
+
+.btn-eliminar {
+    background-color: transparent;
+    color: #428bca;
+    position: relative;
+    right: -11.5rem;
+}
+
+.btn-eliminar:hover {
+    color: #2a6496;
+}
+
+.btn-eliminar:focus {
+    outline-style: none;
+    color: #2a6496;
+}
+
+.divisor-vertical {
+    border-right: solid 1.5px #bdbdbd;
+    width: 1rem;
+    height: 4.5rem;
+    position: absolute;
+    margin-top: -4.3rem;
+    margin-left: 37rem;
+}
+
+.btn-nota2 {
+    position:relative;
+    top: 0rem;
+}
+
+
+/*******END CASOS FINALIZADOS*********/
+
+body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom {
+    margin-right: 0 !important;
+}
+
+.modal-content1 {
+    border-radius: 10px;
+    width: 85%;
+    margin-left: 10%;
+}
+
+.modal1 {
+    margin-top: 10%;
+}

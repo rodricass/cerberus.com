@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerberus - {{ title }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/content/bootstrap.min.css' %}" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'FrontEnd/images/wCancerbero.png' %}" />
+    <link href="/static/FrontEnd/fonts/css/all.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/content/site.css' %}" />
+    <script src="{% static 'FrontEnd/scripts/modernizr-2.6.2.js' %}"></script>
+</head>
+
+<body>
+   {% block navbar %}{% endblock %}
+
+    {% block container %}
+    <div class="container body-content">
+    {% block content %}{% endblock content%}
+    {% block footer %}
+        <footer align="right">
+            <p>&copy;  Cerberus - {{ year }}</p>
+        </footer>
+    {% endblock footer%}
+    </div>
+    {% endblock container%}
+
+    <script src="{% static 'FrontEnd/scripts/jquery-1.10.2.js' %}"></script>
+    <script src="{% static 'FrontEnd/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'FrontEnd/scripts/respond.js' %}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

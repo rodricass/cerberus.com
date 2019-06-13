@@ -1,0 +1,116 @@
+﻿{% extends "FrontEnd/layout_resultados.html" %}
+
+
+{% block header %}
+    <div class="col-md-1">
+        <i class="far fa-star" style="margin-top:2.2rem; margin-left:4.2rem; color:#616161"></i>
+    </div>
+    <div class="col-md-5">
+        <h2 id="titulo2">{{header.tipo}}</h2>
+    </div>
+    <div class="col-md-6">
+        <div class="col-md-5">
+            <p class="head">Nro. párrafo </p>
+        </div>
+        <div class="col-md-3">
+            <p id="header_posicion" class="head">Posición </p>
+        </div>
+        <div class="col-md-3">
+            <p class="head fuente" >Ver más </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% for tupla in tuplas %}
+        <div class="row info">
+            <div class="col-md-1">
+                {% if tupla.destacado %}
+                    <i class="fas fa-star" style="font-size:15px; color:#757575; margin-top: 0.6rem"></i>
+                {% endif %}
+            </div>
+            <div class="col-md-5">
+                {% if tupla.documento_nombre|length < 38 %}
+                    <p title="{{tupla.documento_nombre}}" class="fuente">{{tupla.documento_nombre}}</p>
+                {% else %}
+                    <p title="{{tupla.documento_nombre}}" class="fuente">{{tupla.documento_nombre|truncatechars:38}}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <div class="col-md-2 col-md-offset-1">
+                   <div class="parrafo_nro fuente" >{{tupla.parrafo_nro}}</div>
+                </div>
+                <div class="col-md-2 col-md-offset-2">
+                    <div class="pos fuente">{{tupla.posicion}}</div>
+                </div>
+                <div class="col-md-1">
+                    <p class="plus2" style="margin-left:5.8rem !important; margin-top:0.9rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=tupla.documento.id %}" data-docNombre="{{tupla.documento_nombre}}" data-posInicial="{{tupla.posicion}}" data-string="{{header.tipo}}" data-parrafo="{{tupla.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" ></i></p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        {% if tipo != "Búsqueda" %} 
+            <p class="vacio">No hay ninguna coincidencia</p>
+        {% endif %}
+    {% endfor %}
+
+     <div id="modalDetalles" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body" style="font-size:14px">
+                <p id="aparicion_original"><span class="detalles"><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id="ap_string"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro"></span></p>
+                <p><span class="detalles"><i>Posición inicial: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_inicial"></span></p>
+                <form id="ver_form" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var pos_inicial = button.data('posinicial')
+            var string = button.data('string')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            var parrafo = String(button.data('parrafo'))
+            var pos_final = pos_inicial + string.length
+            var partial_string = parrafo.substring(pos_inicial, pos_final);
+            parrafo = parrafo.replace(new RegExp(partial_string), "<span style='background-color:#ffff8d'>"+partial_string+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            $('#ap_string').html(string)
+            $('#ver_form').attr('action', url)
+            $('#ap_string').html(string)
+            $('#parrafo_nro').html(parrafo_nro)
+            $('#pos_inicial').html(pos_inicial)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto').html(parrafo)
+        })
+    </script>
+{% endblock scripts %}

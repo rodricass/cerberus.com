@@ -1,0 +1,36 @@
+﻿{% load bootstrap3 %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/modales.css' %}" />
+
+    <div id="modal-adjuntar" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="forma-adjuntar" action="" enctype="multipart/form-data" method="post" >
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Adjuntar documentos</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ 'home' }}">
+                            <div class="col-md-12">
+                                <div id="cuadro_cargar_adjuntar"><span id="inside_text">&nbsp;&nbsp;&nbsp;Arrastre hasta aquí <br>o haga click (.docx,.txt)</span>{% bootstrap_form formDoc %}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn aceptar_modal_adjuntar" >Aceptar</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" class="btn cancelar_modal_adjuntar" data-dismiss="modal" >Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+

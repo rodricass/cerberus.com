@@ -1,0 +1,61 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load tz %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
+    <div class="row">
+        <div class="col-md-3">
+            <div id="titulo_columna">
+                <span id="titulo" style="margin-left:8rem !important">Informes</span>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-8">
+            <div class="contenedor_documentos">
+                <div class="row headers-tabla">
+                    <div class="col-md-4 col-md-offset-1" id="fecha" >
+                        Fecha y hora 
+                    </div>
+                    <div class="col-md-2 col-md-offset-1">
+                        B&#250squeda 
+                    </div>
+                    <div class="col-md-2 col-md-offset-1" >
+                        Descargar
+                    </div>
+                </div>
+                {% for informe in informes %}
+                    <div class="row fila">
+                        <div class="col-md-1 col-md-offset-1">
+                            <div class="nombre_doc" style="margin-left:2.8rem;" >
+                                {{informe.fecha|localtime|date:"d/m/Y"}}
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="nombre_doc" style="margin-left:6rem">
+                                {{informe.fecha|localtime|date:"H:i"}}
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-md-offset-2">
+                            <div class="nombre_doc" style="text-align:center; margin-left:5rem;">
+                                {{informe.busqueda}}
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-md-offset-2">
+                            <button title="Abrir" class="icons" style="margin-left:7.5rem"><a href="{% url 'ver_informe' id_informe=informe.id %}"><i class="fas fa-download"></i></a></button>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="vacio" style="margin-left:25%">No hay informes asociados al caso</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </div>
+        
+{% endblock content %}
+
+{% block scripts %} 
+{% endblock scripts %}

@@ -1,0 +1,330 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block container %}
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/index.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
+
+<div class="container-fluid">
+    <div class="row inicio" style="height:96.8%">
+        <div id="columna" class="col-md-3" style="overflow-y:auto; overflow-x:hidden; height:93.5%">
+            {% for mensaje in mensajes %}
+                <div class="row">
+                    <div class="mensaje" style="column-fill:auto; word-wrap: break-word !important;" >
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="header_msj">
+                                    <span style="font-style: italic; font-size: 18px; margin-top: 1rem;">{{mensaje.emisor}}</span>&nbsp;&nbsp; solicita eliminaci&#xf3;n de documento
+                                </div>
+                            </div>
+                            <div class="col-md-1" style="margin-left:2.3rem !important">
+                                <button type="button" class="close" onclick="location.href='{% url 'eliminar_mensaje' id_msj=mensaje.id %}';">&times;</button>
+                            </div>
+                        </div>
+                            <div class="body_msj" style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalNotificacion" data-urldoc="{% url 'eliminar_docInicio' id_doc=mensaje.documento.id %}" data-urlmsj="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" data-mensaje="{{mensaje.mensaje}}" data-nombrecaso="{{mensaje.caso.nombre}}" data-nombredoc="{{mensaje.documento.nombre_doc}}" data-emisor="{{mensaje.emisor}}" data-urlver="{% url 'ver_doc' id_doc=mensaje.documento.id %}">
+                                {% if mensaje.mensaje|length < 70 %} 
+                                    {{mensaje.mensaje}}
+                                {% else %}
+                                    {{mensaje.mensaje|truncatechars:70}}...
+                                {% endif %}
+                            </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="vacio">No existen solicitudes pendientes</p>    
+            {% endfor %}
+        </div>
+        <div class="col-md-8">
+            <div class="row" style="margin-top:6rem; margin-left:2rem;height:53%">
+                {% for caso in casos %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <h3 class="caso" title="{{caso}}">
+                                        {% if caso.nombre|length < 40 %}
+                                            {{caso}}
+                                        {% else %}
+                                            {{caso.nombre|truncatechars:40}}
+                                        {% endif %}                                 
+                                    </h3>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="botones_moverindex">
+                                        <div class="jumbocenter" style="margin-left:0!important">
+                                            <span title="Búsqueda guiada" class="buscar buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
+                                            <span title="Búsqueda general" class="buscar buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
+                                            <span title="Búsqueda inteligente" class="buscar buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
+                                        </div>
+                                        <span title="Notas" class="btn btn-nota-index" ><a href="{% url 'notas' id=caso.id  tipo='caso' %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+                                        {% if user == caso.propietario %}
+                                            <button title="Compartir caso" class="btn btn-compartir-index" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-urlPrio="{% url 'compartir_casos' caso_id=caso.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_casos' caso_id=caso.id tipo='sin' %}" style="right:-10rem"><i class="fas fa-share-square" style="font-size:29px"></i></button>
+                                        {% else %}
+                                            <button title="Compartir caso" class="btn btn-compartir-index" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+                                        {% endif %}
+                                        <button title="Adjuntar archivo" type="button" class="btn btn-adjuntar-index" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' caso.id %}"><i class="fas fa-paperclip" style="font-size:29px"></i></button>
+                                        {% if user == caso.propietario %}
+                                            <span title="Editar caso" class="btn editar-index"><a href="{% url 'editar_caso' caso_id=caso.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
+                                        {% else %}
+                                            <button title="Editar caso" class="btn editar-index" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body" title="{{caso.descripcion}}">
+                            {% if caso.descripcion|length < 110 %}
+                                {{caso.descripcion}}
+                            {% else %}
+                                {{caso.descripcion|truncatechars:110}}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    {% bootstrap_alert "No existe ningún caso en curso" %}
+                {% endfor %}
+                <button id="nuevoCaso" onclick="location.href='{% url 'nuevo_caso' %}';">Nuevo caso&nbsp;&nbsp;&nbsp;</button>
+            </div>
+            <div style="margin-left:3rem"><hr/></div>
+            <div class="row">
+                <div class=" {% if user.is_superuser %} col-md-8 {% else %} col-md-12 {% endif %}">
+                    <div id="docs"><i>Documentos agregados recientemente</i></div>
+                    <div id="contenedor" style="{% if user.is_superuser %} width: 50rem; {% endif %}">
+                        {% for documento in documentos %}
+                            <div class="row fila" style=" {% if user.is_superuser %} padding-right:0;margin-left:3rem {% else %} margin-left:8rem {% endif %}">
+                                <div class=" {% if user.is_superuser %} col-md-7 {% else %} col-md-6 col-md-offset-1 {% endif %}">
+                                    {% if user.is_superuser %}
+                                    <div class="nombre_doc" title="{{documento}}" sytle="margin-left:3rem">
+                                        {% if documento.titulo|length < 25 %}
+                                           {{documento.titulo}}
+                                        {% else %}
+                                            {{documento.titulo|truncatechars:25}}
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <div class="nombre_doc" title="{{documento.titulo}}">
+                                        {% if documento.titulo|length < 55 %}
+                                            {{documento.titulo}}
+                                        {% else %}
+                                            {{documento.titulo|truncatechars:55}}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-1 col-md-offset-1">
+                                    <button title="Descargar" class="icons2" onclick="location.href='{% url 'ver_doc' id_doc=documento.id %}';"><i class="fas fa-download"></i></button>
+                                </div>
+                                <div class="col-md-1">
+                                    <button title="Notas" class="icons2" id="boton_nota" onclick="location.href='{% url 'notas' id=documento.id  tipo='documento' %}';"><i class="fas fa-sticky-note"></i></button>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="vacio2">No hay documentos existentes</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if user.is_superuser %}
+                    <div class="col-md-3">
+                        <div id="cont_usuario">
+                            <button class="botones_usuario" id="crearUsuario" data-toggle="modal" data-target="#modalCrear" data-url="{% url 'crear_usuario' %}">Crear usuario</button>
+                            <button class="botones_usuario" id="eliminarUsuario" data-toggle="modal" data-target="#modalEliminar" data-url="{% url 'eliminar_usuario' %}">Eliminar usuario</button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'FrontEnd/modales.html' %}
+
+
+<div id="modalNotificacion" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <form id="eliminar_mensaje" action="" method="post">
+                {% csrf_token %}
+                <button type="submit" class="close trash" title="Descartar notificación"><i class="far fa-trash-alt"></i></button>
+            </form>
+            <h4 class="modal-title">Notificaci&#xf3;n</h4>
+          </div>
+          <div class="modal-body">
+            <p><span class="detalles"><i>Caso &nbsp;&nbsp;&nbsp;</i></span><span id="caso"></span></p>
+            <p><span class="detalles"><i>Emisor: &nbsp;&nbsp;&nbsp;</i></span><span id="emisor"></span></p>
+            <form id="ver_form" action="" method="post">
+                {% csrf_token %}
+                <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                 &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                </p>
+            </form>
+            <hr/>
+            <p id="mensaje" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important"></p>
+          </div>
+          <div class="modal-footer">
+            <form id="eliminar_documento" action="" method="post">
+                {% csrf_token %}
+                <button class="btn btn-default" type="submit" form="eliminar_documento">Eliminar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-trash" style="opacity: .8!important"></i></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            </form>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Compartir caso:&nbsp;&nbsp;<b><span id="caso_nombre"></span></b></h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                 <div class="col-md-7">
+                <div class="titulo">¿Con quién desea compartir el caso?:</div>
+                <form id="compartir_form" action="" method="post"  class="form">
+                    {% csrf_token %}
+                    {% bootstrap_form form_usuario %}
+                    <input type="hidden" name="next" value="{{ 'home' }}">
+                    <div class="comentario">El caso puede ser compartido tanto con privilegios de propietario (cediendo los propios) como no.</div>
+                </form>
+              </div>
+              <div class="col-md-3 ">
+                <button id="conPrivilegios" class="btn botones-compartir" form="compartir_form">Ceder privilegios</button>
+                <button id="sinPrivilegios" class="btn botones-compartir" form="compartir_form">No ceder privilegios</button>
+                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
+              </div>
+              </div>
+              
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalCrear" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modalcrear">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Crear usuario</h4>
+          </div>
+          <div class="modal-body" style="padding-bottom: 0.1rem">
+            <form id="crear_form" action="" method="post"  class="form">
+                {% csrf_token %}
+                {% if user.is_superuser %}
+                    {% bootstrap_form form_crear %}
+                {% endif %}
+            </form>
+          </div>
+          <div class="modal-footer" style="padding: 19px 0px 20px!important">
+            <div class="row">
+                <div class="col-md-6">
+                    <button  id="btn-crear"class="btn btn-default btn_crear" type="submit" form="crear_form">Crear</button>
+                </div>
+                <div class="col-md-6">
+                    <button id="btn_elim" type="button" class="btn btn-default btn_crear" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </div>   
+    
+    <div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modalcrear">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Eliminar usuario</h4>
+          </div>
+          <div class="modal-body" style="padding-bottom: 0.1rem">
+            <form id="eliminar_form" action="" method="post"  class="form">
+                {% csrf_token %}
+                {% if user.is_superuser %}
+                    {% bootstrap_form form_usuario %}
+                {% endif %}
+            </form>
+          </div>
+          <div class="modal-footer" style="padding: 19px 0px 20px!important">
+            <div class="row">
+                <div class="col-md-6">
+                    <button  id="btn-crear"class="btn btn-default btn_crear" type="submit" form="eliminar_form">Eliminar</button>
+                </div>
+                <div class="col-md-6">
+                    <button id="btn_elim" type="button" class="btn btn-default btn_crear" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </div>  
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
+    <script>
+        $('#modalNotificacion').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url_doc = button.data('urldoc')
+            var url_ver = button.data('urlver')
+            var url_msj = button.data('urlmsj')
+            var doc_nombre = button.data('nombredoc')
+            var caso = button.data('nombrecaso')
+            var emisor = button.data('emisor')
+            var mensaje = button.data('mensaje')
+            $('#ver_form').attr('action', url_ver)
+            $('#eliminar_mensaje').attr('action', url_msj)
+            $('#eliminar_documento').attr('action', url_doc)
+            $('#caso').html(caso)
+            $('#emisor').html(emisor)
+            $('#mensaje').html(mensaje)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+        })
+
+        $('#modalCrear').on('show.bs.modal', function (event) {
+            $("#id_nombre.form-control").val('');
+            $("#id_contraseña.form-control").val('');
+        })
+        
+        $('#modalAdvice').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('urlprio')
+            var recipient2 = button.data('urlsinprio')
+            var recipient3 = button.data('caso')
+            $('#caso_nombre').html(recipient3)
+            $("#conPrivilegios").click(function () {
+                $('#compartir_form').attr('action', recipient)
+            })
+            $("#sinPrivilegios").click(function () {
+                $('#compartir_form').attr('action', recipient2)
+            })
+        })
+
+        $('#modalCrear').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) 
+            var recipient = button.data('url') 
+            $('#crear_form').attr('action',recipient)
+        })
+
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) 
+            var recipient = button.data('url') 
+            $('#eliminar_form').attr('action',recipient)
+        })
+    </script>
+{% endblock scripts %}

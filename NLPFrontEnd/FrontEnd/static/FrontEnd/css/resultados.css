@@ -1,0 +1,24 @@
+#fecha {
+    text-align: center
+}
+
+.estado {
+    margin-left: 8.5rem;
+}
+
+#opciones {
+    margin-left: 3.8rem;
+}
+
+.headers-tabla {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    background-color: #e0e0e0;
+    padding-top: 1rem;
+}
+
+body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom {
+    margin-right: 0 !important;
+}
+

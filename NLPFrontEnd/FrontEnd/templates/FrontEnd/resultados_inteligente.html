@@ -1,0 +1,128 @@
+﻿{% extends "FrontEnd/layout_resultados.html" %}
+
+{% block header %}
+    <div class="col-md-1">
+        <i class="far fa-star" style="margin-top:2.2rem; margin-left:4.2rem; color:#616161"></i>
+    </div>
+    <div class="col-md-4">
+        <h2 id="titulo2">{{header.tipo}}</h2>
+    </div>
+    <div class="col-md-7">
+        <div class="col-md-4">
+            <p class="head" style="text-align:center">Nro. párrafo </p>
+        </div>
+        <div class="col-md-3">
+            <p class="head">Pos. inicial </p>
+        </div>
+        <div class="col-md-3">
+            <p class="head">Pos. final </p>
+        </div>
+        <div class="col-md-1">
+            <p class="fuente" style="position:relative; margin-top:0.8rem;" >Ver más </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% for tupla in tuplas %}
+        <div class="row info">
+            <div class="col-md-1">
+                {% if tupla.destacado %}
+                    <i class="fas fa-star" style="font-size:15px; color:#757575; margin-top: 0.6rem"></i>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                {% if tupla.string|length < 28 %}
+                    <p title="{{tupla.string}}" class="fuente">{{tupla.string}}</p>
+                {% else %}
+                    <p title="{{tupla.string}}" class="fuente">{{tupla.string|truncatechars:25}}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <div class="col-md-2 col-md-offset-1">
+                   <div class="parrafo_nro fuente" >{{tupla.parrafo_nro}}</div>
+                </div>
+                <div class="col-md-2 col-md-offset-2">
+                    <div class="pos_inicial fuente">{{tupla.start}}</div>
+                </div>
+                <div class="col-md-3 col-md-offset-1">
+                    <div class="pos_final fuente">{{tupla.end}}</div>
+                </div>
+                <div class="col-md-1">
+                    <p class="plus2" style="margin-left:-3.2rem !important; margin-top:1.4rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=tupla.doc.id %}" data-docNombre="{{tupla.doc.nombre_doc}}" data-posInicial="{{tupla.start}}" data-string="{{tupla.string}}" data-string_original="{{tupla.string_original}}" data-posFinal="{{tupla.end}}" data-parrafo="{{tupla.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" ></i></p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        {% if tipo != "Búsqueda" %} 
+            <p class="vacio">No hay ninguna coincidencia</p>
+        {% endif %}
+    {% endfor %}
+
+    <div id="modalDetalles" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body" style="font-size:14px">
+                <p id="aparicion_editada"><span class="detalles"><i>Aparición (editado): &nbsp;&nbsp;&nbsp;</i></span><span id="ap_stringEditado"></span></p>
+                <p id="aparicion_original"><span class="detalles"><i>Aparición original: &nbsp;&nbsp;&nbsp;</i></span><span id="ap_string"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro"></span></p>
+                <p><span class="detalles"><i>Posición inicial: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_inicial"></span></p>
+                <p><span class="detalles"><i>Posición final: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_final"></span></p>
+                <form id="ver_form" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var pos_inicial = button.data('posinicial')
+            var pos_final = button.data('posfinal')
+            var string = button.data('string')
+            var string_original = button.data('string_original')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            if (string == string_original) {
+                $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>"+string_original+"</span>")
+                $('#aparicion_editada').remove()
+            }
+            else {
+                $('#ap_stringEditado').html(string)
+                $('#ap_string').html(string_original)
+            }
+            $('#ver_form').attr('action', url)
+            $('#parrafo_nro').html(parrafo_nro)
+            $('#pos_inicial').html(pos_inicial)
+            $('#pos_final').html(pos_final)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto').html(parrafo)
+        })
+    </script>
+{% endblock scripts %}

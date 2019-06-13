@@ -1,0 +1,41 @@
+{% extends "FrontEnd/mainlayout.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/login.css' %}" />
+
+<div class="row">
+    <div class="col-md-offset-4 col-md-4" id="login-form">
+            <img src="{% static 'FrontEnd/images/Cancerbero.png' %}" width="160" height="96" style="margin-left:29%; margin-top:10%;margin-bottom:1%"/>
+            <h2  id="title">{{ title }}</h2>
+            <div class="col-md-offset-2 col-md-8">
+            <form action="." method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div id="usuario">{% bootstrap_field form.username %}</div>
+                <div id="contraseña">{% bootstrap_field form.password %}</div>
+                {% if form.errors %}
+                    <p id="error">Usuario o contraseña incorrectos</p>
+                {% endif %}
+                <div class="form-group">
+                    <div>
+                        <input type="hidden" name="next" value="/" />
+                        <input type="submit" value="Iniciar sesi&#xf3;n" id="button_login" class="btn  btn-block" {% if form.errors %} style="top:3rem" {% endif %}/>
+                    </div>
+                </div>
+            </form>
+            
+
+            </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+{% load staticfiles %}
+<script src="{% static 'FrontEnd/scripts/jquery.validate.min.js' %}"></script>
+
+{% endblock %}

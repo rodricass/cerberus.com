@@ -1,0 +1,361 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+
+{% block container %}
+{% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
+    <div class="row" style="margin-top: 4rem; height: 85%; width: 100%">
+        <div class="col-md-3" style="margin-left:2rem">
+            <div id="jumboside" class="jumbotron">
+                <h1 id="titulo" title="{{caso_nombre}}">
+                {% if caso_nombre|length < 10 %}
+                    {{caso_nombre}}
+                {% else %}
+                    {{caso_nombre|truncatechars:8}}
+                {% endif %}
+                </h1>
+                <button id="arrow-left" title="Búsqueda general" class="btn int-left flechas" style="left:1.5rem" onclick="location.href='{% url 'buscador_general' caso_id=caso_id %}'"><i class="fas fa-search"></i></button>
+                <button id="arrow-right" title="Búsqueda guiada" class="btn int-right flechas" style="left:83%" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso_id %}'"><i class="far fa-compass"></i></button>
+                <p id="caso">Buscador inteligente</p>
+            </div>
+            <button id="pers" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_inteligente' tipo=pers caso_id=caso_id %}';">Personas</button>
+            <button id="org" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=org caso_id=caso_id %}';">Organizaciones</button>
+            <button id="loc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=loc caso_id=caso_id %}';">Locaciones</button>
+            {% if modelo == "DRUG" %}
+                <button id="drog" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=drog caso_id=caso_id %}';">Drogas</button>
+            {% else %}
+                <button id="drog" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=econ caso_id=caso_id %}';">Económicos</button>
+            {% endif %}
+            <button id="misc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=lex caso_id=caso_id %}';">Léxicos detectados</button>
+            {% if tipo != "Búsqueda" %}
+                {% if res|length != 0 %}
+                    {% if tipo != "Léxicos detectados" %}
+                        <button id="btn-save" form="guardar" type="submit" title="Guardar búsqueda" class="btn botones2" data-toggle="modal" data-target="#modalAdvice2" style="margin-left:9% !important"><i class="fas fa-save"></i></button>
+                        <button id="btn-trash" title="Eliminar incorrectos" class="btn botones2" data-toggle="modal" data-target="#modalAdvice"><i class="far fa-trash-alt"></i></button>
+                    {% else %}
+                        <button id="btn-save2" title="Guardar búsqueda" class="btn botones" data-toggle="modal" data-target="#modalAdvice2"><i class="fas fa-save"></i></button>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if tipo != "Léxicos detectados" %}
+            <div class="col-md-8">
+                <div id="jumbocenter" class="jumbotron">
+                    <div id="cabeza">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <h2 id="titulo2">{{tipo}}</h2>
+                            </div>
+                            {% if tipo != "Búsqueda" %} 
+                                <div class="col-md-7">
+                                    <div class="col-md-offset-2 col-md-2">
+                                        <p class="head" style="margin-left:2rem">Destacar </p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="head" style="margin-left:5rem">Eliminar </p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p class="head" style="position:relative; left:3rem">Editar </p>
+                                    </div>
+                                    <div class="col-md-1 col-md-offset-1">
+                                        <p style="position:relative; margin-top:0.8rem;" >Ver más </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div id="cuerpo" style="margin-top:1rem;">
+                        <form action="{% url 'buscador_inteligente' tipo=tipo caso_id=caso_id %}" id="forma_eliminar" method="post">
+                            {% csrf_token %}    
+                        </form>
+                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo caso_id=caso_id%}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="resultado_json" value="{{json}}">
+                        </form>
+                        {% for item in res %}
+                            <div class="row info">
+                                <div class="col-md-5">
+                                    {% if item.0|length < 33 %}
+                                        <p title="{{item.0}}">{{item.0}}</p>
+                                    {% else %}
+                                        <p title="{{item.0}}">{{item.0|truncatechars:33}}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-7"  style="margin-top:-1.3rem">
+                                    <div class="col-md-2 col-md-offset-1">
+                                        <input class="checks" form="guardar" name="checks3[]" value="{{item.7}}" type="checkbox" style="margin-left:7rem !important;">
+                                    </div>
+                                    <div class="col-md-2 col-md-offset-2">
+                                        <input class="checks" form="forma_eliminar" name="checks2[]" value="{{item.7}}" type="checkbox" style="margin-left:2rem !important;">
+                                    </div>
+                                    <div class="col-md-3 col-md-offset-1">
+                                        <p class="edit head" style="margin-left:-0.5rem"><i class="fas fa-pencil-alt" style="cursor:pointer" data-toggle="modal" data-target="#modalEditar" data-url="{% url 'editar_entidad' tipo=tipo id_ent=item.7 id_caso=caso_id %}" data-whatever="{{item.0}}"></i></p>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <p class="plus2" style="margin-left:-3.2rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.3 %}" data-docNombre="{{item.4}}" data-posInicial="{{item.1}}" data-string="{{item.0}}" data-string_original="{{item.8}}" data-posFinal="{{item.2}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}" ></i></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            {% if tipo != "Búsqueda" %} 
+                                <p class="vacio">No hay ninguna coincidencia</p>
+                            {% endif %}
+                        {% endfor %}
+                        
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="col-md-8">
+                <div id="jumbocenter" class="jumbotron">
+                    <div id="cabeza">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h2 id="titulo2">{{tipo}}</h2>
+                            </div>
+                            {% if tipo != "Búsqueda" %} 
+                                <div class="col-md-7">
+                                    <div class="col-md-offset-1 col-md-2">
+                                        <p class="head" style="margin-left:2rem">Destacar </p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="head" style="margin-left:6rem">Categoría </p>
+                                    </div>
+                                    <div class="col-md-3 col-md-offset-1">
+                                        <p class="head" style="position:relative; left:4rem">Base léxica </p>
+                                    </div>
+                                    <div class="col-md-1 col-md-offset-1">
+                                        <p style="position:relative; margin-top:0.8rem;margin-left:2.5rem" >Ver más </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div id="cuerpo" style="margin-top:1rem;">
+                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo caso_id=caso_id%}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="resultado_json" value="{{json}}">
+                        </form>
+                        {% for item in res %}
+                            <div class="row info">
+                                <div class="col-md-4">
+                                    {% if item.0|length < 33 %}
+                                        <p title="{{item.0}}" style="font-size:20px">{{item.0}}</p>
+                                    {% else %}
+                                        <p title="{{item.0}}" style="font-size:20px">{{item.0|truncatechars:33}}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-7 col-md-offset-1"  style="height:3.5rem">
+                                    <div class="col-md-1">
+                                        <input class="checks" form="guardar" name="checks3[]" value="{{item.9}}" type="checkbox" style="margin-top:1rem !important;margin-left:-0.5rem !important">
+                                    </div>
+                                    <div class="col-md-3 col-md-offset-1">
+                                        <p class="head" style="margin-left:1rem;padding-top:0!important">{{item.1}}</p>
+                                    </div>
+                                    <div class="col-md-2 col-md-offset-1">
+                                        <p class="head" style="padding-top:0!important">{{item.2}}</p>
+                                    </div>
+                                    <div class="col-md-1 col-md-offset-2" style="padding-top:0.5rem" >
+                                        <p class="plus2" style="margin-left:0;margin-top:0"><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=item.7 %}" data-docNombre="{{item.8}}" data-aparicion="{{item.0}}" data-categoria="{{item.1}}" data-lema="{{item.2}}" data-tipo="{{item.3}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}"></i></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            {% if tipo != "Búsqueda" %} 
+                                <p class="vacio">No hay ninguna coincidencia</p>
+                            {% endif %}
+                        {% endfor %}
+                        
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+        
+
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Desea borrar los elementos seleccionados?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="forma_eliminar">Aceptar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalAdvice2" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Guardar resultado?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="guardar">Guardar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalEditar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Editar</h4>
+            </div>
+            <div class="modal-body">
+                <form id="forma_editar" action="" method="post">
+                    {% csrf_token %}
+                    <input id="editar_input" type="text" class="form-control" name="string" maxlength="50" style="max-width:none; width:80%; margin-left: 9.8%">
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default aceptar" type="submit" form="forma_editar">Guardar</button>
+              <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Descartar</button>
+            </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalDetalles" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body">
+                <p id="aparicion_editada"><span class="detalles"><i>Aparición (editado): &nbsp;&nbsp;&nbsp;</i></span><span id="ap_stringEditado"></span></p>
+                <p id="aparicion_original"><span class="detalles"><i>Aparición original: &nbsp;&nbsp;&nbsp;</i></span><span id="ap_string"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro"></span></p>
+                <p><span class="detalles"><i>Posición inicial: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_inicial"></span></p>
+                <p><span class="detalles"><i>Posición final: &nbsp;&nbsp;&nbsp;</i></span><span id="pos_final"></span></p>
+                <form id="ver_form" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalDetallesToken" class="modal fade" style="top:-15% !important" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content" style="">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detalles</h4>
+            </div>
+            <div class="modal-body">
+                <p><span class="detalles"><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id="aparicion"></span></p>
+                <p><span class="detalles"><i>Base léxica: &nbsp;&nbsp;&nbsp;</i></span><span id="lema"></span></p>
+                <p><span class="detalles"><i>Categoría: &nbsp;&nbsp;&nbsp;</i></span><span id="categoria"></span></p>
+                <p><span class="detalles"><i>Tipo: &nbsp;&nbsp;&nbsp;</i></span><span id="tipo"></span></p>
+                <p><span class="detalles"><i>Párrafo: &nbsp;&nbsp;&nbsp;</i></span><span id="parrafo_nro2"></span></p>
+                <form id="ver_form2" action="" method="post">
+                    {% csrf_token %}
+                    <p><span class="detalles"><i>Documento: &nbsp;&nbsp;&nbsp;</i></span><span id="nombre_doc2"></span>
+                     &nbsp;&nbsp;&nbsp;<button class="btn" id="ver_documento" type="submit">Ver doc&nbsp;&nbsp;&nbsp;<i class="fas fa-folder-open"></i></button>
+                    </p>
+                </form>
+                <hr/>
+                <p id="parrafo_texto2" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+        
+{% endblock %}
+ 
+{% block scripts %}
+    <script src="{% static 'FrontEnd/scripts/my_scripts/buscador.js' %}"></script>
+    <script>
+        $('#modalEditar').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('url')
+            var recipient2 = button.data('whatever')
+            $('#forma_editar').attr('action', recipient)
+            $('#editar_input').val(recipient2)
+        })
+        $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var pos_inicial = button.data('posinicial')
+            var pos_final = button.data('posfinal')
+            var string = button.data('string')
+            var string_original = button.data('string_original')
+            var parrafo = button.data('parrafo')
+            var parrafo = String(button.data('parrafo'))
+            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            if (string == string_original) {
+                $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>"+string_original+"</span>")
+                $('#aparicion_editada').remove()
+            }
+            else {
+                $('#ap_stringEditado').html(string)
+                $('#ap_string').html(string_original)
+            }
+            $('#ver_form').attr('action', url)
+            $('#parrafo_nro').html(parrafo_nro)
+            $('#pos_inicial').html(pos_inicial)
+            $('#pos_final').html(pos_final)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc').html(subdoc + "...")
+                $('#nombre_doc').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto').html(parrafo)
+        })
+        $('#modalDetallesToken').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var url = button.data('url')
+            var doc_nombre = button.data('docnombre')
+            var aparicion = button.data('aparicion')
+            var categoria = button.data('categoria')
+            var lema = button.data('lema')
+            var tipo = button.data('tipo')
+            var parrafo = String(button.data('parrafo'))
+            parrafo = parrafo.replace(new RegExp(aparicion,'g'), "<span style='background-color:#ffff8d'>"+aparicion+"</span>")
+            var parrafo_nro = button.data('parrafonro')
+            $('#aparicion').html(aparicion)
+            $('#ver_form2').attr('action', url)
+            $('#parrafo_nro2').html(parrafo_nro)
+            $('#tipo').html(tipo)
+            $('#lema').html(lema)
+            $('#categoria').html(categoria)
+            if (doc_nombre.length <= 35) {
+                $('#nombre_doc2').html(doc_nombre)
+            }
+            else {
+                subdoc = doc_nombre.substring(0, 35)
+                $('#nombre_doc2').html(subdoc + "...")
+                $('#nombre_doc2').attr('title', doc_nombre)
+            }
+            $('#parrafo_texto2').html(parrafo)
+        })
+    </script>
+{% endblock scripts %}

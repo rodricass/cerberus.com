@@ -1,0 +1,110 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load tz %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
+    <div class="row">
+        <div class="buscador col-md-11">
+            <form id="ver_form" action="{% url 'informes' %}" style="margin-top:8rem;" method="post"  class="form">
+                {% csrf_token %}
+                    <div class="col-md-3">
+                        <h4 style="font-size:20px !important">Ver informes de caso:</h4>
+                    </div>
+                    <div class="col-md-5">
+                        {% bootstrap_form form %}
+                    </div>
+                    <div class="col-md-3">
+                        {% buttons %}
+                            <button type="submit" id="btn1" form="ver_form" class="botones btn">Buscar</button>
+                        {% endbuttons %}
+                    </div>
+            </form>
+        </div>
+    </div>
+    <hr class="barra"/>
+    
+    {% if inicial == False %} 
+        <div class="row" style="overflow-y:auto; overflow-x:hidden; width:70%; margin-left:18%; height:66%">
+            <div class="row headers-tabla">
+                <div class="col-md-2 col-md-offset-1" id="fecha" style="margin-left:7.5rem;">
+                    Fecha y hora 
+                </div>
+                <div class="col-md-2 col-md-offset-2">
+                    B&#250squeda 
+                </div>
+                <div class="col-md-2 col-md-offset-1" style="margin-left:10rem !important">
+                    Opciones 
+                </div>
+            </div>
+            
+            {% for informe in informes %}
+                <div class="row fila">
+                    <div class="col-md-1 col-md-offset-1">
+                        <div class="nombre_doc" >
+                            {{informe.fecha|localtime|date:"d/m/Y"}}
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="nombre_doc" style="margin-left:2rem">
+                            {{informe.fecha|localtime|date:"H:i"}}
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-2">
+                        <div class="nombre_doc" style="text-align:center">
+                            {{informe.busqueda}}
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-2">
+                        <button title="Abrir" class="icons"><a href="{% url 'ver_informe' id_informe=informe.id %}"><i class="fas fa-download"></i></a></button>
+                    </div>
+                    <div class="col-md-2">
+                        <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_informe' informe_id=informe.id %}"><i class="fas fa-trash"></i></button>
+                        
+                    </div>
+                </div>
+            {% empty %}
+                <p class="vacio">No hay informes asociados al caso</p>
+            {% endfor %}
+        </div>
+        
+        
+    {% endif %}
+    
+
+<div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p class="modal-advice">¿Eliminar informe?</p>
+            <form id="borrarForm" action="" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ 'FrontEnd/informes.html' }}">
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+        $('#modalEliminar').on('show.bs.modal', function (event) {
+            console.log(event.relatedTarget)
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            console.log(recipient)
+            $('#borrarForm').attr('action', recipient)
+        })
+    </script>
+{% endblock scripts %}
+

@@ -1,0 +1,43 @@
+﻿{% extends "FrontEnd/mainlayout.html" %}
+
+{% block navbar %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/style.css' %}" />
+    <div class="navbar navbar-fixed-top ">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="nombre" href="/" class="navbar-brand"><b>CERBERUS</b></a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <div class="dropdown">
+                            <button class="casos dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="headers">CASOS</span>
+                                <span class="caret" style="color: white !important;border-top-color: white !important;border-bottom-color: white !important;margin-top:1rem;"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li class="casos_menu"><a href="{% url 'casos' %}">EN CURSO</a></li>
+                              <li class="divider"></li>
+                              <li class="casos_menu"><a href="{% url 'casos_finalizados' %}">FINALIZADOS</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                        
+                    <li><a href="{% url 'documentos' %}"><span class="headers">DOCUMENTOS</span></a></li>
+                    <li><a href="{% url 'ver_notas' %}"><span class="headers">NOTAS</span></a></li>
+                    <li><a href="{% url 'resultados' %}"><span class="headers">RESULTADOS</span></a></li>
+                    <li><a href="{% url 'informes' %}"><span class="headers">INFORMES</span></a></li>
+                </ul>
+                {% include 'FrontEnd/loginpartial.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}{% endblock %}

@@ -6,7 +6,7 @@ body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom
     overflow-y: auto;
     overflow-x: hidden;
     margin-left: 2%;
-    height: 60%;
+    height: 70%;
 }
 
 #nuevaNota {

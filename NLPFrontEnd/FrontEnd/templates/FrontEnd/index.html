@@ -1,14 +1,15 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
 
+{% block breadcrum %}{% endblock %}
 {% block container %}
-
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/index.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
 
 <div class="container-fluid">
-    <div class="row inicio" style="height:96.8%">
+    <div class="row inicio">
         <div id="columna" class="col-md-3" style="overflow-y:auto; overflow-x:hidden; height:93.5%">
             {% for mensaje in mensajes %}
                 <div class="row">
@@ -37,7 +38,7 @@
             {% endfor %}
         </div>
         <div class="col-md-8">
-            <div class="row" style="margin-top:6rem; margin-left:2rem;height:53%">
+            <div class="row" style="margin-top:8rem; margin-left:2rem;height:53%">
                 {% for caso in casos %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -58,7 +59,7 @@
                                             <span title="Búsqueda general" class="buscar buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
                                             <span title="Búsqueda inteligente" class="buscar buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
                                         </div>
-                                        <span title="Notas" class="btn btn-nota-index" ><a href="{% url 'notas' id=caso.id  tipo='caso' %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+                                        <span title="Notas" class="btn btn-nota-index" ><a href="{% url 'notas' id=caso.id  tipo='caso' camino='*'|addstr:caso.nombre %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
                                         {% if user == caso.propietario %}
                                             <button title="Compartir caso" class="btn btn-compartir-index" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-urlPrio="{% url 'compartir_casos' caso_id=caso.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_casos' caso_id=caso.id tipo='sin' %}" style="right:-10rem"><i class="fas fa-share-square" style="font-size:29px"></i></button>
                                         {% else %}
@@ -117,7 +118,9 @@
                                     <button title="Descargar" class="icons2" onclick="location.href='{% url 'ver_doc' id_doc=documento.id %}';"><i class="fas fa-download"></i></button>
                                 </div>
                                 <div class="col-md-1">
-                                    <button title="Notas" class="icons2" id="boton_nota" onclick="location.href='{% url 'notas' id=documento.id  tipo='documento' %}';"><i class="fas fa-sticky-note"></i></button>
+                                    {% for caso in documento.caso.all %}
+                                        <button title="Notas" class="icons2" id="boton_nota" onclick="location.href='{% url 'notas' id=documento.id  tipo='documento' camino='*'|addstr:caso|addstr:'>*'|addstr:documento.nombre_doc %}';"><i class="fas fa-sticky-note"></i></button>
+                                    {% endfor %}
                                 </div>
                             </div>
                         {% empty %}

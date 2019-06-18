@@ -1,10 +1,15 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 
+{% block breadcrum-li %}
+    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Editar caso</li>
+{% endblock %}
+
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/nuevo_caso.css' %}" />
-    <div class="row">
+    <div class="row" style="margin-top:5%">
         <div class="col-md-3">
             <span id="titulo">Editar caso</span>
         </div>

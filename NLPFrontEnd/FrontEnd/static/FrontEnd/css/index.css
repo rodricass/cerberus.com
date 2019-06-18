@@ -14,7 +14,7 @@
 }
 
 #columna {
-    margin-top: 3.9rem;
+    margin-top: 5.9rem;
     background-color: #e0e0e0;
     height: 90.5%;
     padding-left: 2rem;
@@ -31,6 +31,8 @@
 .inicio {
     margin-left: 0 !important;
     margin-right: 0 !important;
+    margin-top: -2rem !important;
+    height: 96.8%;
 }
 
 body {

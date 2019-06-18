@@ -2,9 +2,10 @@
         var fileName = $(this).val();
         var cant = $(this)[0].files.length;
         $('#inside_text').html(cant + " archivo(s) seleccionados");
-        var fileName = fileName.substring(12);
-        $(".nombres").val(fileName);
-        console.log("hola")
+        var fileNameAux = fileName.substring(12);
+        $(".nombres").val(fileNameAux);
+        $("#inside_text").css("top", "10rem");
+        $("#inside_text").css("left", "18%");
     });
     $(".cancelar_modal_adjuntar").click(function () {
         $('#file-form').trigger("reset");

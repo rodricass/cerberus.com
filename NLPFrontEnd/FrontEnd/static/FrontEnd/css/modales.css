@@ -8,19 +8,18 @@
     opacity: 0;
     z-index: 2;
     position: relative;
-    top: -8.6rem;
+    top: -4.2rem;
 }
 
 #cuadro_cargar_adjuntar {
     width: 100%;
-    margin-top: 2rem;
+    margin-top: 3.5rem;
     height: 40%;
     z-index: 1;
     border: 3px dashed #bdbdbd;
 }
 
 #inside_text {
-    z-index: 1;
     z-index: 0;
     position: relative;
     top: 8rem;
@@ -64,3 +63,18 @@
     background-color: #1565c0;
     color: white;
 }
+
+#id_tipo_archivo {
+    width: 94.5% !important;
+    margin-left: 1.4rem;
+    max-width: none !important;
+}
+
+#label_fuente {
+    margin-left: 1.4rem;
+    margin-bottom: 1rem;
+    color: #616161;
+}
+
+
+

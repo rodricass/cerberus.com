@@ -63,7 +63,8 @@ class Modelo:
             return task['resource']['task_id']
         else:
             raise Http404("Error al procesar la solicitud")
-
+    
+    #Determina si el análisis concluyó o no
     def is_analysis_ready(self, id):
         task_status = nlp.get_task_status(id)
         if task_status['success']:
@@ -71,10 +72,14 @@ class Modelo:
                 raise Http404("Error de análisis de texto")
             return task_status['resource']['status'] == 'finished'
       
-
+    #Retorna los resultados de un análisis
     def get_task_results(self, id):
         task_status = nlp.get_task_status(id)
         return task_status['resource']['results']
+
+    @property
+    def model(self):
+        return self._model
 
 
 class ModeloEconomico(Modelo):

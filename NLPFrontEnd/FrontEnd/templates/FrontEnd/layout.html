@@ -40,4 +40,14 @@
         </div>
     </div>
 {% endblock %}
+
+{% block breadcrum %}
+    <nav class="breadcrumb-nav" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="/">Inicio</a></li>
+        {% block breadcrum-li %}{% endblock %}
+      </ol>
+    </nav>
+{% endblock %}
+
 {% block footer %}{% endblock %}

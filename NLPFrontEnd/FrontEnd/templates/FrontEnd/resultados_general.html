@@ -1,5 +1,11 @@
 ﻿{% extends "FrontEnd/layout_resultados.html" %}
 
+{% block breadcrum-li %}
+    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'resultados' %}">Resultados</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{header.caso}}</li>
+    <li class="breadcrumb-item active" aria-current="page">Resultado general</li>
+{% endblock %}
+
 
 {% block header %}
     <div class="col-md-1">

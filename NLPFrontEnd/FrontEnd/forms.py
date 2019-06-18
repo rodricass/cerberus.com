@@ -34,8 +34,8 @@ class DocumentoForm(forms.ModelForm):
     """Forma para completar la información correspondiente a los documentos"""
     class Meta:
         model = Documento
-        fields = ['documento']
-        labels = {'documento':''}
+        fields = ['tipo_archivo','documento']
+        labels = {'documento':'','tipo_archivo':''}
         widgets = {'documento':forms.ClearableFileInput({'accept':'.txt,.docx','class':'documentos','multiple':True})}
 
         #'nombre_doc':forms.HiddenInput({'class':'nombres'}),

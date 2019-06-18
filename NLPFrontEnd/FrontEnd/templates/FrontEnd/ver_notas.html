@@ -1,5 +1,13 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrum-li %}
+    <li class="breadcrumb-item active" aria-current="page">Notas</li>
+    {% if inicial == False %}
+        <li class="breadcrumb-item active" aria-current="page">{{nombre_caso}}</li>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     {% load staticfiles %}
@@ -7,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
     <div class="row">
         <div class="buscador col-md-11">
-            <form id="ver_form" action="{% url 'ver_notas' %}" style="margin-top:8rem;" method="post"  class="form">
+            <form id="ver_form" action="{% url 'ver_notas' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
                     <div class="col-md-3">
                         <h4 style="font-size:20px !important">Ver notas de caso:</h4>
@@ -26,7 +34,7 @@
     
     <hr class="barra"/>
     
-    <div class="row">
+    <div class="row" style="height: 68%;">
         {% if inicial == False %}
             <div class="col-md-6" style="border-right: 3px solid; border-color: #ff9800;">
                 <div class="row notas_caso">
@@ -55,7 +63,7 @@
                 <button id="nuevaNota" data-toggle="modal" data-target="#modalCrear" data-whatever="{% url 'crear_nota' id_caso=id_caso %}">Nueva nota&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
             </div>
             <div class="col-md-5">
-                <div class="row" style="overflow-y:auto; overflow-x:hidden;  width:110%; margin-left:8%; height:72%">
+                <div class="row" style="overflow-y:auto; overflow-x:hidden;  width:110%; margin-left:8%; height:93%">
                     <div id="docs">Documentos</div>
                     <hr />
                     {% for documento in documentos %}
@@ -70,7 +78,7 @@
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                <button title="Notas" class="icons" id="boton_nota" style="top:0 !important"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note" style="position:relative; top:-0.8rem"></i></a></button>
+                                <button title="Notas" class="icons" id="boton_nota" style="top:0 !important"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Notas:ver_notas>*'|addstr:nombre_caso|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note" style="position:relative; top:-0.8rem"></i></a></button>
                             </div>
                         </div>
                     {% empty %}

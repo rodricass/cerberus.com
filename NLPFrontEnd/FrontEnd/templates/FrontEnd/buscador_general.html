@@ -1,10 +1,15 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 
+{% block breadcrum-li %}
+    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Buscador general</li>
+{% endblock %}
+
 {% block container %}
 {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
-    <div class="row" style="margin-top: 4rem; height: 85%; width: 100%">
+    <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron" style="margin-bottom:0 !important">
                 <button id="arrow-left" style="top:12.3rem" title="Búsqueda guiada" class="btn flechas" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}'"><i class="far fa-compass"></i></button>
@@ -47,7 +52,7 @@
         </div>
 
         <div class="col-md-8">
-            <div id="jumbocenter" class="jumbotron">
+            <div id="jumbocenter" class="jumbotron" style="margin-bottom: 0px !important">
                 <div id="cabeza">
                     <div class="row">
                         {% if expresion != null %}

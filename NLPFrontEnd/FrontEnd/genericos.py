@@ -1,17 +1,17 @@
 from .text import LectorDOCX, LectorTXT
 from django.http import Http404
 from django.http import HttpResponse
-from .models import Documento
 from .myclasses import Modelo, ModeloEconomico, ModeloDrogas
 import os
 
-
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# Depende de los tipos de formatos de documentos que soporte, si se agregan nuevos formatos es necesario modificar los diccionarios 'lectores_dict' y 'extension_dict'
 
 class ExtensionArchivo:
     """ Clase para obtener información específica respecto a la extensión de un archivo"""
 
     def getLector(self,ext,file):
-    #Si se agrega un formato de archivo nuevo es necesario agregar aca la referencia a su lector correspondiente
+    #Si se agrega un formato de archivo nuevo es necesario agregar aca la referencia a su lector correspondiente y crear la clase correspondiente en 'text.py'
         lectores_dict = {
             "txt":LectorTXT,
             "docx":LectorDOCX,
@@ -33,7 +33,9 @@ class ExtensionArchivo:
         else: 
             raise Http404("Extensión de archivo no soportada")
 
-        
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# Depende de los tipos de palabras que soporta el tokenizer, si se agregaran nuevos es necesario modificar el diccionario 'tipo_token'
+    
 class GetTipoToken:
     """Clase para obtener el tipo de token"""
 
@@ -49,6 +51,9 @@ class GetTipoToken:
             return self.tipo_token[tipo]
         else: 
             raise Http404("Tipo de token desconocido")
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# Depende de las entidades que soporte la búsqueda inteligente, si se agregaran nuevas, es necesario modificar el diccionario 'entidades_dic'
 
 class GetEntidad:
     """Clase para obtener tipo de entidad"""
@@ -69,12 +74,56 @@ class GetEntidad:
         else:
             raise Http404("Entidad no existente")
 
-def model_factory(tipo):
-    """Factory de modelos"""
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# Depende de los modelos que posea disponibles la librería nlp, si se agregaran nuevos es necesario modificar los diccionarios 'tipos_modelos'
 
-    tipos_modelos = {
-            'ECON':ModeloEconomico(),
-            'DRUG':ModeloDrogas(),
+class TipoModelo:
+    """ Clase para obtener información específica en base al tipo de modelo"""
+
+    def getModelo(self,tipo):
+    #Si se agrega un modelo nuevo es necesario agregar aqui la referencia al modelo respectivo y crear su correspondiente clase en 'myclasses.py'
+        
+        tipos_modelos = {
+            'ECON':ModeloEconomico,
+            'DRUG':ModeloDrogas,
             }
 
-    return tipos_modelos[tipo]
+    
+        if tipo in tipos_modelos.keys():
+            return tipos_modelos[tipo]()
+        else: 
+            raise Http404(f'Modelo {tipo} inexistente')
+
+    def getModelChoices(self):
+        #Si se agrega un modelo nuevo es necesario agregar aqui la clave del mismo y la palabra identificatoria
+        
+        tipos_modelos = {
+            'DRUG':'Drogas',
+            'ECON':'Económico',
+            }
+
+        MODEL_CHOICES = []
+        for k, v in tipos_modelos.items():
+            MODEL_CHOICES.append((k,v))
+
+        return MODEL_CHOICES
+
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+# Debido al formato poco útil que poseen los archivos de WhatsApp generados por UFED, acá se determina la posibilidad de tratar distinto a los archivos comunes y los UFED
+
+class TipoArchivo:
+    """ Clase para obtener información específica en base al tipo de archivo, si se agregan nuevos tipos revisar 'fileuploader.py' """
+
+    def getTipoArchivoChoices(self):
+        #Si se agrega un formato nuevo de tipo de archivo que desee procesar de manera distinta, agregar al diccionario 'tipos_archivos'
+
+        tipos_archivos = {
+            'UFED':'WhatsApp UFED',
+            'OTROS':'Archivos comunes',
+            }
+
+        TIPO_CHOICES = []
+        for k, v in tipos_archivos.items():
+            TIPO_CHOICES.append((k,v))
+
+        return TIPO_CHOICES

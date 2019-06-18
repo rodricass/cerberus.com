@@ -14,9 +14,14 @@ import FrontEnd.views as views
 # Uncomment the next lines to enable the admin:
 from django.conf.urls import include
 from django.contrib import admin
+from django.conf import settings
+from django.http import HttpResponseRedirect
+
+
 admin.autodiscover()
 
 urlpatterns = [    
+    url(r'^favicon.ico/$', lambda x: HttpResponseRedirect(settings.STATIC_URL+'FrontEnd/images/wCancerbero.png')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -60,9 +65,9 @@ urlpatterns = [
     url(r'^documentos/$', views.documentos, name='documentos'),
 
     #Notas
-    url(r'^notas/eliminar_nota/(?P<id>\d+)/(?P<tipo>[A-z úé]+)/(?P<id_nota>\d+)/$', views.eliminar_nota, name='eliminar_nota'),
+    url(r'^notas/eliminar_nota/(?P<id>\d+)/(?P<tipo>[A-z úé]+)/(?P<id_nota>\d+)/(?P<camino>.+)/$', views.eliminar_nota, name='eliminar_nota'),
     url(r'^ver_notas/eliminar_notacaso/(?P<id_caso>\d+)/(?P<id_nota>\d+)/$', views.eliminar_notacaso, name='eliminar_notacaso'),
-    url(r'^notas/(?P<id>\d+)/(?P<tipo>[A-z úé]+)/$', views.notas, name='notas'),
+    url(r'^notas/(?P<id>\d+)/(?P<tipo>[A-z úé]+)/(?P<camino>.+)/$', views.notas, name='notas'),
     url(r'^ver_notas/crear_nota/(?P<id_caso>\d+)/$', views.crear_nota, name='crear_nota'),
     url(r'^ver_notas/$', views.ver_notas, name='ver_notas'),
 

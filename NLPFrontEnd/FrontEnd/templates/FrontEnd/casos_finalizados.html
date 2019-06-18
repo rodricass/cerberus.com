@@ -1,10 +1,15 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrum-li %}
+    <li class="breadcrumb-item active" aria-current="page">Casos finalizados</li>
+{% endblock %}
 
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
-    <div class="row" style="margin-top:1rem;">
+    <div class="row" style="margin-top:11rem;">
         <div class="col-md-12">
             {% for caso in casos %}
                 <div class="panel panel-default">
@@ -25,7 +30,7 @@
                                 {% else %}
                                     <button title="Compartir caso" class="btn btn-compartir2 botones_panel" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-url="{% url 'compartir_casoFinalizado' caso_id=caso.id %}" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
                                 {% endif %}
-                                <button title="Notas" class="btn btn-nota2 botones_panel" onclick="location.href='{% url 'notas' id=caso.id  tipo='caso' %}';"><i class="fas fa-sticky-note" style="font-size:29px"></i></button>
+                                <button title="Notas" class="btn btn-nota2 botones_panel" onclick="location.href='{% url 'notas' id=caso.id  tipo='caso' camino=Casos finalizados>'|addstr:caso.nombre %}';"><i class="fas fa-sticky-note" style="font-size:29px"></i></button>
                                 <button title="Documentos" class="btn btn-documentos botones_panel" onclick="location.href='{% url 'documentos_caso' caso_id=caso.id destino=destino_documentos %}';"><i class="fas fa-file" style="font-size:29px"></i></button>
                                 <button title="Resultados" type="button" class="btn btn-resultados botones_panel" onclick="location.href='{% url 'resultados_caso' caso_id=caso.id destino=destino_resultados%}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
                                 <button title="Informes" type="button" class="btn btn-informes botones_panel" onclick="location.href='{% url 'informes_caso' caso_id=caso.id destino=destino_informes %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>

@@ -34,6 +34,7 @@ from .functions import *
 from .myclasses import *
 from collections import defaultdict
 from .genericos import *
+from .fileuploader import *
 
 #***********************************************************************************************************************************************************************
 #********************************************************************************** START INICIO ***********************************************************************
@@ -114,6 +115,7 @@ def documentos(request):
         documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
         context['id_caso'] = id_caso
         context['documentos'] = documentos
+        context['nombre_caso'] =caso.nombre
         context['inicial'] = False
     return render(request,'FrontEnd/documentos.html',context)
 
@@ -128,44 +130,45 @@ def documentos_caso(request,caso_id,destino):
     caso = Caso.objects.get(id=caso_id)
     documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
     context['id_caso'] = caso_id
+    context['nombre_caso'] = caso.nombre
     context['documentos'] = documentos
     return render(request,destino,context)
 
-def crear_documento_general(request,file,form,caso_id):
-    """Crea y guarda documento en base a forma"""
+#def crear_documento_general(request,file,form,caso_id):
+#    """Crea y guarda documento en base a forma"""
     
-    #Crea los hashs en base al contenido del documento
-    hash_md5 = hashlib.md5()
-    hash_sha = hashlib.sha1()
-    for c in file.chunks():
-        hash_md5.update(c)
-        hash_sha.update(c)
+#    #Crea los hashs en base al contenido del documento
+#    hash_md5 = hashlib.md5()
+#    hash_sha = hashlib.sha1()
+#    for c in file.chunks():
+#        hash_md5.update(c)
+#        hash_sha.update(c)
 
-    hash_md5 = hash_md5.hexdigest()
-    hash_sha1 = hash_sha.hexdigest()
-    propietario_doc = request.user
+#    hash_md5 = hash_md5.hexdigest()
+#    hash_sha1 = hash_sha.hexdigest()
+#    propietario_doc = request.user
 
-    #Parsea el documento en base a si es txt o docx
-    nombre, punto, ext = file.name.rpartition(".")
-    ext = ext.lower()
+#    #Parsea el documento en base a si es txt o docx
+#    nombre, punto, ext = file.name.rpartition(".")
+#    ext = ext.lower()
     
-    lector = ExtensionArchivo().getLector(ext,file)
-    texto = lector.read()
+#    lector = ExtensionArchivo().getLector(ext,file)
+#    texto = lector.read()
 
-    nuevo_doc = Documento(titulo=file.name,nombre_doc=file.name,documento=file,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
-    nuevo_doc.save()
+#    nuevo_doc = Documento(titulo=file.name,nombre_doc=file.name,documento=file,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
+#    nuevo_doc.save()
 
-    #Divide al documento en párrafos para mejor procesamiento
-    dividirParrafos(nuevo_doc)
+#    #Divide al documento en párrafos para mejor procesamiento
+#    dividirParrafos(nuevo_doc)
 
-    #Crea las entidades correspondientes a los párrafos del documento
-    crearEntidades(nuevo_doc,caso_id)
+#    #Crea las entidades correspondientes a los párrafos del documento
+#    crearEntidades(nuevo_doc,caso_id)
 
-    #Relaciona el documento con el usuario que lo está utilizando y con el caso correspondiente
-    nuevo_doc.usuario.add(request.user)
-    nuevo_doc.caso.add(caso_id)
+#    #Relaciona el documento con el usuario que lo está utilizando y con el caso correspondiente
+#    nuevo_doc.usuario.add(request.user)
+#    nuevo_doc.caso.add(caso_id)
 
-    nuevo_doc.save()
+#    nuevo_doc.save()
 
 @login_required
 def agregar_doc(request, caso_id):
@@ -174,12 +177,9 @@ def agregar_doc(request, caso_id):
     if request.method == 'POST':
         #Crea el objeto documento que solo contiene la ubicación del documento en el servidor
         next = request.POST.get('next', '/')
-        form = DocumentoForm(request.POST, request.FILES)
-        files = request.FILES.getlist('documento')
-        if form.is_valid():
-            for f in files:
-                crear_documento_general(request,f,form,caso_id)
-                
+        tipo = request.POST.get('tipo_archivo', '')
+        creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+        creador.cargar()     
     return HttpResponseRedirect(reverse(next))
 
 #class FileFieldView(FormView):
@@ -205,8 +205,10 @@ def agregar_docDocumentos(request, caso_id):
     
     #Crea el objeto documento que solo contiene la ubicación del documento en el servidor
     form = DocumentoForm(request.POST, request.FILES)
+    files = request.FILES.getlist('documento')
     if form.is_valid():
-        crear_documento_general(request,form,caso_id)
+        for f in files:
+            crear_documento_general(request,f,form,caso_id)
 
     form = BuscadorCasosForm(request.user)
     formDoc = DocumentoForm()
@@ -222,8 +224,10 @@ def agregar_docDocumentos(request, caso_id):
 def agregar_docCaso(request,caso_id):
     """Crear documento desde la pantalla de documentos de caso en base a un archivo cargado en el sistema por el usuario"""
     form = DocumentoForm(request.POST, request.FILES)
+    files = request.FILES.getlist('documento')
     if form.is_valid():
-        crear_documento_general(request,form,caso_id)
+        for f in files:
+            crear_documento_general(request,f,form,caso_id)
 
     destino = 'FrontEnd/documentos_caso.html'
 
@@ -232,7 +236,7 @@ def agregar_docCaso(request,caso_id):
 def crearEntidades(documento,caso_id):
     """Crea las entidades en base al análisis nlp de un documento"""
     caso = Caso.objects.get(id=caso_id)
-    modelo = model_factory(caso.modelo)
+    modelo = TipoModelo().getModelo(caso.modelo)
     rx = re.compile("\s+")
     parrafos = Parrafo.objects.filter(doc_id=documento)
     resultado_tokenizer = []
@@ -577,8 +581,14 @@ def compartir_casoFinalizado(request,caso_id):
 #****************************************************************************************** START NOTAS ****************************************************************
 #***********************************************************************************************************************************************************************
 
+def comprobar_usuario(usuario,caso_id):
+    """Comprueba que el usuario que solicita el caso sea usuario del mismo"""
+    caso = Caso.objects.get(id=caso_id)
+    if not(caso.usuario.filter(id=usuario.id)):
+        raise Http404("Permiso denegado")
+
 @login_required
-def notas(request, id, tipo):
+def notas(request, id, tipo, camino):
     """Genera la vista de todas las notas"""
     notas = {
              "documento": NotaDocumento.objects.filter(entidad=id).filter(eliminado=False).order_by('-fecha_agregado'),
@@ -591,9 +601,14 @@ def notas(request, id, tipo):
                 }
     if request.method != 'POST':
         form = NotaForm()
-        if tipo == "documento":
-            doc = Documento.objects.get(id=id)
-            context['descripcion'] = doc.descripcion_doc
+        camino_aux = camino.split(">")
+        breadcrum_path = []
+        for segmento in camino_aux:
+            if segmento[0] == '*':
+                breadcrum_path.append([segmento[1:],True])
+            else:
+                segmento_aux = segmento.split(":")
+                breadcrum_path.append([segmento_aux[0],False,segmento_aux[1]])
     else:
         crearNota = {
                     "documento": NotaDocumento,
@@ -609,14 +624,16 @@ def notas(request, id, tipo):
         elif tipo == "caso":
             notaHija.entidad = Caso.objects.get(id=id)
         notaHija.save()
-        return HttpResponseRedirect(reverse('notas',args=[id,tipo]))
+        return HttpResponseRedirect(reverse('notas',args=[id,tipo,camino]))
 
     context['form'] = form
+    context['camino'] = camino
+    context['camino_array'] = breadcrum_path
     
     return render(request,'FrontEnd/notas.html',context)
     
 @login_required
-def eliminar_nota(request,id,tipo,id_nota):
+def eliminar_nota(request,id,tipo,id_nota,camino):
     """Elimina una nota desde la vista específica que muestra las notas de los casos o documentos"""
     if tipo == "documento":
         nota_eliminar = NotaDocumento.objects.get(id=id_nota)
@@ -624,7 +641,7 @@ def eliminar_nota(request,id,tipo,id_nota):
         nota_eliminar = NotaCaso.objects.get(id=id_nota)
     nota_eliminar.eliminado = True
     nota_eliminar.save()
-    return HttpResponseRedirect(reverse('notas',args=[id,tipo]))
+    return HttpResponseRedirect(reverse('notas',args=[id,tipo,camino]))
 
 @login_required
 def eliminar_notacaso(request,id_caso,id_nota):
@@ -663,6 +680,7 @@ def ver_notas(request):
         documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
         notas = NotaCaso.objects.filter(entidad=id_caso).filter(eliminado=False).order_by('-fecha_agregado')
         context['id_caso'] = id_caso
+        context['nombre_caso'] = caso.nombre
         context['documentos'] = documentos
         context['inicial'] = False
         context['notas'] = notas
@@ -1015,10 +1033,12 @@ def resultados(request):
                }
     if request.method == 'POST':
         caso_id = request.POST.get('casos')
+        caso = Caso.objects.get(id=caso_id)
         resultados = generar_resultados(request,caso_id)
         context['resultados'] = resultados
         context['caso_id'] = caso_id
         context['inicial'] = False
+        context['nombre_caso'] = caso.nombre
 
     return render(request,'FrontEnd/resultados.html', context)
 
@@ -1028,9 +1048,11 @@ def resultados_caso(request,caso_id,destino):
     context = {
                 'title':'Resultados caso',
                }
+    caso = Caso.objects.get(id=caso_id)
     resultados = generar_resultados(request,caso_id)
     context['resultados'] = resultados
     context['caso_id'] = caso_id
+    context['nombre_caso'] = caso.nombre
 
     return render(request,destino, context)
 

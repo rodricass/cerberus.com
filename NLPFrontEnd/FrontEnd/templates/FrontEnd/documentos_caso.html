@@ -1,10 +1,15 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 
+{% block breadcrum-li %}
+    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Documentos</li>
+{% endblock %}
+
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
-    <div class="row">
+    <div class="row" style="margin-top: 10%">
         <div class="col-md-3">
             <div id="titulo_columna">
                 <span id="titulo">Documentos</span>
@@ -35,7 +40,7 @@
                             <button title="Abrir" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1">
-                            <button title="Notas" class="icons" id="boton_nota" style="margin-left:2.2rem"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note"></i></a></button>
+                            <button title="Notas" class="icons" id="boton_nota" style="margin-left:2.2rem"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Casos en curso>'|addstr:nombre_caso|addstr:'>Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
                         </div>
                         <div class="col-md-1">
                         {% if documento.propietario_doc != user %}

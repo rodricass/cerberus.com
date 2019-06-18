@@ -12,7 +12,7 @@ body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom
     padding-bottom: 2rem;
     border-radius: 18px !important;
     margin-top: 1rem !important;
-    margin-bottom: 2rem !important;
+    margin-bottom: 1rem !important;
 }
 
 #jumboside {
@@ -39,16 +39,25 @@ body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom
 #eliminar {
     background-color: #f44336;
     color: white;
-    margin-top: 3.1rem;
 }
 
 #eliminar:hover {
     background-color: #c62828;
 }
 
+.row_resultados {
+    height: 80%;
+}
+
 @media only screen and (min-width: 1400px) {
     #eliminar {
-        margin-top: 37.5%;
+        margin-top: 32%;
+    }
+    .row_resultados {
+        height: 82.5%
+    }
+    #data {
+        margin-bottom: 2rem !important;
     }
 }
 /*******RESULTADOS-INTELIGENTE*******/

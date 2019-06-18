@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from simple_history.models import HistoricalRecords
 
+from .genericos import TipoModelo, TipoArchivo
+
 # Create your models here.
 
 class Caso(models.Model):
@@ -42,8 +44,8 @@ class Caso(models.Model):
     finalizado_incorrecto = models.BooleanField()
 
     #Modelo que se utilizará a lo largo del caso para hacer las búsquedas inteligentes
-    MODEL_CHOICES = [('DRUG','Drogas'),('ECON','Económico')]
-    modelo = models.CharField(max_length=10, choices=MODEL_CHOICES, default='ECON')
+    MODEL_CHOICES = TipoModelo().getModelChoices()
+    modelo = models.CharField(max_length=10, choices=MODEL_CHOICES, default=MODEL_CHOICES[0])
 
     history = HistoricalRecords()
 
@@ -83,6 +85,10 @@ class Documento(models.Model):
 
     #Texto extraído del documento guardado en disco
     texto = models.TextField()
+
+    #Tipo que determina como debe ser procesado a futuro el archivo
+    TIPO_CHOICES = TipoArchivo().getTipoArchivoChoices()
+    tipo_archivo = models.CharField(max_length=20, choices=TIPO_CHOICES, default=TIPO_CHOICES[0])
 
 #************************************************************************************************************************************
 

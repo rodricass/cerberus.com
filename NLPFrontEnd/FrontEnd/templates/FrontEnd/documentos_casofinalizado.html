@@ -35,7 +35,7 @@
                             <button title="Abrir" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1 col-md-offset-1">
-                            <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note"></i></a></button>
+                            <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Casos finalizados>'|addstr:nombre_caso|addstr:'>Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
                         </div>
                     </div>
                 {% empty %}

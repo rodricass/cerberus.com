@@ -7,17 +7,11 @@ import sys
 
 class Lector:
     def __init__(self, document):
-        """
-        Clase abstracta de la que heredan los lectores.
-
-        :param path: path al archivo para leer
-        """
+        """Clase abstracta de la que heredan los lectores. :param documento: documento a leer."""
         self.document = document
 
     def read(self):
-        """
-        Devuelve todo el texto del archivo self.document.
-        """
+        """Devuelve todo el texto del archivo self.document."""
         pass
 
 class LectorTXT(Lector):
@@ -26,9 +20,7 @@ class LectorTXT(Lector):
         super().__init__(document)
 
     def read(self):
-        """
-        Devuelve todo el texto del archivo self.document.
-        """
+        """Devuelve todo el texto del archivo self.document."""
         self.document.seek(0)
         texto = self.document.read()
         try:
@@ -104,6 +96,3 @@ class LectorDOCX(Lector):
     
         zipf.close()
         return text.strip()
-    
- 
-         

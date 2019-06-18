@@ -1,12 +1,20 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrum-li %}
+    <li class="breadcrumb-item active" aria-current="page">Documentos</li>
+    {% if inicial == False %}
+        <li class="breadcrumb-item active" aria-current="page">{{nombre_caso}}</li>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
     <div class="row">
         <div class="buscador col-md-11">
-            <form id="editar_form" action="{% url 'documentos' %}" style="margin-top:8rem;" method="post"  class="form">
+            <form id="editar_form" action="{% url 'documentos' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
                     <div class="col-md-3">
                         <h4 style="font-size:20px !important">Ver documentos de caso:</h4>
@@ -24,7 +32,7 @@
     </div>
     <hr class="barra"/>
     {% if inicial == False %} 
-        <div class="row" style="overflow-y:auto; overflow-x:hidden; width:80%; margin-left:13%; height:66%">
+        <div class="row" style="overflow-y:auto; overflow-x:hidden; width:80%; margin-left:13%; height:58%">
             {% for documento in documentos %}
                 <div class="row fila">
                     <div class="col-md-6 col-md-offset-1">
@@ -40,7 +48,7 @@
                         <button title="Descargar" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-download"></i></a></button>
                     </div>
                     <div class="col-md-1">
-                        <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' %}"><i class="fas fa-sticky-note"></i></a></button>
+                        <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Documentos:documentos>*'|addstr:nombre_caso|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note"></i></a></button>
                     </div>
                     <div class="col-md-1">
                         {% if documento.propietario_doc != user %}

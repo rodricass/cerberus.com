@@ -1,0 +1,33 @@
+﻿{% if camino_array|length != 0 %} 
+    {% for item in camino_array %}
+        {% if item.1 == True %} 
+            <li class="breadcrumbb-item active" aria-current="page">
+                {% if item.0|length < 30 %}
+                    {{item.0}}
+                {% else %}
+                    {{item.0|truncatechars:27}}
+                {% endif %}
+            </li>
+        {% else %}
+            <li class="breadcrumbb-item" aria-current="page">
+                {% if item.3 == " " %}
+                <a class="breadcrumb-links" href="{% url item.2|slugify %}">
+                    {% if item.0|length < 30 %}
+                        {{item.0}}
+                    {% else %}
+                        {{item.0|truncatechars:27}}
+                    {% endif %}
+                </a>
+                {% else %}
+                <a class="breadcrumb-links" href="{% url item.2|slugify item.3|slugify %}">
+                    {% if item.0|length < 30 %}
+                        {{item.0}}
+                    {% else %}
+                        {{item.0|truncatechars:27}}
+                    {% endif %}
+                </a>
+                {% endif %}
+            </li>
+        {% endif %}
+    {% endfor %}  
+{% endif %}

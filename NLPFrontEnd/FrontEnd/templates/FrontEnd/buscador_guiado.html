@@ -1,9 +1,11 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Buscador guiado</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Buscador guiado</li>
 {% endblock %}
 
 {% block container %}
@@ -12,8 +14,8 @@
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
-                <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso_id%}'"><i class="fas fa-brain"></i></button>
-                <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' caso_id=caso_id %}'"><i class="fas fa-search"></i></button>
+                <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso_id camino=camino %}'"><i class="fas fa-brain"></i></button>
+                <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' caso_id=caso_id camino=camino %}'"><i class="fas fa-search"></i></button>
                 <h1 id="titulo" title="{{caso_nombre}}">
                 {% if caso_nombre|length < 10 %}
                     {{caso_nombre}}
@@ -21,13 +23,13 @@
                     {{caso_nombre|truncatechars:8}}
                 {% endif %}
                 </h1>
-                <p id="caso">Buscador guiado</p>
+                <p id="investigacion">Buscador guiado</p>
             </div>
-            <button id="email" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_guiado' tipo=email caso_id=caso_id %}';">Dirección e-mail</button>
-            <button id="url" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=url caso_id=caso_id %}';">Dirección web (URL)</button>
-            <button id="tarjeta" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=tarjeta caso_id=caso_id %}';">Tarjeta de crédito/ débito</button>
-            <button id="dni" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=dni caso_id=caso_id %}';">Número de documento</button>
-            <button id="telefono" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=telefono caso_id=caso_id %}';">Teléfono</button>
+            <button id="email" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_guiado' tipo=email caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Dirección e-mail</button>
+            <button id="url" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=url caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Dirección web (URL)</button>
+            <button id="tarjeta" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=tarjeta caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Tarjeta de crédito/ débito</button>
+            <button id="dni" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=dni caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Número de documento</button>
+            <button id="telefono" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=telefono caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Teléfono</button>
             {% if tipo != "Búsqueda" %}
                 {% if res.items|length != 0 %}
                     <button id="btn-save2" title="Guardar búsqueda" class="btn botones" data-toggle="modal" data-target="#modalAdvice"><i class="fas fa-save"></i></button>
@@ -56,7 +58,7 @@
                     </div>
                 </div>
                 <div id="cuerpo" style="margin-top:1rem">
-                    <form id="guardar" action="{% url 'guardar_resultadoGuiado' tipo=tipo caso_id=caso_id %}" method="post">
+                    <form id="guardar" action="{% url 'guardar_resultadoGuiado' tipo=tipo caso_id=caso_id camino='*'|addstr:caso_nombre %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="resultado_json" value="{{json}}">
                     </form>

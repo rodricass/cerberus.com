@@ -11,7 +11,7 @@ body {
     font-size: 50px;
 }
 
-#caso {
+#investigacion {
     font-size: 25px;
     white-space: nowrap;
 }
@@ -23,6 +23,7 @@ body {
     border-radius: 18px !important;
     margin-left: 0rem;
     margin-top: 2rem;
+    margin-bottom: 1rem !important;
     color: white;
     background-color: #1565c0;
 }
@@ -34,7 +35,7 @@ body {
     margin-left: 0rem;
     margin-top: 2rem;
     background-color: #e0e0e0;
-    height: 97%;
+    height: 99%;
     overflow-y: auto;
 }
 
@@ -119,12 +120,18 @@ body {
 
 
 @media only screen and (min-width: 1400px) {
-    .botones, .botones2, #btn-trash, #btn-save{
+    .botones, .botones2, #btn-trash {
         margin-left:15%;
+    }
+    #btn-save3 {
+        margin-left: 15.5% !important;
     }
     #btn-save2 {
         margin-left:15% !important;
     } 
+    #jumboside {
+        margin-bottom: 30px !important;
+    }
 }
 
 /*START BUSCADOR_GENERAL*/
@@ -181,7 +188,6 @@ textarea {
     width: 46% !important;
     height: 4.5rem !important;
     border-radius: 20px !important;
-    margin-top: 1rem !important;
     color: white !important;
     font-size: 20px !important;
 }
@@ -276,6 +282,20 @@ textarea {
 }
 
 #btn-save:focus {
+    outline-style: none;
+}
+
+#btn-save3 {
+    background-color: #1e88e5;
+    margin-left: 9%;
+    box-shadow: 5px 10px 18px #888888;
+}
+
+#btn-save3:hover {
+    background-color: #1565c0;
+}
+
+#btn-save3:focus {
     outline-style: none;
 }
 

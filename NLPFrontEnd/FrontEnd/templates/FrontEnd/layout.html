@@ -17,14 +17,14 @@
                 <ul class="nav navbar-nav">
                     <li>
                         <div class="dropdown">
-                            <button class="casos dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span class="headers">CASOS</span>
+                            <button class="investigaciones dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="headers">INVESTIGACIONES</span>
                                 <span class="caret" style="color: white !important;border-top-color: white !important;border-bottom-color: white !important;margin-top:1rem;"></span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li class="casos_menu"><a href="{% url 'casos' %}">EN CURSO</a></li>
+                              <li class="investigaciones_menu"><a href="{% url 'casos' %}">EN CURSO</a></li>
                               <li class="divider"></li>
-                              <li class="casos_menu"><a href="{% url 'casos_finalizados' %}">FINALIZADOS</a></li>
+                              <li class="investigaciones_menu"><a href="{% url 'casos_finalizados' %}">FINALIZADAS</a></li>
                             </ul>
                         </div>
                     </li>
@@ -41,11 +41,11 @@
     </div>
 {% endblock %}
 
-{% block breadcrum %}
-    <nav class="breadcrumb-nav" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="/">Inicio</a></li>
-        {% block breadcrum-li %}{% endblock %}
+{% block breadcrumb %}
+    <nav class="breadcrumbb-nav" aria-label="breadcrumbb">
+      <ol class="breadcrumbb">
+        <li class="breadcrumbb-item" aria-current="page"><a class="breadcrumb-links" href="/">Inicio</a></li>
+        {% block breadcrumb-li %}{% endblock %}
       </ol>
     </nav>
 {% endblock %}

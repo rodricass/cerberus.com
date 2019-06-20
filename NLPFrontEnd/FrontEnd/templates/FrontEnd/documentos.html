@@ -2,10 +2,18 @@
 {% load bootstrap3 %}
 {% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item active" aria-current="page">Documentos</li>
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item active" aria-current="page">Documentos</li>
     {% if inicial == False %}
-        <li class="breadcrumb-item active" aria-current="page">{{nombre_caso}}</li>
+        <li class="breadcrumbb-item active" aria-current="page">
+            <a class="breadcrumb-links" href="{% url 'caso' id_caso %}">
+                {% if nombre_caso|length < 30 %}
+                    {{nombre_caso}}
+                {% else %}
+                    {{nombre_caso|truncatechars:27}}
+                {% endif %}
+            </a>
+        </li>
     {% endif %}
 {% endblock %}
 

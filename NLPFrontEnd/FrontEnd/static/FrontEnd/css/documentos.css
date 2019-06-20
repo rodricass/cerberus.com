@@ -125,10 +125,10 @@ body {
     padding-top: 10px
 }
 
-.modal-adive_content {
+.modal-content {
     border-radius: 10px;
     width: 85%;
-    margin-left: 10%;
+    margin-left: 15%;
 }
 
 .modal {

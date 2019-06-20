@@ -2,57 +2,35 @@
 {% load bootstrap3 %}
 {% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item active" aria-current="page">Casos en curso</li>
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item active" aria-current="page">Casos en curso</li>
 {% endblock %}
 
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/breadcrumb.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/breadcrumbb.css' %}" />
 
     <div class="row" style="margin-top:11rem;">
         <div class="col-md-10">
             <form id="forma_administrar" action="" method="post">
             {% csrf_token %}
             {% for caso in casos %}
-                <div class="panel panel-default">
+                <div class="contenedor_caso">
+                    <div class="panel panel-default" onclick="location.href='{% url 'caso' caso_id=caso.id %}';">
                     <div class="panel-heading" style="border-left: 5px solid #42a5f5;">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-11">
                                 <h3 class="caso" title="{{caso}}" data-toggle="modal" data-target="#modalDetalles" data-nombre="{{caso.nombre}}" data-identificador="{{caso.identificador}}" data-descripcion="{{caso.descripcion}}" data-modelo="{{caso.modelo}}">
-                                    {% if caso.nombre|length < 30 %}
+                                    {% if caso.nombre|length < 73 %}
                                         {{caso}}
                                     {% else %}
-                                        {{caso.nombre|truncatechars:30}}
+                                        {{caso.nombre|truncatechars:73}}
                                     {% endif %}                                
                                 </h3>
                             </div>
-                            <div class="col-md-5 col-md-offset-1">
+                            <div class="col-md-1">
                                 <input class="checkboxes" name="checks[]" value="{{caso.id}}" type="checkbox"> 
-                                <div class="botones_mover">
-                                    <div class="jumbocenter">
-                                        <span title="Búsqueda guiada" class="buscar btns-casos buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
-                                        <span title="Búsqueda general" class="buscar btns-casos buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
-                                        <span title="Búsqueda inteligente" class="buscar btns-casos buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
-                                    </div>
-                                    <button title="Documentos" type="button" class="btn btn-documentos2 botones_panel2" onclick="location.href='{% url 'documentos_caso' caso_id=caso.id destino=destino_documentos%}';"><i class="fas fa-file" style="font-size:29px"></i></button>
-                                    <button title="Resultados" type="button" class="btn btn-resultados2 botones_panel2" onclick="location.href='{% url 'resultados_caso' caso_id=caso.id destino=destino_resultados%}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
-                                    <button title="Informes" type="button" class="btn btn-informes2 botones_panel2" onclick="location.href='{% url 'informes_caso' caso_id=caso.id destino=destino_informes %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>
-                                    <span title="Notas" class="btn btns-casos btn-nota"><a href="{% url 'notas' id=caso.id  tipo='caso' camino='Casos en curso>'|addstr:caso.nombre %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
-                                    <div class="divisor-vertical" style="position: relative;display: inline-block;top: -6.7rem;right: 1.2rem;"></div>
-                                    {% if user == caso.propietario %}
-                                        <button title="Compartir caso" class="btn btns-casos btn-compartir" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-urlPrio="{% url 'compartir_casos' caso_id=caso.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_casos' caso_id=caso.id tipo='sin' %}"><i class="fas fa-share-square" style="font-size:29px"></i></button>
-                                    {% else %}
-                                        <button title="Compartir caso" class="btn btns-casos btn-compartir" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
-                                    {% endif %}
-                                    <button title="Adjuntar archivo" class="btn btns-casos btn-adjuntar" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' caso.id %}"><i class="fas fa-paperclip" style="font-size:29px"></i></button>
-                                    {% if user == caso.propietario %}
-                                        <span title="Editar caso" class="btn editar"><a href="{% url 'editar_caso' caso_id=caso.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
-                                    {% else %}
-                                        <button title="Editar caso" class="btn editar" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
-                                    {% endif %}
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -63,54 +41,26 @@
                             {{caso.descripcion|truncatechars:610}}
                         {% endif %}
                     </div>
+                    </div>
                 </div>
+                
             {% empty %}
                 {% bootstrap_alert "No existe ningún caso en curso" %}
             {% endfor %}
         </form>
     </div>
-        <div class="col-md-2">
-            <button id="crear_caso" class="btn" onclick="location.href='{% url 'nuevo_caso' %}';">Crear caso</button>
-            <button id="seleccionar_casos" class="btn">Seleccionar casos</button>
-            <button id="cancelar_seleccion" class="btn">Cancelar</button>
-            <button id="finalizar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='correcto' %}">Finalizar correctamente</button>
-            <button id="eliminar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='incorrecto' %}">Finalizar incorrectamente</button>
-            <div id="aclaracion" class="comentario">Solamente se finalizarán definitivamente aquellos casos de los cuales sea propietario</div>
-        </div>
+    <div class="col-md-2">
+        <button id="crear_caso" class="btn" onclick="location.href='{% url 'nuevo_caso' camino='Casos en curso:casos' %}';">Crear caso</button>
+        <button id="seleccionar_casos" class="btn">Seleccionar casos</button>
+        <button id="cancelar_seleccion" class="btn">Cancelar</button>
+        <button id="finalizar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='correcto' %}">Finalizar correctamente</button>
+        <button id="eliminar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='incorrecto' %}">Finalizar incorrectamente</button>
+        <div id="aclaracion" class="comentario">Solamente se finalizarán definitivamente aquellos casos de los cuales sea propietario</div>
+    </div>
     </div>   
     
-    <div id="modalAdvice" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Compartir caso:&nbsp;&nbsp;<b><span id="caso_nombre"></span></b></h4>
-          </div>
-          <div class="modal-body">
-              <div class="row">
-                 <div class="col-md-7">
-                <div class="titulo">¿Con quién desea compartir el caso?:</div>
-                <form id="compartir_form" action="" method="post"  class="form">
-                    {% csrf_token %}
-                    {% bootstrap_form form_usuario %}
-                    <input type="hidden" name="next" value="{{ 'casos' }}">
-                    <div class="comentario">El caso puede ser compartido tanto con privilegios de propietario (cediendo los propios) como no.</div>
-                </form>
-              </div>
-              <div class="col-md-3 ">
-                <button id="conPrivilegios" class="btn botones-compartir" form="compartir_form">Ceder privilegios</button>
-                <button id="sinPrivilegios" class="btn botones-compartir" form="compartir_form">No ceder privilegios</button>
-                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
-              </div>
-              </div>
-              
-          </div>
-        </div>
-    
-      </div>
-    </div>
 
-<div id="modalEliminar" class="modal modal2 fade" role="dialog">
+    <div id="modalEliminar" class="modal modal2 fade" role="dialog">
       <div class="modal-dialog">
         <div class="modal-content modal-content2">
           <div class="modal-body modal-body2">
@@ -139,43 +89,58 @@
       </div>
     </div>
     
-    <div id="modalDetalles" class="modal modal1 fade" style="top:-15% !important;" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content modal-content1">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Caso</h4>
-            </div>
-            <div class="modal-body">
-                <p><span class="detalles"><i>Identificador de caso: &nbsp;&nbsp;&nbsp;</i></span><span id="identificador_modal"></span></p>
-                <div class="row">
-                    <div class="col-md-3" style="height:3rem">
-                        <p style="width:11rem !important"><span class="detalles" ><i>Nombre de caso: &nbsp;&nbsp;&nbsp;</i></span></p>
-                    </div>
-                    <div class="col-md-8">
-                        <span id="nombre_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></span>
-                    </div>
-                </div>
-                <p><span class="detalles"><i>Modelo: &nbsp;&nbsp;&nbsp;</i></span><span id="modelo"></span></p>
-                <hr/>
-                <p id="descripcion_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></p>
-            </div>
-            
-        </div>
-    
-      </div>
-    </div>
-
-    {% include 'FrontEnd/modales.html' %}
-
 {% endblock %}
 
 
 {% block scripts %}
-    <script src="{% static 'FrontEnd/scripts/my_scripts/casos.js' %}"></script>
-    <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
     <script>
-        $(document).ready(function() {
+        $("#seleccionar_casos").click(function () {
+            $(".checkboxes").show(500);
+            $("#eliminar_caso").show();
+            $("#finalizar_caso").show();
+            $("#aclaracion").show();
+            $("#crear_caso").hide();
+            $("#seleccionar_casos").hide();
+            $("#cancelar_seleccion").show();
+        }); 
+
+        $("#eliminar_caso").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_caso").hide();
+            $("#finalizar_caso").hide();
+            $("#aclaracion").hide();
+            $("#crear_caso").show();
+            $("#seleccionar_casos").show();
+            $("#cancelar_seleccion").hide();
+        });
+        $("#finalizar_caso").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_caso").hide();
+            $("#finalizar_caso").hide();
+            $("#aclaracion").hide();
+            $("#crear_caso").show();
+            $("#seleccionar_casos").show();
+            $("#cancelar_seleccion").hide();
+        });
+        
+        $("#cancelar_seleccion").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_caso").hide();
+            $("#finalizar_caso").hide();
+            $("#aclaracion").hide();
+            $("#crear_caso").show();
+            $("#seleccionar_casos").show();
+            $("#cancelar_seleccion").hide();
+            $(".checkboxes").prop('checked', false);
+        });
+        $(document).ready(function () {
+            $(".contenedor_caso").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "0.3")
+                $(this).siblings().css("opacity", "0.3")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
             $("#eliminar_caso").click(function () {
                 var recipient = $(this).attr('data-whatever')
                 if ($("#forma_administrar input:checkbox:checked").length > 0)
@@ -193,20 +158,5 @@
                 $('#forma_administrar').attr('action', recipient)
             }); 
         });
-        $('#modalDetalles').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget)
-            var identificador = button.data('identificador')
-            var nombre = button.data('nombre')
-            var descripcion = button.data('descripcion')
-            var modelo = button.data('modelo')
-            $('#caso_nombre2').html(nombre)
-            $('#nombre_modal').html(nombre)
-            $('#identificador_modal').html('<b>'+ identificador +'</b>')
-            $('#descripcion_modal').html(descripcion)
-            if (modelo == "DRUG")
-                $('#modelo').html('Drogas')
-            else if (modelo == "ECON")
-                $('#modelo').html('Económicos')
-        })
     </script>
 {% endblock scripts %}

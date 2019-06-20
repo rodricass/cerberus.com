@@ -4619,7 +4619,7 @@ textarea.input-group-sm > .input-group-btn > .btn {
   color: #ffffff;
 }
 
-.breadcrumb {
+.breadcrumbb {
   padding: 8px 15px;
   margin-bottom: 20px;
   list-style: none;
@@ -4627,17 +4627,17 @@ textarea.input-group-sm > .input-group-btn > .btn {
   border-radius: 4px;
 }
 
-.breadcrumb > li {
+.breadcrumbb > li {
   display: inline-block;
 }
 
-.breadcrumb > li + li:before {
+.breadcrumbb > li + li:before {
   padding: 0 5px;
   color: #cccccc;
   content: "/\00a0";
 }
 
-.breadcrumb > .active {
+.breadcrumbb > .active {
   color: #999999;
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cerberus - {{ title }}</title>
+    <title>{{ title }} - Cerberus</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/content/bootstrap.min.css' %}" />
     <link rel="shortcut icon" type="image/png" href="{% static 'FrontEnd/images/wCancerbero.png' %}" />
@@ -14,7 +14,7 @@
 
 <body>
     {% block navbar %}{% endblock %}
-    {% block breadcrum %}{% endblock %}
+    {% block breadcrumb %}{% endblock %}
     {% block container %}
     <div class="container body-content">
     {% block content %}{% endblock content%}

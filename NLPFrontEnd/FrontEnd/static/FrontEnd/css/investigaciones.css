@@ -10,6 +10,10 @@ input, textarea {
     max-width: none !important;
 }
 
+.panel {
+    cursor: pointer;
+}
+
 .editar {
     cursor: pointer;
     position: relative;
@@ -388,6 +392,7 @@ input, textarea {
     color: #428bca;
     position: relative;
     right: -11.5rem;
+    margin-top: 0.3rem;
 }
 
 .btn-eliminar:hover {
@@ -404,8 +409,7 @@ input, textarea {
     width: 1rem;
     height: 4.5rem;
     position: absolute;
-    margin-top: -4.3rem;
-    margin-left: 37rem;
+    margin-left: 9.5rem;
 }
 
 .btn-nota2 {

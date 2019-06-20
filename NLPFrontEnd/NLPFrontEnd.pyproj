@@ -1506,10 +1506,12 @@
     <Content Include="FrontEnd\static\FrontEnd\scripts\my_scripts\documentos.js" />
     <Content Include="FrontEnd\static\FrontEnd\scripts\my_scripts\modelos.js" />
     <Content Include="FrontEnd\templates\FrontEnd\agregar_doc.html" />
+    <Content Include="FrontEnd\templates\FrontEnd\breadcrumb-generator.html" />
     <Content Include="FrontEnd\templates\FrontEnd\buscador_general.html" />
     <Content Include="FrontEnd\templates\FrontEnd\buscador_inteligente.html" />
     <Content Include="FrontEnd\templates\FrontEnd\caso.html" />
     <Content Include="FrontEnd\templates\FrontEnd\casos_finalizados.html" />
+    <Content Include="FrontEnd\templates\FrontEnd\caso_finalizado.html" />
     <Content Include="FrontEnd\templates\FrontEnd\documentos.html" />
     <Content Include="FrontEnd\templates\FrontEnd\documentos_caso.html" />
     <Content Include="FrontEnd\templates\FrontEnd\documentos_casofinalizado.html" />

@@ -90,7 +90,7 @@ input {
 }
 
 .fila {
-    height: 23% !important;
+    height: 28% !important;
     padding-right: 2%;
     padding-left: 3%;
     cursor: pointer;
@@ -101,7 +101,7 @@ input {
 }
 
 .fila2 {
-    height: 32%;
+    height: 42%;
     cursor: pointer;
     padding-left: 3%;
     padding-right: 2%;
@@ -138,6 +138,38 @@ input {
     text-align: center;
     margin-top: 1rem;
     font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+
+.row_vernotas {
+    width: 110%;
+    height: 93%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-left: 8%;
+}
+
+.modal_nuevanota {
+    margin-left: 25% !important;
+    padding-top: 0 !important;
+}
+
+@media only screen and (min-width: 1400px) {
+    .notas_caso {
+        height: 80%;
+    }
+    .row_vernotas {
+        width: 120%;
+        height: 98%"
+    }
+    .modal_nuevanota {
+        margin-left: 30% !important;
+    }
+    .fila2 {
+        height: 32%;
+    }
+    .fila {
+        height: 23% !important;
+    }
 }
 
 /********MODAL ADVICE********/

@@ -1,9 +1,11 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Documentos</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Documentos</li>
 {% endblock %}
 
 {% block content %}
@@ -46,7 +48,7 @@
                         {% if documento.propietario_doc != user %}
                             <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
                         {% else %}
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc' id_doc=documento.id id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc_caso' id_doc=documento.id id_caso=id_caso camino=camino %}"><i class="fas fa-trash"></i></button>
                         {% endif %}
                     </div>
                     </div>
@@ -54,7 +56,7 @@
                     <p class="vacio" style="margin-left:25%">No hay documentos asociados al caso</p>
                 {% endfor %}
             </div>
-            <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docCaso' caso_id=id_caso %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
+            <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docCaso' caso_id=id_caso camino='Casos en curso:casos>'|addstr:nombre_caso|addstr:':caso|'|addstr:id_caso %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
         </div>
         
     </div>

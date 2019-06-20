@@ -2,20 +2,26 @@
 {% load bootstrap3 %}
 {% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item active" aria-current="page">Casos en curso</li>
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item" aria-current="page"><a class="breadcrumb-links" href="{% url 'casos' %}">Investigaciones en curso</a></li>
+    <li class="breadcrumbb-item active" aria-current="page">
+        {% if caso.nombre|length < 30 %}
+            {{caso}}
+        {% else %}
+            {{caso.nombre|truncatechars:27}}
+        {% endif %}
+    </li>
 {% endblock %}
 
 {% block content %}
     {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/breadcrumb.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigaciones.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/breadcrumbb.css' %}" />
 
     <div class="row" style="margin-top:11rem;">
         <div class="col-md-10">
             <form id="forma_administrar" action="" method="post">
             {% csrf_token %}
-            {% for caso in casos %}
                 <div class="panel panel-default">
                     <div class="panel-heading" style="border-left: 5px solid #42a5f5;">
                         <div class="row">
@@ -32,14 +38,14 @@
                                 <input class="checkboxes" name="checks[]" value="{{caso.id}}" type="checkbox"> 
                                 <div class="botones_mover">
                                     <div class="jumbocenter">
-                                        <span title="Búsqueda guiada" class="buscar btns-casos buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
-                                        <span title="Búsqueda general" class="buscar btns-casos buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
-                                        <span title="Búsqueda inteligente" class="buscar btns-casos buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
+                                        <span title="Búsqueda guiada" class="buscar btns-casos buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
+                                        <span title="Búsqueda general" class="buscar btns-casos buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
+                                        <span title="Búsqueda inteligente" class="buscar btns-casos buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
                                     </div>
-                                    <button title="Documentos" type="button" class="btn btn-documentos2 botones_panel2" onclick="location.href='{% url 'documentos_caso' caso_id=caso.id destino=destino_documentos%}';"><i class="fas fa-file" style="font-size:29px"></i></button>
-                                    <button title="Resultados" type="button" class="btn btn-resultados2 botones_panel2" onclick="location.href='{% url 'resultados_caso' caso_id=caso.id destino=destino_resultados%}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
-                                    <button title="Informes" type="button" class="btn btn-informes2 botones_panel2" onclick="location.href='{% url 'informes_caso' caso_id=caso.id destino=destino_informes %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>
-                                    <span title="Notas" class="btn btns-casos btn-nota"><a href="{% url 'notas' id=caso.id  tipo='caso' camino='Casos en curso>'|addstr:caso.nombre %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+                                    <button title="Documentos" type="button" class="btn btn-documentos2 botones_panel2" onclick="location.href='{% url 'documentos_caso' caso_id=caso.id destino=destino_documentos camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}';"><i class="fas fa-file" style="font-size:29px"></i></button>
+                                    <button title="Resultados" type="button" class="btn btn-resultados2 botones_panel2" onclick="location.href='{% url 'resultados_caso' caso_id=caso.id destino=destino_resultados camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
+                                    <button title="Informes" type="button" class="btn btn-informes2 botones_panel2" onclick="location.href='{% url 'informes_caso' caso_id=caso.id destino=destino_informes camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>
+                                    <span title="Notas" class="btn btns-casos btn-nota"><a href="{% url 'notas' id=caso.id  tipo='caso' camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
                                     <div class="divisor-vertical" style="position: relative;display: inline-block;top: -6.7rem;right: 1.2rem;"></div>
                                     {% if user == caso.propietario %}
                                         <button title="Compartir caso" class="btn btns-casos btn-compartir" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-urlPrio="{% url 'compartir_casos' caso_id=caso.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_casos' caso_id=caso.id tipo='sin' %}"><i class="fas fa-share-square" style="font-size:29px"></i></button>
@@ -48,7 +54,7 @@
                                     {% endif %}
                                     <button title="Adjuntar archivo" class="btn btns-casos btn-adjuntar" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' caso.id %}"><i class="fas fa-paperclip" style="font-size:29px"></i></button>
                                     {% if user == caso.propietario %}
-                                        <span title="Editar caso" class="btn editar"><a href="{% url 'editar_caso' caso_id=caso.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
+                                        <span title="Editar caso" class="btn editar"><a href="{% url 'editar_caso' caso_id=caso.id camino='Casos en curso:casos>'|addstr:caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
                                     {% else %}
                                         <button title="Editar caso" class="btn editar" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
                                     {% endif %}
@@ -64,18 +70,7 @@
                         {% endif %}
                     </div>
                 </div>
-            {% empty %}
-                {% bootstrap_alert "No existe ningún caso en curso" %}
-            {% endfor %}
-        </form>
-    </div>
-        <div class="col-md-2">
-            <button id="crear_caso" class="btn" onclick="location.href='{% url 'nuevo_caso' %}';">Crear caso</button>
-            <button id="seleccionar_casos" class="btn">Seleccionar casos</button>
-            <button id="cancelar_seleccion" class="btn">Cancelar</button>
-            <button id="finalizar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='correcto' %}">Finalizar correctamente</button>
-            <button id="eliminar_caso"  class="btn" data-whatever="{% url 'administrar_casos' tipo='incorrecto' %}">Finalizar incorrectamente</button>
-            <div id="aclaracion" class="comentario">Solamente se finalizarán definitivamente aquellos casos de los cuales sea propietario</div>
+            </form>
         </div>
     </div>   
     
@@ -103,39 +98,8 @@
                 <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
               </div>
               </div>
-              
           </div>
         </div>
-    
-      </div>
-    </div>
-
-
-    
-    <div id="modalDetalles" class="modal modal1 fade" style="top:-15% !important;" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content modal-content1">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Caso</h4>
-            </div>
-            <div class="modal-body">
-                <p><span class="detalles"><i>Identificador de caso: &nbsp;&nbsp;&nbsp;</i></span><span id="identificador_modal"></span></p>
-                <div class="row">
-                    <div class="col-md-3" style="height:3rem">
-                        <p style="width:11rem !important"><span class="detalles" ><i>Nombre de caso: &nbsp;&nbsp;&nbsp;</i></span></p>
-                    </div>
-                    <div class="col-md-8">
-                        <span id="nombre_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></span>
-                    </div>
-                </div>
-                <p><span class="detalles"><i>Modelo: &nbsp;&nbsp;&nbsp;</i></span><span id="modelo"></span></p>
-                <hr/>
-                <p id="descripcion_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></p>
-            </div>
-            
-        </div>
-    
       </div>
     </div>
 

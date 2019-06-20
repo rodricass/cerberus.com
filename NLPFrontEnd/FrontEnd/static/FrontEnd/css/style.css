@@ -90,26 +90,26 @@ button, .btn {
     margin-bottom: 0 !important;
 }
 
-.breadcrumb {
+.breadcrumbb {
     border-radius: 0px !important;
     background-color: #78909c;
     padding-left: 6.8rem;
 }
 
-.breadcrum-links {
+.breadcrumb-links {
     color: #eeeeee !important;
 }
 
-.breadcrumb-item {
+.breadcrumbb-item {
     font-size: 16px;
 }
 
-.breadcrum-links:hover {
+.breadcrumb-links:hover {
     text-decoration: unset;
     color: #e0e0e0 !important;
 }
 
-.breadcrum-links:focus {
+.breadcrumb-links:focus {
     text-decoration: unset;
 }
 
@@ -117,20 +117,26 @@ button, .btn {
     color: #bdbdbd !important;
 }
 
-.breadcrumb-nav {
+.breadcrumbb-nav {
     position: fixed;
     top: 6.1rem;
     width: 100%;
     z-index: 3;
 }
 
-.breadcrumb > li + li:before {
+.breadcrumbb > li + li:before {
     color: #eeeeee;
     content: "> ";
     padding: 0 5px;
 }
 
-.casos {
+@media only screen and (min-width: 1400px) {
+    .breadcrumbb {
+        padding-left: 18.5rem;
+    }
+}
+
+.investigaciones {
     background-color: transparent;
     color: white;
     border: none;
@@ -145,7 +151,7 @@ button, .btn {
 }
 
 
-.casos:hover {
+.investigaciones:hover {
     background-color: #263238;
     height: 6.8rem;
 }
@@ -154,7 +160,7 @@ button, .btn {
     height: 6rem;
 }
 
-.casos:focus {
+.investigaciones:focus {
     background-color: #263238;
 }
 

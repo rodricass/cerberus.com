@@ -1,9 +1,9 @@
 ﻿{% extends "FrontEnd/layout_resultados.html" %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'resultados' %}">Resultados</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{header.caso}}</li>
-    <li class="breadcrumb-item active" aria-current="page">Resultado inteligente</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Resultado inteligente</li>
 {% endblock %}
 
 {% block header %}

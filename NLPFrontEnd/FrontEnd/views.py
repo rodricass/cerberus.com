@@ -120,18 +120,21 @@ def documentos(request):
     return render(request,'FrontEnd/documentos.html',context)
 
 @login_required
-def documentos_caso(request,caso_id,destino):
+def documentos_caso(request,caso_id,destino,camino):
     """Genera la vista de todos los documentos subidos por el usuario para un caso """
     formDoc = DocumentoForm()
     context = {
                 'formDoc':formDoc,
                 'title':'Documentos de caso'
                }
+    breadcrumb_path = parser_camino(camino)
     caso = Caso.objects.get(id=caso_id)
     documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
     context['id_caso'] = caso_id
     context['nombre_caso'] = caso.nombre
     context['documentos'] = documentos
+    context['camino'] = camino
+    context['camino_array'] = breadcrumb_path
     return render(request,destino,context)
 
 #def crear_documento_general(request,file,form,caso_id):
@@ -204,12 +207,9 @@ def agregar_docDocumentos(request, caso_id):
     """Crear documento desde la pantalla de documentos en base a un archivo cargado en el sistema por el usuario"""
     
     #Crea el objeto documento que solo contiene la ubicación del documento en el servidor
-    form = DocumentoForm(request.POST, request.FILES)
-    files = request.FILES.getlist('documento')
-    if form.is_valid():
-        for f in files:
-            crear_documento_general(request,f,form,caso_id)
-
+    tipo = request.POST.get('tipo_archivo', '')
+    creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+    creador.cargar()
     form = BuscadorCasosForm(request.user)
     formDoc = DocumentoForm()
     context = {'form':form, 'formDoc':formDoc }
@@ -221,17 +221,15 @@ def agregar_docDocumentos(request, caso_id):
     return render(request,'FrontEnd/documentos.html',context)
 
 @login_required
-def agregar_docCaso(request,caso_id):
+def agregar_docCaso(request,caso_id,camino):
     """Crear documento desde la pantalla de documentos de caso en base a un archivo cargado en el sistema por el usuario"""
-    form = DocumentoForm(request.POST, request.FILES)
-    files = request.FILES.getlist('documento')
-    if form.is_valid():
-        for f in files:
-            crear_documento_general(request,f,form,caso_id)
+    tipo = request.POST.get('tipo_archivo', '')
+    creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+    creador.cargar()
 
     destino = 'FrontEnd/documentos_caso.html'
 
-    return HttpResponseRedirect(reverse('documentos_caso',args=[caso_id,destino]))
+    return HttpResponseRedirect(reverse('documentos_caso',args=[caso_id,destino,camino]))
 
 def crearEntidades(documento,caso_id):
     """Crea las entidades en base al análisis nlp de un documento"""
@@ -294,7 +292,7 @@ def eliminar_documentos_general(id_doc):
     for entidad in entidades:
         entidad.eliminado = True
         entidad.save()
-    tokens = TokensDoc.objects.get(doc=doc)
+    tokens = TokensDoc.objects.filter(doc=doc)
     for token in tokens:
         token.eliminado = True
         token.save()
@@ -324,6 +322,17 @@ def eliminar_doc(request, id_doc, id_caso):
                'inicial':False,
                'id_caso':id_caso}
     return render(request,next,context)
+
+@login_required
+def eliminar_doc_caso(request,id_doc,id_caso,camino):
+    """Elimina un documento desde la pantalla que muestras los documentos de un caso específico"""
+    
+    eliminar_documentos_general(id_doc)
+
+    destino = 'FrontEnd/documentos_caso.html'
+
+    return HttpResponseRedirect(reverse('documentos_caso',args=[id_caso,destino,camino]))
+
 
 
 def eliminar_docInicio(request,id_doc):
@@ -398,15 +407,8 @@ def casos(request):
     """Genera la vista de los casos de un usuario determinado"""
     
     casos = Caso.objects.filter(usuario=request.user).filter(eliminado=False).filter(finalizado_incorrecto=False).filter(finalizado_correcto=False).order_by('-fecha_agregado')
-    form = DocumentoForm()
-    form_usuario = UsuariosForm(request.user)
     context = {'casos':casos, 
-               'formDoc':form, 
-               'form_usuario':form_usuario,
-               'destino_resultados':'FrontEnd/resultados_caso.html',
-               'destino_informes':'FrontEnd/informes_caso.html',
-               'destino_documentos':'FrontEnd/documentos_caso.html',
-               'title':'Casos',
+               'title':'Casos en curso',
                }
     return render(request,'FrontEnd/casos.html',context)
 
@@ -426,7 +428,40 @@ def casos_finalizados(request):
     return render(request,'FrontEnd/casos_finalizados.html',context)
 
 @login_required
-def editar_caso(request,caso_id):
+def caso_finalizado(request,caso_id):
+    """Genera la vista que muestra toda la información específica de un caso finalizado"""
+    comprobar_usuario(request.user,caso_id)
+    caso = Caso.objects.get(id=caso_id)
+    form_usuario = UsuariosForm(request.user)
+    context = {'caso':caso, 
+               'form_usuario':form_usuario,
+               'destino_resultados':'FrontEnd/resultados_casofinalizado.html',
+               'destino_informes':'FrontEnd/informes_casofinalizado.html',
+               'destino_documentos':'FrontEnd/documentos_casofinalizado.html',
+               'title':'Casos finalizados',
+               }
+    return render(request,'FrontEnd/caso_finalizado.html',context)
+
+@login_required
+def caso(request,caso_id):
+    """Genera la vista que muestra toda la información específica a un caso"""
+    comprobar_usuario(request.user,caso_id)
+    caso = Caso.objects.get(id=caso_id)
+    form = DocumentoForm()
+    form_usuario = UsuariosForm(request.user)
+    context = {'formDoc':form, 
+               'form_usuario':form_usuario,
+               'destino_resultados':'FrontEnd/resultados_caso.html',
+               'destino_informes':'FrontEnd/informes_caso.html',
+               'destino_documentos':'FrontEnd/documentos_caso.html',
+               'caso': caso,
+               'title': f'{caso.nombre[:12]}...',
+              }
+    return render(request,'FrontEnd/caso.html',context)
+
+
+@login_required
+def editar_caso(request,caso_id,camino):
     """ Editar un caso ya existente"""
     caso = Caso.objects.get(id=caso_id)
     if request.method == 'POST':
@@ -438,12 +473,15 @@ def editar_caso(request,caso_id):
     else:
         #Solicita el caso para ser modificado, con información precargada
         form = CasoFormEdit(instance=caso)
-        
+    
+    breadcrumb_path = parser_camino(camino)
     context = {'form':form, 
                'caso': caso, 
                'caso_nombre':caso.nombre, 
                'documentos':documentos,
                'title':'Editar caso',
+               'camino':camino,
+               'camino_array':breadcrumb_path,
                }
 
     return render(request,'FrontEnd/editar_caso.html',context)
@@ -520,7 +558,7 @@ def administrar_casos(request,tipo):
 
 
 @login_required
-def nuevo_caso(request):
+def nuevo_caso(request,camino):
     """Crea un nuevo caso"""
     if request.method != 'POST':
         #No se ha enviado información, se crea una forma vacía
@@ -537,9 +575,12 @@ def nuevo_caso(request):
             nuevo_caso.save()
             nuevo_caso.usuario.add(request.user)
             return HttpResponseRedirect(reverse('casos'))
-
+    
+    breadcrumb_path = parser_camino(camino)
     context = {'form':form,
                'title':'Nuevo caso',
+               'camino':camino,
+               'camino_array':breadcrumb_path,
                }
     return render(request,'FrontEnd/nuevo_caso.html',context)
 
@@ -601,14 +642,7 @@ def notas(request, id, tipo, camino):
                 }
     if request.method != 'POST':
         form = NotaForm()
-        camino_aux = camino.split(">")
-        breadcrum_path = []
-        for segmento in camino_aux:
-            if segmento[0] == '*':
-                breadcrum_path.append([segmento[1:],True])
-            else:
-                segmento_aux = segmento.split(":")
-                breadcrum_path.append([segmento_aux[0],False,segmento_aux[1]])
+        breadcrumb_path = parser_camino(camino)
     else:
         crearNota = {
                     "documento": NotaDocumento,
@@ -628,10 +662,30 @@ def notas(request, id, tipo, camino):
 
     context['form'] = form
     context['camino'] = camino
-    context['camino_array'] = breadcrum_path
+    context['camino_array'] = breadcrumb_path
     
     return render(request,'FrontEnd/notas.html',context)
     
+def parser_camino(camino):
+    #Un camino es enviado como medio para reutilizar una pantalla cambiando la breadcrumbbs nav en base a desde donde es accedida
+    #El > separa distintas referencias a páginas para poner en el breadcrumbb nav. Dentro de una referencia el : separa el nombre de la pagina de la parte correspondiente
+    # a la url necesaria para dirigirse a la misma. La parte derecha del : corresponde al nombre correspondiente a la url y se encuentra separado de los parametros por
+    # una barra |. Los parametros se encuentran uno al lado del otro separados por comas
+    camino_aux = camino.split(">")
+    breadcrumb_path = []
+    for segmento in camino_aux:
+        if segmento[0] == '*':
+            breadcrumb_path.append([segmento[1:],True])
+        elif segmento[0] != " ":
+            segmento_aux = segmento.split(":")
+            url = segmento_aux[1].split("|")
+            if len(url) == 1:
+                parametros = " "
+            else:
+                parametros = url[1]
+            breadcrumb_path.append([segmento_aux[0],False,url[0],parametros])
+    return breadcrumb_path
+
 @login_required
 def eliminar_nota(request,id,tipo,id_nota,camino):
     """Elimina una nota desde la vista específica que muestra las notas de los casos o documentos"""
@@ -656,8 +710,10 @@ def eliminar_notacaso(request,id_caso,id_nota):
                 'form_crear': form_crear,
                 'id_caso' : id_caso,
                 'documentos' : documentos,
+                'nombre_caso':caso.nombre,
                 'inicial' : False,
                 'notas' : notas,
+                'title':'Notas',
                }
     nota_eliminar = NotaCaso.objects.get(id=id_nota)
     nota_eliminar.eliminado = True
@@ -672,7 +728,7 @@ def ver_notas(request):
     context = {
                 'form_elegir':form_elegir,
                 'form_crear': form_crear,
-                "title":'Notas de caso',
+                "title":'Notas',
                }
     if request.method == 'POST':
         id_caso = request.POST.get('casos')
@@ -688,7 +744,7 @@ def ver_notas(request):
  
 @login_required
 def crear_nota(request, id_caso):
-    """Crea una nota a un caso"""
+    """Crea una nota a un caso en la pantalla de ver_notas"""
     caso = Caso.objects.get(id=id_caso)
     documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
     notas = NotaCaso.objects.filter(entidad=id_caso).filter(eliminado=False).order_by('-fecha_agregado')
@@ -699,6 +755,7 @@ def crear_nota(request, id_caso):
             'form_crear': form_crear,
             'id_caso': id_caso,
             'documentos': documentos,
+            'nombre_caso': caso.nombre,
             'notas': notas,
             'inicial': False,
         }
@@ -719,7 +776,7 @@ def crear_nota(request, id_caso):
 #*********************************************************************************************************************************************************************
 
 @login_required
-def buscador_general(request,caso_id):
+def buscador_general(request,caso_id,camino):
     """Genera la vista para las búsquedas generales"""
 
     caso = Caso.objects.get(id=caso_id)
@@ -751,6 +808,9 @@ def buscador_general(request,caso_id):
             resultados_json = json.dumps(resultados)
             context["json"] = resultados_json
     context["form"] = form
+    breadcumb_path = parser_camino(camino)
+    context["camino"] = camino
+    context["camino_array"] = breadcumb_path
     return render(request,'FrontEnd/buscador_general.html',context)
 
 def posiciones(parrafo,palabra):
@@ -769,7 +829,7 @@ def posiciones(parrafo,palabra):
     return respuesta
     
 @login_required
-def buscador_inteligente(request,tipo,caso_id):
+def buscador_inteligente(request,tipo,caso_id,camino):
     """Genera la vista para las búsquedas inteligentes"""
 
     caso = Caso.objects.get(id=caso_id)
@@ -783,7 +843,7 @@ def buscador_inteligente(request,tipo,caso_id):
     
     context = {"tipo":tipo,
                 "caso_nombre":caso.nombre,
-                "modelo":caso.modelo,
+                "modelo":TipoModelo().getModeloString(caso.modelo),
                 "org":"Organizaciones",
                 "loc":"Locaciones",
                 "lex":"Léxicos detectados",
@@ -810,10 +870,13 @@ def buscador_inteligente(request,tipo,caso_id):
     context["res"] = resultado
     resultados_json = json.dumps(resultado)
     context["json"] = resultados_json
+    breadcumb_path = parser_camino(camino)
+    context["camino"] = camino
+    context["camino_array"] = breadcumb_path
     return render(request,'FrontEnd/buscador_inteligente.html', context)
 
 @login_required
-def buscador_guiado(request,tipo,caso_id):
+def buscador_guiado(request,tipo,caso_id,camino):
     """Genera la vista para búsquedas guiadas"""
 
     expresiones_reg = {
@@ -846,6 +909,9 @@ def buscador_guiado(request,tipo,caso_id):
             context["res"] = resultados
             resultados_json = json.dumps(resultados)
             context["json"] = resultados_json
+    breadcumb_path = parser_camino(camino)
+    context["camino"] = camino
+    context["camino_array"] = breadcumb_path
     return render(request,'FrontEnd/buscador_guiado.html', context)
 
 def buscar_regex(tipo, caso, expresiones_reg):
@@ -863,7 +929,7 @@ def buscar_regex(tipo, caso, expresiones_reg):
         resultados = [resultado for resultado in resultados if not(RegexEmail().pattern.match(resultado[2]))]
     return resultados
 
-def guardar_resultadoGeneral(request,caso_id,expresion):
+def guardar_resultadoGeneral(request,caso_id,expresion,camino):
     """Guarda resultados de búsquedaa general"""
     if request.method == "POST":
         form = BuscadorGeneralForm()
@@ -896,9 +962,9 @@ def guardar_resultadoGeneral(request,caso_id,expresion):
                 resultadoGen.save()
         return render(request,'FrontEnd/buscador_general.html',context)
         
-    return HttpResponseRedirect(reverse('buscador_general',args=[caso_id]))
+    return HttpResponseRedirect(reverse('buscador_general',args=[caso_id,camino]))
 
-def guardar_resultadoGuiado(request,tipo,caso_id):
+def guardar_resultadoGuiado(request,tipo,caso_id,camino):
     """Guarda resultados de búsqueda guiada"""
     if request.method == "POST":
         resultado_json = request.POST.get("resultado_json")
@@ -937,10 +1003,10 @@ def guardar_resultadoGuiado(request,tipo,caso_id):
         return render(request,'FrontEnd/buscador_guiado.html', context)
 
         
-    return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,caso_id]))
+    return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,caso_id,camino]))
 
 
-def guardar_resultadoInteligente(request,tipo,caso_id):
+def guardar_resultadoInteligente(request,tipo,caso_id,camino):
     """Guarda resultados de búsqueda inteligente"""
     if request.method == "POST":
         resultado_json = request.POST.get("resultado_json")
@@ -984,17 +1050,17 @@ def guardar_resultadoInteligente(request,tipo,caso_id):
         return render(request,'FrontEnd/buscador_inteligente.html', context)
 
 
-    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,caso_id]))
+    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,caso_id,camino]))
 
 @login_required
-def editar_entidad(request,tipo,id_ent,id_caso):
+def editar_entidad(request,tipo,id_ent,id_caso,camino):
     """Editar entidad"""
     if request.method == 'POST':
         string = request.POST.get('string')
         entidad = EntidadesDoc.objects.get(id=id_ent)
         entidad.string = string
         entidad.save()
-    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,id_caso]))
+    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,id_caso,camino]))
 
 
 #*********************************************************************************************************************************************************************
@@ -1043,16 +1109,19 @@ def resultados(request):
     return render(request,'FrontEnd/resultados.html', context)
 
 @login_required
-def resultados_caso(request,caso_id,destino):
+def resultados_caso(request,caso_id,destino,camino):
     """Resultados de un único caso específico"""
     context = {
                 'title':'Resultados caso',
                }
     caso = Caso.objects.get(id=caso_id)
     resultados = generar_resultados(request,caso_id)
+    breadcrumb_path = parser_camino(camino)
     context['resultados'] = resultados
     context['caso_id'] = caso_id
     context['nombre_caso'] = caso.nombre
+    context['camino'] = camino
+    context['camino_array'] = breadcrumb_path
 
     return render(request,destino, context)
 
@@ -1097,27 +1166,34 @@ def eliminar_resultado(request,caso_id,resultado_id,tipo):
     return render(request,'FrontEnd/resultados.html', context)
 
 @login_required
-def eliminar_resultadoCaso(request,caso_id,resultado_id,tipo):
+def eliminar_resultadoCaso(request,caso_id,resultado_id,tipo,camino):
     """Elimina resultado de búsqueda"""
 
     eliminar_general_resultado(resultado_id,tipo)
     resultados = generar_resultados(request,caso_id)
+    breadcrumb_path = parser_camino(camino)
+
     context = {
                 'title':'Resultados',
                 'resultados':resultados,
                 'caso_id':caso_id,
+                'camino':camino,
+                'camino_array':breadcrumb_path,
                }
 
     return render(request,'FrontEnd/resultados_caso.html', context)
 
 @login_required
-def ver_resultado(request,resultado_id,tipo):
+def ver_resultado(request,resultado_id,tipo,camino):
     """Ver resultados específicos asociados a una búsqueda"""
 
+    breadcrumb_path = parser_camino(camino)
     lexicos = "Léxicos detectados"
     resultado = ResultadoHeader.objects.get(id=resultado_id)
     context = {
                 'header':resultado,
+                'camino':camino,
+                'camino_array':breadcrumb_path,
             }
     tipo_ver = {
             "Guiada":ResultadoBusqGuiadaGeneral,
@@ -1165,7 +1241,7 @@ def ver_resultado(request,resultado_id,tipo):
 #*********************************************************************************************************************************************************************
 
 @login_required
-def crearInforme(request,resultado_id,tipo_informe):
+def crearInforme(request,resultado_id,tipo_informe,camino):
     """Crea informe en base a información de los resultados"""
 
     lexicos = "Léxicos detectados"
@@ -1325,7 +1401,7 @@ def crearInforme(request,resultado_id,tipo_informe):
 
     document.save(dominio)
 
-    return HttpResponseRedirect(reverse('ver_resultado',args=[resultado_id,busqueda]))
+    return HttpResponseRedirect(reverse('ver_resultado',args=[resultado_id,busqueda,camino]))
 
 @login_required
 def informes(request):
@@ -1341,13 +1417,17 @@ def informes(request):
         context['id_caso'] = id_caso
         context['informes'] = informes
         context['inicial'] = False
+        context['nombre_caso'] = caso.nombre
     return render(request,'FrontEnd/informes.html',context)
 
 @login_required
-def informes_caso(request,caso_id,destino):
+def informes_caso(request,caso_id,destino,camino):
     """Muestra todos los informes, de un caso determinado, para poder ser descargados"""
+    breadcrumb_path = parser_camino(camino)
     context = { 
-               'title':'Informes'
+               'title':'Informes',
+               'camino':camino,
+               'camino_array':breadcrumb_path,
                }
     caso = Caso.objects.get(id=caso_id)
     informes = Informe.objects.filter(caso=caso).filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
@@ -1367,7 +1447,7 @@ def ver_informe(request, id_informe):
     raise Http404
 
 @login_required
-def eliminar_informe(request,informe_id):
+def eliminar_informe(request,informe_id,camino):
     """Elimina informe"""
     
     if request.method == 'POST':
@@ -1376,12 +1456,15 @@ def eliminar_informe(request,informe_id):
     informe = Informe.objects.get(id=informe_id)
     informe.eliminado = True
     informe.save()
+    breadcrumb_path = parser_camino(camino)
 
     informes = Informe.objects.filter(caso=informe.caso).filter(eliminado=False).order_by('-fecha')
     context = { 
                'title':'Informes',
                'id_caso':informe.caso,
                'informes':informes,
+               'camino':camino,
+               'camino_array':breadcrumb_path,
                }
 
     return render(request,next, context)

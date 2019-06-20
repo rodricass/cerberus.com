@@ -2,10 +2,18 @@
 {% load bootstrap3 %}
 {% load tz %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item active" aria-current="page">Resultados</li>
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item active" aria-current="page">Resultados</li>
     {% if inicial == False %}
-        <li class="breadcrumb-item active" aria-current="page">{{nombre_caso}}</li>
+        <li class="breadcrumbb-item active" aria-current="page">
+            <a class="breadcrumb-links" href="{% url 'caso' caso_id %}">
+                {% if nombre_caso|length < 30 %}
+                    {{nombre_caso}}
+                {% else %}
+                    {{nombre_caso|truncatechars:27}}
+                {% endif %}
+            </a>
+        </li>
     {% endif %}
 {% endblock %}
 

@@ -2,6 +2,11 @@
     margin-top: 2.6rem;
 }
 
+.modal_content_adjuntar {
+    width: 100% !important;
+    margin-left: 0px !important;
+}
+
 #id_documento {
     width: 100%;
     height: 100%;

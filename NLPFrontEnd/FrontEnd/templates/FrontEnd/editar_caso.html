@@ -1,9 +1,10 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Editar caso</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Editar caso</li>
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
             <span id="titulo">Editar caso</span>
         </div>
         <div class="col-md-offset-1 col-md-8">
-            <form id="editar_form" style="margin-top:8rem;" method="post" action="{% url 'editar_caso' caso_id=caso.id %}" class="form">
+            <form id="editar_form" style="margin-top:8rem;" method="post" action="{% url 'editar_caso' caso_id=caso.id camino=camino %}" class="form">
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-md-9">

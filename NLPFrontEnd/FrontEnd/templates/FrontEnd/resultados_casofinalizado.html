@@ -1,12 +1,19 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 {% load tz %}
+{% load FrontEnd_extras %}
+
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Resultados</li>
+{% endblock %}
 
 {% block content %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
-    <div class="row">
+    <div class="row" style="margin-top: 10%">
         <div class="col-md-3">
             <div id="titulo_columna">
                 <span id="titulo" style="margin-left:6rem !important">Resultados</span>

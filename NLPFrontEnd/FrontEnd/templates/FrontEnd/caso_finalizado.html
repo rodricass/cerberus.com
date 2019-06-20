@@ -1,0 +1,157 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item" aria-current="page"><a class="breadcrumb-links" href="{% url 'casos_finalizados' %}">Casos finalizados</a></li>
+    <li class="breadcrumbb-item active" aria-current="page">
+        {% if caso.nombre|length < 30 %}
+            {{caso}}
+        {% else %}
+            {{caso.nombre|truncatechars:27}}
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
+    <div class="row" style="margin-top:11rem;">
+        <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="border-left: 5px solid {% if caso.finalizado_correcto %} #4caf50 {% else %} #f44336 {% endif %};">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <h3 class="caso" title="{{caso}}" data-toggle="modal" data-target="#modalDetalles" data-nombre="{{caso.nombre}}" data-identificador="{{caso.identificador}}" data-descripcion="{{caso.descripcion}}">
+                                    {% if caso.nombre|length < 55 %}
+                                        {{caso}}
+                                    {% else %}
+                                        {{caso.nombre|truncatechars:55}}
+                                    {% endif %}                                
+                                </h3>
+                            </div>
+                            <div class="col-md-5">
+                                {% if user == caso.propietario %}
+                                    <button title="Compartir caso" class="btn btn-compartir2 botones_panel" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-url="{% url 'compartir_casoFinalizado' caso_id=caso.id %}"><i class="fas fa-share-square" style="font-size:29px"></i></button>
+                                {% else %}
+                                    <button title="Compartir caso" class="btn btn-compartir2 botones_panel" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-url="{% url 'compartir_casoFinalizado' caso_id=caso.id %}" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+                                {% endif %}
+                                <button title="Notas" class="btn btn-nota2 botones_panel" onclick="location.href='{% url 'notas' id=caso.id  tipo='caso' camino='Casos finalizados:casos_finalizados>'|addstr:caso.nombre|addstr:':caso_finalizado|'|addstr:caso.id %}';"><i class="fas fa-sticky-note" style="font-size:29px"></i></button>
+                                <button title="Documentos" class="btn btn-documentos botones_panel" onclick="location.href='{% url 'documentos_caso' caso_id=caso.id destino=destino_documentos camino='Casos finalizados:casos_finalizados>'|addstr:caso.nombre|addstr:':caso_finalizado|'|addstr:caso.id %}';"><i class="fas fa-file" style="font-size:29px"></i></button>
+                                <button title="Resultados" type="button" class="btn btn-resultados botones_panel" onclick="location.href='{% url 'resultados_caso' caso_id=caso.id destino=destino_resultados camino='Casos finalizados:casos_finalizados>'|addstr:caso.nombre|addstr:':caso_finalizado|'|addstr:caso.id %}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
+                                <button title="Informes" type="button" class="btn btn-informes botones_panel" onclick="location.href='{% url 'informes_caso' caso_id=caso.id destino=destino_informes camino='Casos finalizados:casos_finalizados>'|addstr:caso.nombre|addstr:':caso_finalizado|'|addstr:caso.id %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>
+                                <div class="divisor-vertical"></div>
+                                <button title="Eliminar" type="button" class="btn btn-eliminar" data-toggle="modal" data-target="#modalEliminar"><i class="fas fa-times" style="font-size:29px"></i></button>
+                                <form id="eliminarForm" action="{% url 'eliminar_finalizado' caso_id=caso.id %}" method="post">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body" title="{{caso.descripcion}}" style="column-fill:auto; word-wrap: break-word !important;">
+                        <span title="{{caso.descripcion}}">
+                            {% if caso.descripcion|length < 740 %}
+                                {{caso.descripcion}}
+                            {% else %}
+                                {{caso.descripcion|truncatechars:740}}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+        </div>
+    </div>   
+    
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Compartir caso:&nbsp;&nbsp;<b><span id="caso_nombre"></span></b></h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                 <div class="col-md-7">
+                <div class="titulo">¿Con quién desea compartir el caso?:</div>
+                <form id="compartir_form" action="" method="post"  class="form">
+                    {% csrf_token %}
+                    {% bootstrap_form form_usuario %}
+                </form>
+              </div>
+              <div class="col-md-3 ">
+                <button id="conPrivilegios" class="btn botones-compartir" type="submit" form="compartir_form">Compartir</button>
+                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
+              </div>
+              </div>
+              
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+    <div id="modalEliminar" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Eliminar caso?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="eliminarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalDetalles" class="modal modal1 fade" style="top:-15% !important;" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content1">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Caso</h4>
+            </div>
+            <div class="modal-body">
+                <p><span class="detalles"><i>Identificador de caso: &nbsp;&nbsp;&nbsp;</i></span><span id="identificador_modal"></span></p>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p><span class="detalles"><i>Nombre de caso: &nbsp;&nbsp;&nbsp;</i></span></p>
+                    </div>
+                    <div class="col-md-8">
+                        <span id="nombre_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></span>
+                    </div>
+                </div>
+                <hr/>
+                <p id="descripcion_modal" style="max-height:35%; overflow-y:auto; overflow-x:hidden; column-fill:auto; word-wrap: break-word !important;"></p>
+            </div>
+            
+        </div>
+    
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#modalAdvice').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var recipient = button.data('url')
+                $('#compartir_form').attr('action', recipient)
+            })
+        });
+        $('#modalDetalles').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var identificador = button.data('identificador')
+            var nombre = button.data('nombre')
+            var descripcion = button.data('descripcion')
+            $('#caso_nombre2').html(nombre)
+            $('#nombre_modal').html(nombre)
+            $('#identificador_modal').html('<b>'+ identificador +'</b>')
+            $('#descripcion_modal').html(descripcion)
+        })
+        
+    </script>
+{% endblock scripts %}

@@ -79,6 +79,11 @@ class GetEntidad:
 
 class TipoModelo:
     """ Clase para obtener información específica en base al tipo de modelo"""
+    
+    tipos_modelos = {
+            'DRUG':'Drogas',
+            'ECON':'Económico',
+            }
 
     def getModelo(self,tipo):
     #Si se agrega un modelo nuevo es necesario agregar aqui la referencia al modelo respectivo y crear su correspondiente clase en 'myclasses.py'
@@ -97,16 +102,15 @@ class TipoModelo:
     def getModelChoices(self):
         #Si se agrega un modelo nuevo es necesario agregar aqui la clave del mismo y la palabra identificatoria
         
-        tipos_modelos = {
-            'DRUG':'Drogas',
-            'ECON':'Económico',
-            }
-
         MODEL_CHOICES = []
-        for k, v in tipos_modelos.items():
+        for k, v in self.tipos_modelos.items():
             MODEL_CHOICES.append((k,v))
 
         return MODEL_CHOICES
+
+    def getModeloString(self,tipo):
+        return self.tipos_modelos[tipo]
+
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
 # Debido al formato poco útil que poseen los archivos de WhatsApp generados por UFED, acá se determina la posibilidad de tratar distinto a los archivos comunes y los UFED

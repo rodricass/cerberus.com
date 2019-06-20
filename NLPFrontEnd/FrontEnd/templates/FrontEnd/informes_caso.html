@@ -1,10 +1,12 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 {% load tz %}
+{% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Informes</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Informes</li>
 {% endblock %}
 
 {% block content %}

@@ -1,9 +1,11 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
+{% load FrontEnd_extras %}
 
-{% block breadcrum-li %}
-    <li class="breadcrumb-item" aria-current="page"><a class="breadcrum-links" href="{% url 'casos' %}">Casos en curso</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Buscador general</li>
+{#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
+{% block breadcrumb-li %}
+    {% include 'FrontEnd/breadcrumb-generator.html' %}  
+    <li class="breadcrumbb-item active" aria-current="page">Buscador general</li>
 {% endblock %}
 
 {% block container %}
@@ -12,14 +14,14 @@
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron" style="margin-bottom:0 !important">
-                <button id="arrow-left" style="top:12.3rem" title="Búsqueda guiada" class="btn flechas" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id %}'"><i class="far fa-compass"></i></button>
-                <button id="arrow-right" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id%}'"><i class="fas fa-brain" ></i></button>
+                <button id="arrow-left" style="top:12.3rem" title="Búsqueda guiada" class="btn flechas" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id camino=camino %}'"><i class="far fa-compass"></i></button>
+                <button id="arrow-right" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id camino=camino %}'"><i class="fas fa-brain" ></i></button>
                 {% if caso.nombre|length < 10 %}
                     <h1 id="titulo" title="{{caso.nombre}}">{{caso.nombre}}</h1>
                 {% else %}
                     <h1 id="titulo" title="{{caso.nombre}}">{{caso.nombre|truncatechars:8}}</h1>
                 {% endif %}
-                <p id="caso">Buscador general</p>
+                <p id="investigacion">Buscador general</p>
             </div>
             {% if expresion != null %}
                 <div id="palabra" class="jumbotron">
@@ -33,7 +35,7 @@
                 </div>
             {% endif %}
             <div id="panel" style="width:100%">
-                    <form id="buscar" action="{% url 'buscador_general' caso_id=caso.id%}" method="post">
+                    <form id="buscar" action="{% url 'buscador_general' caso_id=caso.id camino='*'|addstr:caso.nombre %}" method="post">
                         {% csrf_token %}
                         {% bootstrap_form form %}
                     </form>
@@ -78,7 +80,7 @@
                 </div>
                 <div id="cuerpo" style="margin-top:2rem">
                     {% if expresion != null %} 
-                        <form id="guardar" action="{% url 'guardar_resultadoGeneral' caso_id=caso.id expresion=expresion %}" method="post">
+                        <form id="guardar" action="{% url 'guardar_resultadoGeneral' caso_id=caso.id expresion=expresion camino='*'|addstr:caso.nombre %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="resultado_json" value="{{json}}">
                         </form>

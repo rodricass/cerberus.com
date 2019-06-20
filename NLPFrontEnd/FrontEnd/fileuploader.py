@@ -7,7 +7,7 @@ from django.http import Http404
 from .forms import DocumentoForm
 from .genericos import ExtensionArchivo
 from .models import Documento, Parrafo, EntidadesDoc, TokensDoc, Caso
-from .genericos import TipoModelo
+from .genericos import TipoModelo, GetTipoToken
 #from nlp_model_gen_plugins.plugins.whatsappPlugin import get_whatsapp_extract
 
 class ObtenerCreador:

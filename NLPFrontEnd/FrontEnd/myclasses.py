@@ -6,45 +6,45 @@ nlp = NLPModelAdmin()
 
 sep_telefonos = r"[ -]"
 
-class Regex():
-    """Almacena expresiones regulares para poder ser utilizadas en la búsqueda dentro de archivos"""
-    _pattern = ""
+#class Regex():
+#    """Almacena expresiones regulares para poder ser utilizadas en la búsqueda dentro de archivos"""
+#    _pattern = ""
 
-    def __init__(self):
-        """Inicializa la clase"""
-        self.regex = None
+#    def __init__(self):
+#        """Inicializa la clase"""
+#        self.regex = None
 
-    @property
-    def pattern(self):
-        if self.regex:
-            return self.regex
-        self.regex = re.compile(self._pattern)
-        return self.regex
+#    @property
+#    def pattern(self):
+#        if self.regex:
+#            return self.regex
+#        self.regex = re.compile(self._pattern)
+#        return self.regex
 
-    @pattern.setter
-    def pattern(self, other):
-        pass
+#    @pattern.setter
+#    def pattern(self, other):
+#        pass
    
 
-class RegexEmail(Regex):
-    """Almacena expresion regular de email"""
-    _pattern = r"[^@\s]+@[^@\s]+\.[^@\s]+"
+#class RegexEmail(Regex):
+#    """Almacena expresion regular de email"""
+#    _pattern = r"[^@\s]+@[^@\s]+\.[^@\s]+"
 
-class RegexUrl(Regex):
-    """Almacena expresion regular de url"""
-    _pattern = r"[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)" # [\s]"
+#class RegexUrl(Regex):
+#    """Almacena expresion regular de url"""
+#    _pattern = r"[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)" # [\s]"
 
-class RegexTarjeta(Regex):
-    """Almacena expresion regular de tarjetas de credito"""
-    _pattern = r"((\d{4} \d{6} \d{5})|(\d{4} \d{4} \d{4} \d{4}))"
+#class RegexTarjeta(Regex):
+#    """Almacena expresion regular de tarjetas de credito"""
+#    _pattern = r"((\d{4} \d{6} \d{5})|(\d{4} \d{4} \d{4} \d{4}))"
         
-class RegexDocumento(Regex):
-    """Almacena expresion regular de documento de identidad"""
-    _pattern = r"[1-9]{2,3}\.?[0-9]{3}\.?[0-9]{3}"  
+#class RegexDocumento(Regex):
+#    """Almacena expresion regular de documento de identidad"""
+#    _pattern = r"[1-9]{2,3}\.?[0-9]{3}\.?[0-9]{3}"  
 
-class RegexTelefono(Regex):
-    """Almacena expresion regular de documento de identidad"""
-    _pattern = fr"\+?([0-9]{1,2})?{sep_telefonos}?9?{sep_telefonos}?[0-9 \-]?" + r"[0-9]{6,13}"
+#class RegexTelefono(Regex):
+#    """Almacena expresion regular de documento de identidad"""
+#    _pattern = fr"\+?([0-9]{1,2})?{sep_telefonos}?9?{sep_telefonos}?[0-9 \-]?" + r"[0-9]{6,13}"
 
 
 

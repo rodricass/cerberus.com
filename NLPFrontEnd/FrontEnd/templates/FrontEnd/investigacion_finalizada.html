@@ -1,0 +1,205 @@
+﻿{% extends "FrontEnd/layout_investigacion.html" %}
+{% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item" aria-current="page"><a class="breadcrumb-links" href="{% url 'investigaciones' %}">Investigaciones en curso</a></li>
+    <li class="breadcrumbb-item active" aria-current="page">
+        {% if investigacion.nombre|length < 30 %}
+            {{investigacion}}
+        {% else %}
+            {{investigacion.nombre|truncatechars:27}}
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block botonera %}
+    <div id="botonera_vertical_finalizada">
+        <div class="row">
+            {% if user == investigacion.propietario %}
+                <span title="Compartir investigacion" class="btn btn-margen_finalizada  btn_finalizada" data-toggle="modal" data-target="#modalAdvice" data-investigacion="{{investigacion}}" data-url="{% url 'compartir_investigacionFinalizada' investigacion_id=investigacion.id %}"><a><i class="fas fa-share-square" style="font-size:29px"></i></a></span>
+            {% else %}
+                <button title="Compartir investigacion" class="btn btn-margen_finalizada  btn_finalizada"  disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+            {% endif %}
+        </div>
+        <div class="row">
+            <span title="Documentos" class="btn btn-docres btn_finalizada"><a href="{% url 'documentos_investigacion' investigacion_id=investigacion.id destino=destino_documentos camino=camino %}"><i class="fas fa-file" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Resultados" class="btn btn-docres btn_finalizada"><a href="{% url 'resultados_investigacion' investigacion_id=investigacion.id destino=destino_resultados camino=camino %}"><i class="far fa-file-alt" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Informes" class="btn btn-margen_finalizada btn_finalizada"><a href="{% url 'informes_investigacion' investigacion_id=investigacion.id destino=destino_informes camino=camino %}"><i class="fas fa-archive" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Notas" id="nota_finalizada" class="btn btn-margen_finalizada btn_finalizada"><a href="{% url 'notas' id=investigacion.id  tipo='investigacion' camino=camino %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <div id="separador-horizontal"></div>
+        </div>
+        <div class="row">
+            {% if user == investigacion.propietario %}
+                <span title="Eliminar" type="button" class="btn eliminar_finalizada" data-toggle="modal" data-target="#modalEliminar"><a><i class="fas fa-times" style="font-size:29px"></i></a></span>
+            {% else %}
+                <button title="Eliminar" class="btn eliminar_finalizada"  disabled><i class="fas fa-times" style="font-size:29px; cursor: not-allowed; pointer-events:all !important"></i></button>
+            {% endif %}
+            <form id="eliminarForm" action="{% url 'eliminar_finalizada' investigacion_id=investigacion.id %}" method="post">
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+
+     <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Compartir investigación:&nbsp;&nbsp;<b><span id="investigacion_nombre"></span></b></h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                 <div class="col-md-7">
+                <div class="titulo">¿Con quién desea compartir la investigación?:</div>
+                <form id="compartir_form" action="" method="post"  class="form">
+                    {% csrf_token %}
+                    {% bootstrap_form form_usuario %}
+                </form>
+              </div>
+              <div class="col-md-3 ">
+                <button id="conPrivilegios" class="btn botones-compartir" type="submit" form="compartir_form">Compartir</button>
+                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
+              </div>
+              </div>
+              
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+    <div id="modalEliminar" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Eliminar investigación?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="eliminarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts_sub %}
+   <script>
+        $(document).ready(function() {
+            $('#modalAdvice').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget)
+                var recipient = button.data('url')
+                $('#compartir_form').attr('action', recipient)
+            })
+        });
+    </script>
+{% endblock %}
+
+{#{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigaciones.css' %}" />
+    <div class="row" style="margin-top:11rem;">
+        <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="border-left: 5px solid {% if investigacion.finalizado_correcto %} #4caf50 {% else %} #f44336 {% endif %};">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <h3 class="investigacion" title="{{investigacion}}">
+                                    {% if investigacion.nombre|length < 55 %}
+                                        {{investigacion}}
+                                    {% else %}
+                                        {{investigacion.nombre|truncatechars:55}}
+                                    {% endif %}                                
+                                </h3>
+                            </div>
+                            <div class="col-md-5">
+                                {% if user == investigacion.propietario %}
+                                    <button title="Compartir investigacion" class="btn btn-compartir2 botones_panel" data-toggle="modal" data-target="#modalAdvice" data-investigacion="{{investigacion}}" data-url="{% url 'compartir_investigacionFinalizada' investigacion_id=investigacion.id %}"><i class="fas fa-share-square" style="font-size:29px"></i></button>
+                                {% else %}
+                                    <button title="Compartir investigacion" class="btn btn-compartir2 botones_panel" data-toggle="modal" data-target="#modalAdvice" data-investigacion="{{investigacion}}" data-url="{% url 'compartir_investigacionFinalizada' investigacion_id=investigacion.id %}" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+                                {% endif %}
+                                <button title="Notas" class="btn btn-nota2 botones_panel" onclick="location.href='{% url 'notas' id=investigacion.id  tipo='investigacion' camino=camino %}';"><i class="fas fa-sticky-note" style="font-size:29px"></i></button>
+                                <button title="Documentos" class="btn btn-documentos botones_panel" onclick="location.href='{% url 'documentos_investigacion' investigacion_id=investigacion.id destino=destino_documentos camino=camino %}';"><i class="fas fa-file" style="font-size:29px"></i></button>
+                                <button title="Resultados" type="button" class="btn btn-resultados botones_panel" onclick="location.href='{% url 'resultados_investigacion' investigacion_id=investigacion.id destino=destino_resultados camino=camino %}';"><i class="far fa-file-alt" style="font-size:29px"></i></button>
+                                <button title="Informes" type="button" class="btn btn-informes botones_panel" onclick="location.href='{% url 'informes_investigacion' investigacion_id=investigacion.id destino=destino_informes camino=camino %}';"><i class="fas fa-archive" style="font-size:29px"></i></button>
+                                <div class="divisor-vertical"></div>
+                                <button title="Eliminar" type="button" class="btn btn-eliminar" data-toggle="modal" data-target="#modalEliminar"><i class="fas fa-times" style="font-size:29px"></i></button>
+                                <form id="eliminarForm" action="{% url 'eliminar_finalizada' investigacion_id=investigacion.id %}" method="post">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body" title="{{investigacion.descripcion}}" style="column-fill:auto; word-wrap: break-word !important;">
+                        <span title="{{investigacion.descripcion}}">
+                            {% if investigacion.descripcion|length < 740 %}
+                                {{investigacion.descripcion}}
+                            {% else %}
+                                {{investigacion.descripcion|truncatechars:740}}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+        </div>
+    </div>   
+    
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Compartir investigación:&nbsp;&nbsp;<b><span id="investigacion_nombre"></span></b></h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                 <div class="col-md-7">
+                <div class="titulo">¿Con quién desea compartir la investigación?:</div>
+                <form id="compartir_form" action="" method="post"  class="form">
+                    {% csrf_token %}
+                    {% bootstrap_form form_usuario %}
+                </form>
+              </div>
+              <div class="col-md-3 ">
+                <button id="conPrivilegios" class="btn botones-compartir" type="submit" form="compartir_form">Compartir</button>
+                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
+              </div>
+              </div>
+              
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+    <div id="modalEliminar" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Eliminar investigación?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="eliminarForm">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    
+{% endblock scripts %}#}

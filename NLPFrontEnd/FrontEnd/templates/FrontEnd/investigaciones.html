@@ -1,0 +1,192 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item active" aria-current="page">Investigaciones en curso</li>
+{% endblock %}
+
+{% block content %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigaciones.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/breadcrumbb.css' %}" />
+
+    <div class="row" style="margin-top:11rem;">
+        <div class="col-md-10">
+            <form id="forma_administrar" action="" method="post">
+            {% csrf_token %}
+            {% for investigacion in investigaciones %}
+                <div class="contenedor_investigacion">
+                    <div class="panel panel-default" onclick="location.href='{% url 'investigacion' investigacion_id=investigacion.id %}';">
+                    <div class="panel-heading" style="border-left: 5px solid #42a5f5;">
+                        <div class="row">
+                            <div class="col-md-11">
+                                <h3 class="investigacion" title="{{investigacion}}">
+                                    {% if investigacion.nombre|length < 65 %}
+                                        {{investigacion}}
+                                    {% else %}
+                                        {{investigacion.nombre|truncatechars:65}}
+                                    {% endif %}                                
+                                </h3>
+                            </div>
+                            <div class="col-md-1">
+                                <input class="checkboxes" name="checks[]" value="{{investigacion.id}}" type="checkbox"> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body" title="{{investigacion.descripcion}}" style="column-fill:auto; word-wrap: break-word !important;">
+                        {% if investigacion.descripcion|length < 610 %}
+                            {{investigacion.descripcion}}
+                        {% else %}
+                            {{investigacion.descripcion|truncatechars:610}}
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+                
+            {% empty %}
+                {% bootstrap_alert "No existe ninguna investigación en curso" %}
+            {% endfor %}
+        </form>
+    </div>
+    <div class="col-md-2">
+        <button id="crear_investigacion" class="btn" onclick="location.href='{% url 'nueva_investigacion' camino='Investigaciones en curso:investigaciones' %}';">Nueva investigación</button>
+        <button id="seleccionar_investigaciones" class="btn">Seleccionar investigaciones</button>
+        <button id="cancelar_seleccion" class="btn">Cancelar</button>
+        <button id="finalizar_investigacion"  class="btn" data-whatever="{% url 'administrar_investigaciones' tipo='correcto' %}">Finalizar correctamente</button>
+        <button id="eliminar_investigacion"  class="btn" data-whatever="{% url 'administrar_investigaciones' tipo='incorrecto' %}">Finalizar incorrectamente</button>
+        <div id="aclaracion" class="comentario">Solamente se finalizarán definitivamente aquellos investigaciones de los cuales sea propietario</div>
+    </div>
+    </div>   
+    
+
+    <div id="modalEliminar" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Finalizar investigaciones incorrectamente?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="forma_administrar">Finalizar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalFinalizar" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Finalizar investigaciones correctamente?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="forma_administrar">Finalizar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+{% endblock %}
+
+
+{% block scripts %}
+    <script>
+        $("#seleccionar_investigaciones").click(function () {
+            $(".checkboxes").show(500);
+            $("#eliminar_investigacion").show();
+            $("#finalizar_investigacion").show();
+            $("#aclaracion").show();
+            $("#crear_investigacion").hide();
+            $("#seleccionar_investigaciones").hide();
+            $("#cancelar_seleccion").show();
+            $(".contenedor_investigacion").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
+        }); 
+
+        $("#eliminar_investigacion").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_investigacion").hide();
+            $("#finalizar_investigacion").hide();
+            $("#aclaracion").hide();
+            $("#crear_investigacion").show();
+            $("#seleccionar_investigaciones").show();
+            $("#cancelar_seleccion").hide();
+            $(".contenedor_investigacion").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "0.3")
+                $(this).siblings().css("opacity", "0.3")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
+        });
+        $("#finalizar_investigacion").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_investigacion").hide();
+            $("#finalizar_investigacion").hide();
+            $("#aclaracion").hide();
+            $("#crear_investigacion").show();
+            $("#seleccionar_investigaciones").show();
+            $("#cancelar_seleccion").hide();
+            $(".contenedor_investigacion").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "0.3")
+                $(this).siblings().css("opacity", "0.3")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
+        });
+        $("#cancelar_seleccion").click(function () {
+            $(".checkboxes").hide(250);
+            $("#eliminar_investigacion").hide();
+            $("#finalizar_investigacion").hide();
+            $("#aclaracion").hide();
+            $("#crear_investigacion").show();
+            $("#seleccionar_investigaciones").show();
+            $("#cancelar_seleccion").hide();
+            $(".checkboxes").prop('checked', false);
+            $(".contenedor_investigacion").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "0.3")
+                $(this).siblings().css("opacity", "0.3")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
+        });
+        $(document).ready(function () {
+            $(".contenedor_investigacion").hover(function () {
+                $(this).parent().parent().siblings().css("opacity", "0.3")
+                $(this).siblings().css("opacity", "0.3")
+            }, function () {
+                $(this).parent().parent().siblings().css("opacity", "1")
+                $(this).siblings().css("opacity", "1")
+            });
+            $("#eliminar_investigacion").click(function () {
+                var recipient = $(this).attr('data-whatever')
+                if ($("#forma_administrar input:checkbox:checked").length > 0)
+                {   
+                    $('#modalEliminar').modal('show');
+                }
+                $('#forma_administrar').attr('action', recipient)
+            }); 
+            $("#finalizar_investigacion").click(function(){
+                if ($("#forma_administrar input:checkbox:checked").length > 0)
+                {   
+                    $('#modalFinalizar').modal('show');
+                }
+                var recipient = $(this).attr('data-whatever')
+                $('#forma_administrar').attr('action', recipient)
+            }); 
+            $('.checkboxes').click(function (e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+{% endblock scripts %}

@@ -9,14 +9,14 @@
     <div class="row row_resultados" style="margin-top: 8rem; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
-                <h2 id="titulo" title="{{header.caso.nombre}}">
-                    {% if header.caso.nombre|length < 10 %}
-                        {{header.caso.nombre}}
+                <h2 id="titulo" title="{{header.investigacion.nombre}}">
+                    {% if header.investigacion.nombre|length < 10 %}
+                        {{header.investigacion.nombre}}
                     {% else %}
-                        {{header.caso.nombre|truncatechars:8}}
+                        {{header.investigacion.nombre|truncatechars:8}}
                     {% endif %}
                 </h2>
-                <p id="caso">B&#250squeda {{header.busqueda}}</p>
+                <p id="investigación">Búsqueda {{header.busqueda}}</p>
             </div>
             <div id="data" class="jumbotron">
                 <h4>{{header.fecha|localtime|date:"d/m/Y H:i"}}</h4>
@@ -28,14 +28,14 @@
                     {% endif %}
                 </h4>
             </div>
-            <button id="eliminar" class="btn botones" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultado' caso_id=header.caso.id tipo=header.busqueda resultado_id=header.id %}">Eliminar resultado</button>
+            <button id="eliminar" class="btn botones" data-toggle="modal" data-target="#modalEliminar">Eliminar resultado</button>
             <button id="info1" class="btn botones" data-toggle="modal" data-target="#modalInformes1">Generar informe general</button>
             
-            <form id="forma_informe2" action="{% url 'crearInforme' resultado_id=header.id tipo_informe='destacados' %}" method="post">
+            <form id="forma_informe2" action="{% url 'crearInforme' resultado_id=header.id tipo_informe='destacados' camino=camino %}" method="post">
                 {% csrf_token %}
                 <button id="info2" class="btn botones" data-toggle="modal" data-target="#modalInformes2">Generar informe destacados&nbsp;&nbsp;<i class="far fa-star"></i></button>
             </form>
-            <form id="forma_informe1" action="{% url 'crearInforme' resultado_id=header.id tipo_informe='no' %}" method="post">
+            <form id="forma_informe1" action="{% url 'crearInforme' resultado_id=header.id tipo_informe='no' camino=camino %}" method="post">
                 {% csrf_token %}
             </form>
         </div>
@@ -59,7 +59,7 @@
         <div class="modal-content">
           <div class="modal-body">
             <p class="modal-advice">¿Eliminar resultado?</p>
-              <form id="borrarForm" action="" method="post">
+            <form id="borrarForm" action="{% url 'eliminar_resultado' investigacion_id=header.investigacion.id tipo=header.busqueda resultado_id=header.id camino=camino %}" method="post">
                 {% csrf_token %}
             </form>
           </div>
@@ -104,14 +104,3 @@
 
 {% endblock %}
 
-{% block scripts %}
-    <script>
-        $('#modalEliminar').on('show.bs.modal', function (event) {
-            console.log(event.relatedTarget)
-            var button = $(event.relatedTarget)
-            var recipient = button.data('whatever')
-            console.log(recipient)
-            $('#borrarForm').attr('action', recipient)
-        })
-    </script>
-{% endblock scripts %}

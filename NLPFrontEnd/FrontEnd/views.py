@@ -28,7 +28,7 @@ from django.db.models import Q
 from django.views.generic.edit import FormView
 
 from .models import *
-from .forms import CasoForm, DocumentoForm, CasoFormEdit, BuscadorGeneralForm, BuscadorCasosForm, NotaForm, UsuariosForm, UsuarioNuevoForm
+from .forms import InvestigacionForm, DocumentoForm, InvestigacionFormEdit, BuscadorGeneralForm, BuscadorInvestigacionesForm, NotaForm, UsuariosForm, UsuarioNuevoForm, RegexForm
 from .functions import *
 
 from .myclasses import *
@@ -45,7 +45,7 @@ def home(request):
     """Crea la página de inicio"""
     assert isinstance(request, HttpRequest)
     mensajes = Mensaje.objects.filter(eliminado=False).filter(receptor=request.user).order_by('-fecha_agregado')
-    casos = Caso.objects.filter(usuario=request.user).filter(eliminado=False).filter(finalizado_incorrecto=False).filter(finalizado_correcto=False).order_by('-fecha_agregado')[:2]
+    investigaciones = Investigacion.objects.filter(usuario=request.user).filter(eliminado=False).filter(finalizado_incorrecto=False).filter(finalizado_correcto=False).order_by('-fecha_agregado')[:2]
     documentos = Documento.objects.filter(usuario=request.user).filter(eliminado=False).order_by('-fecha_agregado')[:7]
     form = DocumentoForm()
     form_usuario = UsuariosForm(request.user)
@@ -53,7 +53,7 @@ def home(request):
             'title':'Home',
             'year':datetime.now().year,
             'mensajes':mensajes,
-            'casos':casos,
+            'investigaciones':investigaciones,
             'formDoc':form,
             'form_usuario':form_usuario,
             'documentos':documentos,
@@ -103,87 +103,58 @@ def logout_view(request):
 @login_required
 def documentos(request):
     """Genera la vista de todos los documentos subidos por el usuario"""
-    form = BuscadorCasosForm(request.user)
+    form = BuscadorInvestigacionesForm(request.user)
     formDoc = DocumentoForm()
+
     context = {'form':form, 
                'formDoc':formDoc,
                'title':'Documentos'
                }
     if request.method == 'POST':
-        id_caso = request.POST.get('casos')
-        caso = Caso.objects.get(id=id_caso)
-        documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-        context['id_caso'] = id_caso
+        id_investigacion = request.POST.get('investigaciones')
+        investigacion = Investigacion.objects.get(id=id_investigacion)
+        camino = f'Documentos:documentos>{investigacion.nombre}:investigacion|{investigacion.id}'
+        documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+        context['id_investigacion'] = id_investigacion
         context['documentos'] = documentos
-        context['nombre_caso'] =caso.nombre
+        context['nombre_investigacion'] =investigacion.nombre
         context['inicial'] = False
+        context['camino'] = camino
     return render(request,'FrontEnd/documentos.html',context)
 
 @login_required
-def documentos_caso(request,caso_id,destino,camino):
-    """Genera la vista de todos los documentos subidos por el usuario para un caso """
+def documentos_investigacion(request,investigacion_id,destino,camino):
+    """Genera la vista de todos los documentos subidos por el usuario para una investigación """
     formDoc = DocumentoForm()
     context = {
                 'formDoc':formDoc,
-                'title':'Documentos de caso'
+                'title':'Documentos de investigacion'
                }
     breadcrumb_path = parser_camino(camino)
-    caso = Caso.objects.get(id=caso_id)
-    documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    context['id_caso'] = caso_id
-    context['nombre_caso'] = caso.nombre
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    context['id_investigacion'] = investigacion_id
+    context['nombre_investigacion'] = investigacion.nombre
     context['documentos'] = documentos
     context['camino'] = camino
     context['camino_array'] = breadcrumb_path
     return render(request,destino,context)
 
-#def crear_documento_general(request,file,form,caso_id):
-#    """Crea y guarda documento en base a forma"""
-    
-#    #Crea los hashs en base al contenido del documento
-#    hash_md5 = hashlib.md5()
-#    hash_sha = hashlib.sha1()
-#    for c in file.chunks():
-#        hash_md5.update(c)
-#        hash_sha.update(c)
-
-#    hash_md5 = hash_md5.hexdigest()
-#    hash_sha1 = hash_sha.hexdigest()
-#    propietario_doc = request.user
-
-#    #Parsea el documento en base a si es txt o docx
-#    nombre, punto, ext = file.name.rpartition(".")
-#    ext = ext.lower()
-    
-#    lector = ExtensionArchivo().getLector(ext,file)
-#    texto = lector.read()
-
-#    nuevo_doc = Documento(titulo=file.name,nombre_doc=file.name,documento=file,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
-#    nuevo_doc.save()
-
-#    #Divide al documento en párrafos para mejor procesamiento
-#    dividirParrafos(nuevo_doc)
-
-#    #Crea las entidades correspondientes a los párrafos del documento
-#    crearEntidades(nuevo_doc,caso_id)
-
-#    #Relaciona el documento con el usuario que lo está utilizando y con el caso correspondiente
-#    nuevo_doc.usuario.add(request.user)
-#    nuevo_doc.caso.add(caso_id)
-
-#    nuevo_doc.save()
-
 @login_required
-def agregar_doc(request, caso_id):
+def agregar_doc(request, investigacion_id):
     """ Crear un documento en base a un archivo cargado en el sistema por el usuario"""
-    
+    #Esta vista solo es accedida desde una investigacion específica o desde el inicio
     if request.method == 'POST':
         #Crea el objeto documento que solo contiene la ubicación del documento en el servidor
         next = request.POST.get('next', '/')
         tipo = request.POST.get('tipo_archivo', '')
-        creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+        creador = ObtenerCreador().creadorArchivo(tipo,request,investigacion_id)
         creador.cargar()     
-    return HttpResponseRedirect(reverse(next))
+        if next == "investigacion":
+            return HttpResponseRedirect(reverse('investigacion',args=[investigacion_id]))
+        else:
+            return HttpResponseRedirect(reverse('home'))
+    
 
 #class FileFieldView(FormView):
 #    form_class = DocumentoForm
@@ -194,90 +165,42 @@ def agregar_doc(request, caso_id):
 #        form = self.get_form(form_class)
 #        next = request.POST.get('next', '/')
 #        self.success_url = reverse_lazy(next)
-#        caso_id = self.kwargs['caso_id']
+#        investigacion_id = self.kwargs['investigacion_id']
 
 #        if form.is_valid():
-#            crear_documento_general(request,form,caso_id)
+#            crear_documento_general(request,form,investigacion_id)
 #            return self.form_valid(form)
 #        else:
 #            return self.form_invalid(form)
 
 @login_required
-def agregar_docDocumentos(request, caso_id):
+def agregar_docDocumentos(request, investigacion_id):
     """Crear documento desde la pantalla de documentos en base a un archivo cargado en el sistema por el usuario"""
     
     #Crea el objeto documento que solo contiene la ubicación del documento en el servidor
     tipo = request.POST.get('tipo_archivo', '')
-    creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+    creador = ObtenerCreador().creadorArchivo(tipo,request,investigacion_id)
     creador.cargar()
-    form = BuscadorCasosForm(request.user)
+    form = BuscadorInvestigacionesForm(request.user)
     formDoc = DocumentoForm()
     context = {'form':form, 'formDoc':formDoc }
-    caso = Caso.objects.get(id=caso_id)
-    documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    context['id_caso'] = caso_id
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    context['id_investigacion'] = investigacion_id
     context['documentos'] = documentos
     context['inicial'] = False
     return render(request,'FrontEnd/documentos.html',context)
 
 @login_required
-def agregar_docCaso(request,caso_id,camino):
-    """Crear documento desde la pantalla de documentos de caso en base a un archivo cargado en el sistema por el usuario"""
+def agregar_docInvestigacion(request,investigacion_id,camino):
+    """Crear documento desde la pantalla de documentos de una investigacion en base a un archivo cargado en el sistema por el usuario"""
     tipo = request.POST.get('tipo_archivo', '')
-    creador = ObtenerCreador().creadorArchivo(tipo,request,caso_id)
+    creador = ObtenerCreador().creadorArchivo(tipo,request,investigacion_id)
     creador.cargar()
 
-    destino = 'FrontEnd/documentos_caso.html'
+    destino = 'FrontEnd/documentos_investigacion.html'
 
-    return HttpResponseRedirect(reverse('documentos_caso',args=[caso_id,destino,camino]))
-
-def crearEntidades(documento,caso_id):
-    """Crea las entidades en base al análisis nlp de un documento"""
-    caso = Caso.objects.get(id=caso_id)
-    modelo = TipoModelo().getModelo(caso.modelo)
-    rx = re.compile("\s+")
-    parrafos = Parrafo.objects.filter(doc_id=documento)
-    resultado_tokenizer = []
-    resultado_ner = []
-    for parrafo in parrafos:
-        entidades = []
-        texto = rx.sub(" ", parrafo.parrafo)
-        task_id = modelo.analyze(texto)
-        while not modelo.is_analysis_ready(task_id):
-            time.sleep(0.1)
-        results = modelo.get_task_results(task_id)
-        tokens = results['tokenizer_results']
-        for token in [token.to_dict() for token in tokens]:
-            resultado_tokenizer.append([token['base_form'],token['part_of_speech'],token['sentence'],token['token_text'],token['analysis_result']['category_detected'],parrafo.id])
-        entidades = results['ner_results']
-        for entidad in [entidad.to_dict() for entidad in entidades]:
-            resultado_ner.append([entidad['text'],entidad['start_pos'],entidad['end_pos'],entidad['label'],parrafo.id])
-
-        #doc = nlp(texto)
-        #entidades.extend(doc.ents)
-        #for e in entidades:
-        #    ent_aux = EntidadesDoc(doc=documento, tipo=e.label_, string=e.string, string_original=e.string, start=e.start_char, end=e.end_char, parrafo_id=parrafo.id, eliminado=False)
-        #    ent_aux.save()
-
-    for entidad in resultado_ner:
-        parrafo = Parrafo.objects.get(id=entidad[4])
-        ent_aux = EntidadesDoc(doc=documento, tipo=entidad[3], string=entidad[0], string_original=entidad[0], start=entidad[1], end=entidad[2], parrafo=parrafo, eliminado=False)
-        ent_aux.save()
-
-    for token in resultado_tokenizer:
-        parrafo = Parrafo.objects.get(id=token[5])
-        token_aux = TokensDoc(doc=documento, aparicion=token[3], tipo=GetTipoToken().getTipoToken(token[1]), frase=token[2], lema=token[0], categoria=token[4], parrafo=parrafo, eliminado=False)
-        token_aux.save()
-
-def  dividirParrafos(documento):
-    """Segmenta el texto de un documento para ser almacenado por párrafos"""
-    texto = documento.texto
-    parrafos = texto.split("\n\n")
-    i = 1
-    for p in parrafos:
-        parrafo = Parrafo(nro=i, doc_id=documento.id, parrafo=p, eliminado=False)
-        parrafo.save()
-        i = i + 1
+    return HttpResponseRedirect(reverse('documentos_investigacion',args=[investigacion_id,destino,camino]))
 
 def eliminar_documentos_general(id_doc):
     """Eliminar documentos"""
@@ -306,32 +229,32 @@ def eliminar_documentos_general(id_doc):
         mensaje.save()
 
 @login_required
-def eliminar_doc(request, id_doc, id_caso):
-    """Eliminar un documento del caso"""
+def eliminar_doc(request, id_doc, id_investigacion):
+    """Eliminar un documento de la investigacion"""
     next = ''
     if request.method == 'POST':
         next = request.POST.get('next', '/')
         eliminar_documentos_general(id_doc)
-    caso = Caso.objects.get(id=id_caso)
-    documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    form = BuscadorCasosForm(request.user)
+    investigacion = Investigacion.objects.get(id=id_investigacion)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    form = BuscadorInvestigacionesForm(request.user)
     formDoc = DocumentoForm()
     context = {'form':form,
                'formDoc':formDoc,
                'documentos':documentos,
                'inicial':False,
-               'id_caso':id_caso}
+               'id_investigacion':id_investigacion}
     return render(request,next,context)
 
 @login_required
-def eliminar_doc_caso(request,id_doc,id_caso,camino):
-    """Elimina un documento desde la pantalla que muestras los documentos de un caso específico"""
+def eliminar_doc_investigacion(request,id_doc,id_investigacion,camino):
+    """Elimina un documento desde la pantalla que muestras los documentos de una investigacion específico"""
     
     eliminar_documentos_general(id_doc)
 
-    destino = 'FrontEnd/documentos_caso.html'
+    destino = 'FrontEnd/documentos_investigacion.html'
 
-    return HttpResponseRedirect(reverse('documentos_caso',args=[id_caso,destino,camino]))
+    return HttpResponseRedirect(reverse('documentos_investigacion',args=[id_investigacion,destino,camino]))
 
 
 
@@ -353,14 +276,14 @@ def ver_doc(request, id_doc):
 
     response = HttpResponse(doc.documento, content_type=content)
     file_path = f'{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}/documentos{doc.documento}'
-    response['Content-Disposition'] = 'attachment; filename=%s' % doc.titulo
+    response['Content-Disposition'] = 'attachment; filename=%s' % doc.nombre_doc
 
     return response
 
 @login_required
-def mensaje_nuevo(request, id_doc, id_caso):
+def mensaje_nuevo(request, id_doc, id_investigacion):
     """Genera una solicitud de eliminación para el propietario del documento"""
-    form = BuscadorCasosForm(request.user)
+    form = BuscadorInvestigacionesForm(request.user)
     formDoc = DocumentoForm()
     context = {'form':form,
                'formDoc': formDoc,}
@@ -368,19 +291,19 @@ def mensaje_nuevo(request, id_doc, id_caso):
         next = request.POST.get('next', '/')
         msj = request.POST.get('mensaje')
         doc = Documento.objects.get(id = id_doc)
-        caso = Caso.objects.get(id=id_caso)
+        investigacion = Investigacion.objects.get(id=id_investigacion)
         mensaje = Mensaje()
         mensaje.emisor = request.user
         mensaje.receptor = doc.propietario_doc
         mensaje.mensaje = msj
         mensaje.documento = doc
         mensaje.eliminado = False
-        mensaje.caso = caso
+        mensaje.investigacion = investigacion
         mensaje.save()
-        documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+        documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
         context['documentos'] = documentos
         context['inicial'] = False
-        context['id_caso'] = id_caso
+        context['id_investigacion'] = id_investigacion
     return render(request,next,context)
 
 @login_required
@@ -399,98 +322,106 @@ def eliminar_mensaje(request,id_msj):
 #***********************************************************************************************************************************************************************
 
 #***********************************************************************************************************************************************************************
-#****************************************************************************************** START CASOS ****************************************************************
+#****************************************************************************************** START INVESTIGACIONES ****************************************************************
 #***********************************************************************************************************************************************************************
 
 @login_required
-def casos(request):
-    """Genera la vista de los casos de un usuario determinado"""
+def investigaciones(request):
+    """Genera la vista de las investigaciones de un usuario determinado"""
     
-    casos = Caso.objects.filter(usuario=request.user).filter(eliminado=False).filter(finalizado_incorrecto=False).filter(finalizado_correcto=False).order_by('-fecha_agregado')
-    context = {'casos':casos, 
-               'title':'Casos en curso',
+    investigaciones = Investigacion.objects.filter(usuario=request.user).filter(eliminado=False).filter(finalizado_incorrecto=False).filter(finalizado_correcto=False).order_by('-fecha_agregado')
+    context = {'investigaciones':investigaciones, 
+               'title':'Investigaciones en curso',
                }
-    return render(request,'FrontEnd/casos.html',context)
+    return render(request,'FrontEnd/investigaciones.html',context)
 
 @login_required
-def casos_finalizados(request):
-    """Genera la vista de los casos finalizados de un usuario determinado"""
+def investigaciones_finalizadas(request):
+    """Genera la vista de los investigaciones finalizadas de un usuario determinado"""
     
-    casos = Caso.objects.filter(usuario=request.user).filter(eliminado=False).filter(Q(finalizado_correcto=True) | Q(finalizado_incorrecto=True)).order_by('-fecha_agregado')
+    investigaciones = Investigacion.objects.filter(usuario=request.user).filter(eliminado=False).filter(Q(finalizado_correcto=True) | Q(finalizado_incorrecto=True)).order_by('-fecha_agregado')
     form_usuario = UsuariosForm(request.user)
-    context = {'casos':casos, 
+    context = {'investigaciones':investigaciones, 
                'form_usuario':form_usuario,
-               'destino_resultados':'FrontEnd/resultados_casofinalizado.html',
-               'destino_informes':'FrontEnd/informes_casofinalizado.html',
-               'destino_documentos':'FrontEnd/documentos_casofinalizado.html',
-               'title':'Casos finalizados',
+               'destino_resultados':'FrontEnd/resultados_investigacionfinalizada.html',
+               'destino_informes':'FrontEnd/informes_investigacionfinalizada.html',
+               'destino_documentos':'FrontEnd/documentos_investigacionfinalizada.html',
+               'title':'Investigaciones finalizadas',
                }
-    return render(request,'FrontEnd/casos_finalizados.html',context)
+    return render(request,'FrontEnd/investigaciones_finalizadas.html',context)
 
 @login_required
-def caso_finalizado(request,caso_id):
-    """Genera la vista que muestra toda la información específica de un caso finalizado"""
-    comprobar_usuario(request.user,caso_id)
-    caso = Caso.objects.get(id=caso_id)
+def investigacion_finalizada(request,investigacion_id):
+    """Genera la vista que muestra toda la información específica de una investigacion finalizada"""
+    comprobar_usuario(request.user,investigacion_id)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
     form_usuario = UsuariosForm(request.user)
-    context = {'caso':caso, 
+    camino = f'Investigaciones finalizadas:investigaciones_finalizadas>{investigacion.nombre}:investigacion_finalizada|{investigacion.id}'
+
+    context = {'investigacion':investigacion, 
                'form_usuario':form_usuario,
-               'destino_resultados':'FrontEnd/resultados_casofinalizado.html',
-               'destino_informes':'FrontEnd/informes_casofinalizado.html',
-               'destino_documentos':'FrontEnd/documentos_casofinalizado.html',
-               'title':'Casos finalizados',
+               'destino_resultados':'FrontEnd/resultados_investigacionfinalizada.html',
+               'destino_informes':'FrontEnd/informes_investigacionfinalizada.html',
+               'destino_documentos':'FrontEnd/documentos_investigacionfinalizada.html',
+               'title':f'{investigacion.nombre[:12]}...',
+               'camino':camino,
+               'modelo': TipoModelo().getModeloString(investigacion.modelo),
                }
-    return render(request,'FrontEnd/caso_finalizado.html',context)
+    return render(request,'FrontEnd/investigacion_finalizada.html',context)
 
 @login_required
-def caso(request,caso_id):
-    """Genera la vista que muestra toda la información específica a un caso"""
-    comprobar_usuario(request.user,caso_id)
-    caso = Caso.objects.get(id=caso_id)
+def investigacion(request,investigacion_id):
+    """Genera la vista que muestra toda la información específica a un investigacion"""
+    comprobar_usuario(request.user,investigacion_id)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
     form = DocumentoForm()
     form_usuario = UsuariosForm(request.user)
+    camino = f'Investigaciones en curso:investigaciones>{investigacion.nombre}:investigacion|{investigacion.id}'
+
     context = {'formDoc':form, 
                'form_usuario':form_usuario,
-               'destino_resultados':'FrontEnd/resultados_caso.html',
-               'destino_informes':'FrontEnd/informes_caso.html',
-               'destino_documentos':'FrontEnd/documentos_caso.html',
-               'caso': caso,
-               'title': f'{caso.nombre[:12]}...',
+               'destino_resultados':'FrontEnd/resultados_investigacion.html',
+               'destino_informes':'FrontEnd/informes_investigacion.html',
+               'destino_documentos':'FrontEnd/documentos_investigacion.html',
+               'camino':camino,
+               'investigacion': investigacion,
+               'title': f'{investigacion.nombre[:12]}...',
+               'modelo': TipoModelo().getModeloString(investigacion.modelo),
               }
-    return render(request,'FrontEnd/caso.html',context)
+    return render(request,'FrontEnd/investigacion.html',context)
 
 
 @login_required
-def editar_caso(request,caso_id,camino):
-    """ Editar un caso ya existente"""
-    caso = Caso.objects.get(id=caso_id)
+def editar_investigacion(request,investigacion_id,camino):
+    """ Editar una investigación ya existente"""
+    investigacion = Investigacion.objects.get(id=investigacion_id)
     if request.method == 'POST':
-        #Actualizar el caso
-        form = CasoFormEdit(instance=caso, data=request.POST)
+        #Actualizar el investigacion
+        form = InvestigacionFormEdit(instance=investigacion, data=request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('casos'))
+            return HttpResponseRedirect(reverse('investigaciones'))
     else:
-        #Solicita el caso para ser modificado, con información precargada
-        form = CasoFormEdit(instance=caso)
+        #Solicita el investigacion para ser modificado, con información precargada
+        form = InvestigacionFormEdit(instance=investigacion)
     
     breadcrumb_path = parser_camino(camino)
     context = {'form':form, 
-               'caso': caso, 
-               'caso_nombre':caso.nombre, 
+               'investigacion': investigacion, 
+               'investigacion_nombre':investigacion.nombre, 
                'documentos':documentos,
-               'title':'Editar caso',
+               'title':'Editar investigacion',
                'camino':camino,
                'camino_array':breadcrumb_path,
                }
 
-    return render(request,'FrontEnd/editar_caso.html',context)
+    return render(request,'FrontEnd/editar_investigacion.html',context)
 
 
-def eliminar_generico_casos(request,caso):
-    """Función para eliminar casos"""
-    if caso.propietario == request.user:
-        documentos = Documento.objects.filter(caso=caso)
+def eliminar_generico_investigaciones(request,investigacion):
+    """Función para eliminar investigaciones"""
+    if investigacion.propietario == request.user:
+        documentos = Documento.objects.filter(investigacion=investigacion)
         for doc in documentos:
             parrafos = Parrafo.objects.filter(doc=doc)
             for parrafo in parrafos:
@@ -514,118 +445,120 @@ def eliminar_generico_casos(request,caso):
                 mensaje.save()
             doc.eliminado = True
             doc.save()
-        caso.eliminado = True
-        caso.save()
+        investigacion.eliminado = True
+        investigacion.save()
     else:
-        caso.usuario.remove(request.user.id)
+        investigacion.usuario.remove(request.user.id)
 
 @login_required
-def eliminar_finalizado(request,caso_id):
-    """Elimina un caso finalizado específico"""
+def eliminar_finalizada(request,investigacion_id):
+    """Elimina una investigacion finalizada específico"""
 
-    caso = Caso.objects.get(id=caso_id)
-    eliminar_generico_casos(request,caso)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    eliminar_generico_investigaciones(request,investigacion)
 
-    return HttpResponseRedirect(reverse('casos_finalizados'))
+    return HttpResponseRedirect(reverse('investigaciones_finalizadas'))
 
 @login_required
-def administrar_casos(request,tipo):
-    """Administrar casos seleccionados, para ser eliminados o finalizados"""
+def administrar_investigaciones(request,tipo):
+    """Administrar investigaciones seleccionadas, para ser eliminadas o finalizadas"""
     if request.method == 'POST':
         ids = request.POST.getlist('checks[]')
         if tipo == "incorrecto":
-            #Se han seleccionado casos para ser eliminados
+            #Se han seleccionado investigaciones para ser finalizadas incorrectamente
             for id in ids:
-                 caso = Caso.objects.filter(id=id)
-                 for c in caso:
+                 investigacion = Investigacion.objects.filter(id=id)
+                 for c in investigacion:
                     if c.propietario == request.user:
                         c.finalizado_incorrecto = True
                         c.save()
                     else:
                         c.usuario.remove(request.user.id)
         else:
-            #Se han seleccionado casos para ser finalizados
+            #Se han seleccionado investigaciones para ser finalizadas correctamente
             for id in ids:
-                caso = Caso.objects.filter(id=id)
-                for c in caso:
+                investigacion = Investigacion.objects.filter(id=id)
+                for c in investigacion:
                     if c.propietario == request.user:
                         c.finalizado_correcto = True
                         c.save()
                     else:
                         c.usuario.remove(request.user.id)
     
-    return HttpResponseRedirect(reverse('casos'))
+    return HttpResponseRedirect(reverse('investigaciones'))
 
 
 @login_required
-def nuevo_caso(request,camino):
-    """Crea un nuevo caso"""
+def nueva_investigacion(request,camino):
+    """Crea una nueva investigación"""
     if request.method != 'POST':
         #No se ha enviado información, se crea una forma vacía
-        form = CasoForm()
+        form = InvestigacionForm()
     else:
         #POST información recibida, se procesa la misma
-        form = CasoForm(request.POST)
+        form = InvestigacionForm(request.POST)
         if form.is_valid():
-            nuevo_caso = form.save(commit=False)
-            nuevo_caso.propietario = request.user
-            nuevo_caso.eliminado = False
-            nuevo_caso.finalizado_correcto = False
-            nuevo_caso.finalizado_incorrecto = False
-            nuevo_caso.save()
-            nuevo_caso.usuario.add(request.user)
-            return HttpResponseRedirect(reverse('casos'))
+            nueva_investigacion = form.save(commit=False)
+            nueva_investigacion.propietario = request.user
+            nueva_investigacion.eliminado = False
+            nueva_investigacion.finalizado_correcto = False
+            nueva_investigacion.finalizado_incorrecto = False
+            nueva_investigacion.save()
+            nueva_investigacion.usuario.add(request.user)
+            return HttpResponseRedirect(reverse('investigaciones'))
     
     breadcrumb_path = parser_camino(camino)
     context = {'form':form,
-               'title':'Nuevo caso',
+               'title':'Nueva investigación',
                'camino':camino,
                'camino_array':breadcrumb_path,
                }
-    return render(request,'FrontEnd/nuevo_caso.html',context)
+    return render(request,'FrontEnd/nueva_investigacion.html',context)
 
 @login_required
-def compartir_casos(request,caso_id,tipo):
-    """Comparte un caso a otro usuario"""
+def compartir_investigaciones(request,investigacion_id,tipo):
+    """Comparte un investigacion a otro usuario"""
     if request.method == 'POST':
         next = request.POST.get('next', '/')
         usuario = request.POST.get('usuarios')
         usuario_instance = User.objects.get(id=usuario)
-        caso = Caso.objects.get(id=caso_id)
-        if not(caso.usuario.filter(id=usuario_instance.id)):
-            caso.usuario.add(usuario)
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        if not(investigacion.usuario.filter(id=usuario_instance.id)):
+            investigacion.usuario.add(usuario)
         if tipo=="con":
-            if caso.propietario != usuario_instance:
-                caso.propietario = usuario_instance
-                caso.save()
-        
-    return HttpResponseRedirect(reverse(next))
+            if investigacion.propietario != usuario_instance:
+                investigacion.propietario = usuario_instance
+                investigacion.save()
+    if next == "investigacion":
+        return HttpResponseRedirect(reverse(next,args=[investigacion_id]))
+    else:
+        return HttpResponseRedirect(reverse(next))
 
 @login_required
-def compartir_casoFinalizado(request,caso_id):
-    """Comparte un caso finalizado a otro usuario"""
+def compartir_investigacionFinalizada(request,investigacion_id):
+    """Comparte una investigación finalizada a otro usuario"""
     if request.method == 'POST':
         usuario = request.POST.get('usuarios')
         usuario_instance = User.objects.get(id=usuario)
-        caso = Caso.objects.get(id=caso_id)
-        if not(caso.usuario.filter(id=usuario_instance.id)):
-            caso.usuario.add(usuario)
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        if not(investigacion.usuario.filter(id=usuario_instance.id)):
+            investigacion.usuario.add(usuario)
 
-    return HttpResponseRedirect(reverse('casos_finalizados'))  
+    return HttpResponseRedirect(reverse('investigacion_finalizada'),args=[investigacion_id])  
     
 
 #***********************************************************************************************************************************************************************
-#****************************************************************************************** END CASOS ******************************************************************
+#****************************************************************************************** END INVESTIGACIONES ******************************************************************
 #***********************************************************************************************************************************************************************
 
 #***********************************************************************************************************************************************************************
 #****************************************************************************************** START NOTAS ****************************************************************
 #***********************************************************************************************************************************************************************
 
-def comprobar_usuario(usuario,caso_id):
-    """Comprueba que el usuario que solicita el caso sea usuario del mismo"""
-    caso = Caso.objects.get(id=caso_id)
-    if not(caso.usuario.filter(id=usuario.id)):
+def comprobar_usuario(usuario,investigacion_id):
+    """Comprueba que el usuario que solicita la investigacion sea usuario del mismo"""
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    if not(investigacion.usuario.filter(id=usuario.id)):
         raise Http404("Permiso denegado")
 
 @login_required
@@ -633,7 +566,7 @@ def notas(request, id, tipo, camino):
     """Genera la vista de todas las notas"""
     notas = {
              "documento": NotaDocumento.objects.filter(entidad=id).filter(eliminado=False).order_by('-fecha_agregado'),
-             "caso": NotaCaso.objects.filter(entidad=id).filter(eliminado=False).order_by('-fecha_agregado'),
+             "investigacion": NotaInvestigacion.objects.filter(entidad=id).filter(eliminado=False).order_by('-fecha_agregado'),
              }
     context = { "notas" : notas[tipo],
                 "id": id,
@@ -646,7 +579,7 @@ def notas(request, id, tipo, camino):
     else:
         crearNota = {
                     "documento": NotaDocumento,
-                    "caso": NotaCaso,
+                    "investigacion": NotaInvestigacion,
             }
         form = NotaForm(request.POST)
         nueva_nota = form.save(commit=False)
@@ -654,9 +587,8 @@ def notas(request, id, tipo, camino):
         if tipo == "documento":
             doc = Documento.objects.get(id=id)
             notaHija.entidad = doc
-            context['descripcion'] = doc.descripcion_doc
-        elif tipo == "caso":
-            notaHija.entidad = Caso.objects.get(id=id)
+        elif tipo == "investigacion":
+            notaHija.entidad = Investigacion.objects.get(id=id)
         notaHija.save()
         return HttpResponseRedirect(reverse('notas',args=[id,tipo,camino]))
 
@@ -688,82 +620,82 @@ def parser_camino(camino):
 
 @login_required
 def eliminar_nota(request,id,tipo,id_nota,camino):
-    """Elimina una nota desde la vista específica que muestra las notas de los casos o documentos"""
+    """Elimina una nota desde la vista específica que muestra las notas de las investigaciones o documentos"""
     if tipo == "documento":
         nota_eliminar = NotaDocumento.objects.get(id=id_nota)
-    elif tipo == "caso":
-        nota_eliminar = NotaCaso.objects.get(id=id_nota)
+    elif tipo == "investigacion":
+        nota_eliminar = NotaInvestigacion.objects.get(id=id_nota)
     nota_eliminar.eliminado = True
     nota_eliminar.save()
     return HttpResponseRedirect(reverse('notas',args=[id,tipo,camino]))
 
 @login_required
-def eliminar_notacaso(request,id_caso,id_nota):
-    """Elimina una nota de caso y retorna a la vista asociada a la sección de notas genérica"""
-    form_elegir = BuscadorCasosForm(request.user)
+def eliminar_notainvestigacion(request,id_investigacion,id_nota):
+    """Elimina una nota de investigación y retorna a la vista asociada a la sección de notas genérica"""
+    form_elegir = BuscadorInvestigacionesForm(request.user)
     form_crear = NotaForm()
-    caso = Caso.objects.get(id=id_caso)
-    documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    notas = NotaCaso.objects.filter(entidad=id_caso).filter(eliminado=False).order_by('-fecha_agregado')
+    investigacion = Investigacion.objects.get(id=id_investigacion)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    notas = NotaInvestigacion.objects.filter(entidad=id_investigacion).filter(eliminado=False).order_by('-fecha_agregado')
     context = {
                 'form_elegir':form_elegir,
                 'form_crear': form_crear,
-                'id_caso' : id_caso,
+                'id_investigacion' : id_investigacion,
                 'documentos' : documentos,
-                'nombre_caso':caso.nombre,
+                'nombre_investigacion':investigacion.nombre,
                 'inicial' : False,
                 'notas' : notas,
                 'title':'Notas',
                }
-    nota_eliminar = NotaCaso.objects.get(id=id_nota)
+    nota_eliminar = NotaInvestigacion.objects.get(id=id_nota)
     nota_eliminar.eliminado = True
     nota_eliminar.save()
     return render(request,'FrontEnd/ver_notas.html',context)
 
 @login_required
 def ver_notas(request):
-    """Ver notas de casos o documentos"""
-    form_elegir = BuscadorCasosForm(request.user)
+    """Ver notas de investigaciones o documentos"""
+    form_elegir = BuscadorInvestigacionesForm(request.user)
     form_crear = NotaForm()
     context = {
                 'form_elegir':form_elegir,
                 'form_crear': form_crear,
-                "title":'Notas',
+                "title":'Notas de investigaciones',
                }
     if request.method == 'POST':
-        id_caso = request.POST.get('casos')
-        caso = Caso.objects.get(id=id_caso)
-        documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-        notas = NotaCaso.objects.filter(entidad=id_caso).filter(eliminado=False).order_by('-fecha_agregado')
-        context['id_caso'] = id_caso
-        context['nombre_caso'] = caso.nombre
+        id_investigacion = request.POST.get('investigaciones')
+        investigacion = Investigacion.objects.get(id=id_investigacion)
+        documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+        notas = NotaInvestigacion.objects.filter(entidad=id_investigacion).filter(eliminado=False).order_by('-fecha_agregado')
+        context['id_investigacion'] = id_investigacion
+        context['nombre_investigacion'] = investigacion.nombre
         context['documentos'] = documentos
         context['inicial'] = False
         context['notas'] = notas
     return render(request,'FrontEnd/ver_notas.html',context)
  
 @login_required
-def crear_nota(request, id_caso):
-    """Crea una nota a un caso en la pantalla de ver_notas"""
-    caso = Caso.objects.get(id=id_caso)
-    documentos = caso.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    notas = NotaCaso.objects.filter(entidad=id_caso).filter(eliminado=False).order_by('-fecha_agregado')
-    form_elegir = BuscadorCasosForm(request.user)
+def crear_nota(request, id_investigacion):
+    """Crea una nota a una investigación en la pantalla de ver_notas"""
+    investigacion = Investigacio.objects.get(id=id_investigacion)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    notas = NotaInvestigacio.objects.filter(entidad=id_investigacion).filter(eliminado=False).order_by('-fecha_agregado')
+    form_elegir = BuscadorInvestigacionesForm(request.user)
     form_crear = NotaForm()
     context = {
             'form_elegir':form_elegir,
             'form_crear': form_crear,
-            'id_caso': id_caso,
+            'id_investigacion': id_investigacion,
             'documentos': documentos,
-            'nombre_caso': caso.nombre,
+            'nombre_investigacion': investigacion.nombre,
             'notas': notas,
             'inicial': False,
         }
     if request.method == 'POST':
         form = NotaForm(request.POST)
         nueva_nota = form.save(commit=False)
-        notaHija = NotaCaso(nota=nueva_nota.nota, descripcion=nueva_nota.descripcion, eliminado=False)
-        notaHija.entidad = caso
+        notaHija = NotaInvestigacio(nota=nueva_nota.nota, descripcion=nueva_nota.descripcion, eliminado=False)
+        notaHija.entidad = investigacion
         notaHija.save()
     return render(request,'FrontEnd/ver_notas.html',context)
 
@@ -776,11 +708,11 @@ def crear_nota(request, id_caso):
 #*********************************************************************************************************************************************************************
 
 @login_required
-def buscador_general(request,caso_id,camino):
+def buscador_general(request,investigacion_id,camino):
     """Genera la vista para las búsquedas generales"""
 
-    caso = Caso.objects.get(id=caso_id)
-    context = {"caso":caso,
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    context = {"investigacion":investigacion,
                'title':'Buscador general',
                }
     if request.method != "POST":
@@ -794,7 +726,7 @@ def buscador_general(request,caso_id,camino):
         if form.is_valid():
             string = form.cleaned_data['busqueda']
             context["expresion"] = string
-            documentos = caso.documento_set.all().order_by('-fecha_agregado')
+            documentos = investigacion.documento_set.all().order_by('-fecha_agregado')
             resultados = []
             id_fila = 0
             for documento in documentos:
@@ -802,7 +734,7 @@ def buscador_general(request,caso_id,camino):
                 for parrafo in parrafos:
                     aux = posiciones(parrafo.parrafo,string)
                     if len(aux) > 0:
-                        resultados.append([documento.titulo,documento.id,parrafo.nro,parrafo.parrafo,aux,id_fila])
+                        resultados.append([documento.nombre_doc,documento.id,parrafo.nro,parrafo.parrafo,aux,id_fila])
                         id_fila += 1
             context["res"] = resultados
             resultados_json = json.dumps(resultados)
@@ -829,10 +761,10 @@ def posiciones(parrafo,palabra):
     return respuesta
     
 @login_required
-def buscador_inteligente(request,tipo,caso_id,camino):
+def buscador_inteligente(request,tipo,investigacion_id,camino):
     """Genera la vista para las búsquedas inteligentes"""
 
-    caso = Caso.objects.get(id=caso_id)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
     if request.method == "POST":
         ids_eliminar = request.POST.getlist('checks2[]')
         for id in ids_eliminar:
@@ -842,31 +774,31 @@ def buscador_inteligente(request,tipo,caso_id,camino):
                 entidad.save()
     
     context = {"tipo":tipo,
-                "caso_nombre":caso.nombre,
-                "modelo":TipoModelo().getModeloString(caso.modelo),
+                "investigacion_nombre":investigacion.nombre,
+                "modelo":TipoModelo().getModeloString(investigacion.modelo),
                 "org":"Organizaciones",
                 "loc":"Locaciones",
                 "lex":"Léxicos detectados",
                 "pers":"Personas",
                 "drog":"Drogas",
                 "econ":"Económicos",
-                "caso_id":caso.id,
+                "investigacion_id":investigacion.id,
                 'title':'Buscador inteligente',
                 }
-    documentos = caso.documento_set.all().order_by('-fecha_agregado')
+    documentos = investigacion.documento_set.all().order_by('-fecha_agregado')
     resultado = []
     if tipo == "Léxicos detectados":
         for documento in documentos:
             tokens = TokensDoc.objects.filter(doc=documento).filter(eliminado=False)
             for t in tokens:
                 parrafo = Parrafo.objects.get(id=t.parrafo.id)
-                resultado.append([t.aparicion,t.categoria,t.lema,t.tipo,t.frase,parrafo.nro,parrafo.parrafo,documento.id,documento.titulo,t.id])
+                resultado.append([t.aparicion,t.categoria,t.lema,t.tipo,t.frase,parrafo.nro,parrafo.parrafo,documento.id,documento.nombre_doc,t.id])
     else:
         for documento in documentos:
             entidad = EntidadesDoc.objects.filter(doc=documento).filter(tipo=GetEntidad().getEntidad(tipo)).filter(eliminado=False)
             for e in entidad:
                 parrafo = Parrafo.objects.get(id=e.parrafo.id)
-                resultado.append([e.string, e.start, e.end, e.doc.id, documento.titulo, parrafo.nro, parrafo.parrafo, e.id, e.string_original])
+                resultado.append([e.string, e.start, e.end, e.doc.id, documento.nombre_doc, parrafo.nro, parrafo.parrafo, e.id, e.string_original])
     context["res"] = resultado
     resultados_json = json.dumps(resultado)
     context["json"] = resultados_json
@@ -876,30 +808,33 @@ def buscador_inteligente(request,tipo,caso_id,camino):
     return render(request,'FrontEnd/buscador_inteligente.html', context)
 
 @login_required
-def buscador_guiado(request,tipo,caso_id,camino):
+def buscador_guiado(request,tipo,id_regex,investigacion_id,camino):
     """Genera la vista para búsquedas guiadas"""
 
-    expresiones_reg = {
-            "Email": RegexEmail(),
-            "Documento": RegexDocumento(),
-            "Tarjeta": RegexTarjeta(),
-            "Teléfono": RegexTelefono(),
-            "URL": RegexUrl(),
-        }
-    caso = Caso.objects.get(id=caso_id)
-    if request.method != "POST":
-        context = {"tipo":tipo,
-                   "caso_nombre":caso.nombre,
-                   "email":"Email",
-                   "dni":"Documento",
-                   "tarjeta":"Tarjeta",
-                   "telefono":"Teléfono",
-                   "url": "URL",
-                   "caso_id":caso.id,
-                   'title':'Buscador guiado',
-                   }
-        if tipo in expresiones_reg:
-            resultados = buscar_regex(tipo, caso, expresiones_reg)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    context = {   "tipo":tipo,
+                  "investigacion_nombre":investigacion.nombre,
+                  "investigacion_id":investigacion.id,
+                  'title':'Buscador guiado',
+                  }
+
+    if request.user.is_superuser:
+        form_agregar = RegexForm()
+        context['form_agregar'] = form_agregar
+
+    if request.method == "POST":
+        form = RegexForm(request.POST)
+        if form.is_valid():
+            nueva_regex = form.save(commit=False)
+            nueva_regex.eliminado = False
+            nueva_regex.save()
+            return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,id_regex,investigacion_id,camino]))
+    else:
+        expresiones = Regex.objects.filter(eliminado=False).order_by('orden')
+        context["expresiones"] = expresiones
+        if tipo != "Búsqueda":
+            print("entro")
+            resultados = buscar_regex(tipo, investigacion, id_regex)
             d_res = defaultdict(list)
             for resultado in resultados:
                 d_res[resultado[2]].append((resultado[0],resultado[1],resultado[3],resultado[4],resultado[5],resultado[6]))
@@ -914,38 +849,55 @@ def buscador_guiado(request,tipo,caso_id,camino):
     context["camino_array"] = breadcumb_path
     return render(request,'FrontEnd/buscador_guiado.html', context)
 
-def buscar_regex(tipo, caso, expresiones_reg):
+def eliminar_regex(request,tipo,id_regex,investigacion_id,camino):
+    """Elimina expresiones regulares"""
+    ids_eliminar = request.POST.getlist('checks_regex[]')
+    for id in ids_eliminar:
+        regex = Regex.objects.get(id=id)
+        regex.eliminado = True
+        regex.save()
+    return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,id_regex,investigacion_id,camino]))
+
+
+def buscar_regex(tipo, investigacion, id_regex):
     """Busca dentro de un documento las expresiones regulares especificadas por parámetro"""
-    regex = expresiones_reg[tipo]
-    reg = regex.pattern
-    documentos = caso.documento_set.all().order_by('-fecha_agregado')
+
+    #patron_url = "[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
+    #patron_mail = "[^@\s]+@[^@\s]+\.[^@\s]+"
+    #patron_tarjeta = "((\d{4} \d{6} \d{5})|(\d{4} \d{4} \d{4} \d{4}))"
+    #patron_documento = "[1-9]{2,3}\.?[0-9]{3}\.?[0-9]{3}"
+    #patron_telefono = "\+?([0-9]{1,2})?[ -]?9?[ -]?[0-9 \-]?[0-9]{6,13}"
+
+    regex = Regex.objects.get(id=id_regex)
+    patron_aux = fr"{regex.patron}"
+    reg = re.compile(patron_aux)
+    documentos = investigacion.documento_set.all().order_by('-fecha_agregado')
     resultados = []
     for documento in documentos:
         parrafos = Parrafo.objects.filter(doc_id= documento.id)
         for parrafo in parrafos:
             for m in reg.finditer(parrafo.parrafo):
-                resultados.append((documento.id, documento.titulo, m.group(), m.start(), m.end(), parrafo.nro, parrafo.parrafo))
-    if tipo == "URL":
-        resultados = [resultado for resultado in resultados if not(RegexEmail().pattern.match(resultado[2]))]
+                resultados.append((documento.id, documento.nombre_doc, m.group(), m.start(), m.end(), parrafo.nro, parrafo.parrafo))
     return resultados
 
-def guardar_resultadoGeneral(request,caso_id,expresion,camino):
+def guardar_resultadoGeneral(request,investigacion_id,expresion,camino):
     """Guarda resultados de búsquedaa general"""
     if request.method == "POST":
         form = BuscadorGeneralForm()
         resultado_json = request.POST.get("resultado_json")
         resultado = json.loads(resultado_json)
         destacados = request.POST.getlist('checks3[]')
-        caso = Caso.objects.get(id=caso_id)
-        documentos = caso.documento_set.filter(eliminado=False)
-        context = {'caso':caso,
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        documentos = investigacion.documento_set.filter(eliminado=False)
+        context = {'investigacion':investigacion,
+                   'camino':camino,
                    'expresion':expresion,
                    'res':resultado,
                    'json':resultado_json,
                    'form':form,
                    'title':'Buscador general',
                    }
-        resultado_header = ResultadoHeader(caso=caso,busqueda='General',tipo=expresion,estado=True,eliminado=False,propietario=request.user)
+        resultado_header = ResultadoHeader(investigacion=investigacion,busqueda='General',tipo=expresion,estado=True,eliminado=False,propietario=request.user)
         resultado_header.save()
         for d in documentos:
             resultado_header.documentos.add(d)
@@ -962,29 +914,30 @@ def guardar_resultadoGeneral(request,caso_id,expresion,camino):
                 resultadoGen.save()
         return render(request,'FrontEnd/buscador_general.html',context)
         
-    return HttpResponseRedirect(reverse('buscador_general',args=[caso_id,camino]))
+    return HttpResponseRedirect(reverse('buscador_general',args=[investigacion_id,camino]))
 
-def guardar_resultadoGuiado(request,tipo,caso_id,camino):
+def guardar_resultadoGuiado(request,tipo,investigacion_id,camino):
     """Guarda resultados de búsqueda guiada"""
     if request.method == "POST":
         resultado_json = request.POST.get("resultado_json")
         resultado = json.loads(resultado_json)
         destacados = request.POST.getlist('checks3[]')
-        caso = Caso.objects.get(id=caso_id)
-        documentos = caso.documento_set.filter(eliminado=False)
-        resultado_header = ResultadoHeader(caso=caso,busqueda='Guiada',tipo=tipo,estado=True,eliminado=False,propietario=request.user)
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        documentos = investigacion.documento_set.filter(eliminado=False)
+        resultado_header = ResultadoHeader(investigacion=investigacion,busqueda='Guiada',tipo=tipo,estado=True,eliminado=False,propietario=request.user)
         resultado_header.save()
         for d in documentos:
             resultado_header.documentos.add(d)
         resultado_header.save()
         context = {"tipo":tipo,
-                   "caso_nombre":caso.nombre,
+                   "investigacion_nombre":investigacion.nombre,
+                   "camino":camino,
                    "email":"Email",
                    "dni":"Documento",
                    "tarjeta":"Tarjeta",
                    "telefono":"Teléfono",
                    "url": "URL",
-                   "caso_id":caso.id,
+                   "investigacion_id":investigacion.id,
                    "res": resultado,
                    "title":'Buscador guiado',
                    "json":resultado_json,
@@ -1003,20 +956,21 @@ def guardar_resultadoGuiado(request,tipo,caso_id,camino):
         return render(request,'FrontEnd/buscador_guiado.html', context)
 
         
-    return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,caso_id,camino]))
+    return HttpResponseRedirect(reverse('buscador_guiado',args=[tipo,investigacion_id,camino]))
 
 
-def guardar_resultadoInteligente(request,tipo,caso_id,camino):
+def guardar_resultadoInteligente(request,tipo,investigacion_id,camino):
     """Guarda resultados de búsqueda inteligente"""
     if request.method == "POST":
         resultado_json = request.POST.get("resultado_json")
         resultado = json.loads(resultado_json)
         destacados = request.POST.getlist('checks3[]')
-        caso = Caso.objects.get(id=caso_id)
-        documentos = caso.documento_set.filter(eliminado=False)
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        documentos = investigacion.documento_set.filter(eliminado=False)
         context = {"tipo":tipo,
-                   "caso_nombre":caso.nombre,
-                   "modelo":caso.modelo,
+                   "investigacion_nombre":investigacion.nombre,
+                   "camino":camino,
+                   "modelo":investigacion.modelo,
                    "org":"Organizaciones",
                    "loc":"Locaciones",
                    "lex":"Léxicos detectados",
@@ -1024,11 +978,11 @@ def guardar_resultadoInteligente(request,tipo,caso_id,camino):
                    "drog":"Drogas",
                    "econ":"Económicos",
                    "title":'Buscador inteligente',
-                   "caso_id":caso.id,
+                   "investigacion_id":investigacion.id,
                    "res":resultado,
                    "json":resultado_json,
                    }
-        resultado_header = ResultadoHeader(caso=caso,busqueda='Inteligente',tipo=tipo,estado=True,eliminado=False,propietario=request.user)
+        resultado_header = ResultadoHeader(investigacion=investigacion,busqueda='Inteligente',tipo=tipo,estado=True,eliminado=False,propietario=request.user)
         resultado_header.save()
         for d in documentos:
             resultado_header.documentos.add(d)
@@ -1050,17 +1004,17 @@ def guardar_resultadoInteligente(request,tipo,caso_id,camino):
         return render(request,'FrontEnd/buscador_inteligente.html', context)
 
 
-    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,caso_id,camino]))
+    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,investigacion_id,camino]))
 
 @login_required
-def editar_entidad(request,tipo,id_ent,id_caso,camino):
+def editar_entidad(request,tipo,id_ent,id_investigacion,camino):
     """Editar entidad"""
     if request.method == 'POST':
         string = request.POST.get('string')
         entidad = EntidadesDoc.objects.get(id=id_ent)
         entidad.string = string
         entidad.save()
-    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,id_caso,camino]))
+    return HttpResponseRedirect(reverse('buscador_inteligente',args=[tipo,id_investigacion,camino]))
 
 
 #*********************************************************************************************************************************************************************
@@ -1071,55 +1025,57 @@ def editar_entidad(request,tipo,id_ent,id_caso,camino):
 #************************************************************************************** START RESULTADOS *************************************************************
 #*********************************************************************************************************************************************************************
 
-def generar_resultados(request,id_caso):
+def generar_resultados(request,id_investigacion):
     """Genera los resultados para mostrar en las vistas"""
-    caso = Caso.objects.get(id=id_caso)
-    resultados = caso.resultadoheader_set.filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
+    investigacion = Investigacion.objects.get(id=id_investigacion)
+    resultados = investigacion.resultadoheader_set.filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
     flag = False
     for resultado in resultados:
         if resultado.estado:
-            documentos = caso.documento_set.filter(eliminado=False).values_list('id', flat=True)
+            documentos = investigacion.documento_set.filter(eliminado=False).values_list('id', flat=True)
             documentos_res = resultado.documentos.all().values_list('id',flat=True)
             if set(documentos) != set(documentos_res):
                 flag = True
                 resultado.estado = False
                 resultado.save()
     if flag:
-        resultados = caso.resultadoheader_set.filter(eliminado=False).order_by('-fecha')
+        resultados = investigacion.resultadoheader_set.filter(eliminado=False).order_by('-fecha')
 
     return resultados
 
 @login_required
 def resultados(request):
     """Resultados de las búsquedas"""
-    form_elegir = BuscadorCasosForm(request.user)
+    form_elegir = BuscadorInvestigacionesForm(request.user)
     context = {
                 'form_elegir':form_elegir,
                 'title':'Resultados',
                }
     if request.method == 'POST':
-        caso_id = request.POST.get('casos')
-        caso = Caso.objects.get(id=caso_id)
-        resultados = generar_resultados(request,caso_id)
+        investigacion_id = request.POST.get('investigaciones')
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        camino = f'Resultados:resultados>{investigacion.nombre}:investigacion|{investigacion_id}'
+        resultados = generar_resultados(request,investigacion_id)
         context['resultados'] = resultados
-        context['caso_id'] = caso_id
+        context['investigacion_id'] = investigacion_id
         context['inicial'] = False
-        context['nombre_caso'] = caso.nombre
+        context['nombre_investigacion'] = investigacion.nombre
+        context['camino'] = camino
 
     return render(request,'FrontEnd/resultados.html', context)
 
 @login_required
-def resultados_caso(request,caso_id,destino,camino):
-    """Resultados de un único caso específico"""
+def resultados_investigacion(request,investigacion_id,destino,camino):
+    """Resultados de una única investigación específica"""
     context = {
-                'title':'Resultados caso',
+                'title':'Resultados investigacion',
                }
-    caso = Caso.objects.get(id=caso_id)
-    resultados = generar_resultados(request,caso_id)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    resultados = generar_resultados(request,investigacion_id)
     breadcrumb_path = parser_camino(camino)
     context['resultados'] = resultados
-    context['caso_id'] = caso_id
-    context['nombre_caso'] = caso.nombre
+    context['investigacion_id'] = investigacion_id
+    context['nombre_investigacion'] = investigacion.nombre
     context['camino'] = camino
     context['camino_array'] = breadcrumb_path
 
@@ -1148,40 +1104,41 @@ def eliminar_general_resultado(resultado_id,tipo):
 
 
 @login_required
-def eliminar_resultado(request,caso_id,resultado_id,tipo):
+def eliminar_resultado(request,investigacion_id,resultado_id,tipo,camino):
     """Elimina resultado de búsqueda"""
 
     eliminar_general_resultado(resultado_id,tipo)
 
-    resultados = generar_resultados(request,caso_id)
-    form_elegir = BuscadorCasosForm(request.user)
+    resultados = generar_resultados(request,investigacion_id)
+    form_elegir = BuscadorInvestigacionesForm(request.user)
     context = { 
                 'title':'Resultados',
                 'form_elegir':form_elegir,
                 'resultados':resultados,
                 'inicial':False,
-                'caso_id': caso_id,
+                'investigacion_id': investigacion_id,
+                'camino':camino,
                }
 
     return render(request,'FrontEnd/resultados.html', context)
 
 @login_required
-def eliminar_resultadoCaso(request,caso_id,resultado_id,tipo,camino):
+def eliminar_resultadoInvestigacion(request,investigacion_id,resultado_id,tipo,camino):
     """Elimina resultado de búsqueda"""
 
     eliminar_general_resultado(resultado_id,tipo)
-    resultados = generar_resultados(request,caso_id)
+    resultados = generar_resultados(request,investigacion_id)
     breadcrumb_path = parser_camino(camino)
 
     context = {
                 'title':'Resultados',
                 'resultados':resultados,
-                'caso_id':caso_id,
+                'investigacion_id':investigacion_id,
                 'camino':camino,
                 'camino_array':breadcrumb_path,
                }
 
-    return render(request,'FrontEnd/resultados_caso.html', context)
+    return render(request,'FrontEnd/resultados_investigacion.html', context)
 
 @login_required
 def ver_resultado(request,resultado_id,tipo,camino):
@@ -1265,8 +1222,8 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
     paragraph_format.space_before = Pt(50)
     p = document.add_paragraph('Informe generado en base a resultados obtenidos mediante una ')
     p.add_run(busq).italic = True
-    p.add_run(' sobre el caso ')
-    p.add_run(resultado.caso.nombre).italic = True
+    p.add_run(' sobre la investigacion ')
+    p.add_run(resultado.investigacion.nombre).italic = True
     p.add_run('.')
     p.style.font.size = Pt(13)
     
@@ -1345,7 +1302,7 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
                     cells[1].text = str(tupla.parrafo_nro)
                     cells[2].text = str(tupla.start)
                     cells[3].text = str(tupla.end)
-                    cells[4].text = str(tupla.doc.titulo)
+                    cells[4].text = str(tupla.doc.nombre_doc)
             else:
                 table = document.add_table(1, 6)
                 table.style = 'TableGrid'
@@ -1366,7 +1323,7 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
                     cells[1].text = str(tupla.lema)
                     cells[2].text = str(tupla.categoria)
                     cells[3].text = str(tupla.tipo)
-                    cells[4].text = str(tupla.doc.titulo)
+                    cells[4].text = str(tupla.doc.nombre_doc)
                     cells[5].text = str(tupla.parrafo_nro)
 
         else:
@@ -1388,7 +1345,7 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
                 cells[2].text = str(tupla.posicion)
                 cells[3].text = str(tupla.documento_nombre)
     
-    informe = Informe(caso=resultado.caso,eliminado=False,busqueda=resultado.busqueda,propietario=request.user)
+    informe = Informe(investigacion=resultado.investigacion,eliminado=False,busqueda=resultado.busqueda,propietario=request.user)
     informe.save()
 
     fecha = informe.fecha.strftime("%d-%m-%Y-%H-%M-%S")
@@ -1406,32 +1363,32 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
 @login_required
 def informes(request):
     """Muestra todos los informes para poder ser descargados"""
-    form = BuscadorCasosForm(request.user)
+    form = BuscadorInvestigacionesForm(request.user)
     context = {'form':form, 
                'title':'Informes'
                }
     if request.method == 'POST':
-        id_caso = request.POST.get('casos')
-        caso = Caso.objects.get(id=id_caso)
-        informes = Informe.objects.filter(caso=caso).filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
-        context['id_caso'] = id_caso
+        id_investigacion = request.POST.get('investigaciones')
+        investigacion = Investigacion.objects.get(id=id_investigacion)
+        informes = Informe.objects.filter(investigacion=investigacion).filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
+        context['id_investigacion'] = id_investigacion
         context['informes'] = informes
         context['inicial'] = False
-        context['nombre_caso'] = caso.nombre
+        context['nombre_investigacion'] = investigacion.nombre
     return render(request,'FrontEnd/informes.html',context)
 
 @login_required
-def informes_caso(request,caso_id,destino,camino):
-    """Muestra todos los informes, de un caso determinado, para poder ser descargados"""
+def informes_investigacion(request,investigacion_id,destino,camino):
+    """Muestra todos los informes, de una investigación determinada, para poder ser descargados"""
     breadcrumb_path = parser_camino(camino)
     context = { 
                'title':'Informes',
                'camino':camino,
                'camino_array':breadcrumb_path,
                }
-    caso = Caso.objects.get(id=caso_id)
-    informes = Informe.objects.filter(caso=caso).filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
-    context['id_caso'] = caso_id
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    informes = Informe.objects.filter(investigacion=investigacion).filter(eliminado=False).filter(propietario=request.user).order_by('-fecha')
+    context['id_investigacion'] = investigacion_id
     context['informes'] = informes
     return render(request,destino,context)
 
@@ -1447,7 +1404,7 @@ def ver_informe(request, id_informe):
     raise Http404
 
 @login_required
-def eliminar_informe(request,informe_id,camino):
+def eliminar_informe(request,informe_id):
     """Elimina informe"""
     
     if request.method == 'POST':
@@ -1456,15 +1413,15 @@ def eliminar_informe(request,informe_id,camino):
     informe = Informe.objects.get(id=informe_id)
     informe.eliminado = True
     informe.save()
-    breadcrumb_path = parser_camino(camino)
-
-    informes = Informe.objects.filter(caso=informe.caso).filter(eliminado=False).order_by('-fecha')
-    context = { 
+    investigacion = informe.investigacion
+    informes = Informe.objects.filter(investigacion=informe.investigacion).filter(eliminado=False).order_by('-fecha')
+    form = BuscadorInvestigacionesForm(request.user)
+    context = {'form':form, 
                'title':'Informes',
-               'id_caso':informe.caso,
+               'inicial':False,
+               'id_investigacion':investigacion.id,
                'informes':informes,
-               'camino':camino,
-               'camino_array':breadcrumb_path,
+               'nombre_investigacion':investigacion.nombre,
                }
 
     return render(request,next, context)

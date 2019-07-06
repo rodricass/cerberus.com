@@ -15,7 +15,7 @@
                             {% csrf_token %}
                             <label for="tipo_archivo" id="label_fuente">Fuente</label>
                             {% bootstrap_field formDoc.tipo_archivo %}
-                            <input type="hidden" name="next" value="{{ 'home' }}">
+                            <input id="next" type="hidden" name="next" value="">
                             <div class="col-md-12">
                                 <div id="cuadro_cargar_adjuntar"><span id="inside_text">&nbsp;&nbsp;&nbsp;Arrastre hasta aquí <br>o haga click (.docx,.txt)</span>{% bootstrap_field formDoc.documento %}</div>
                             </div>

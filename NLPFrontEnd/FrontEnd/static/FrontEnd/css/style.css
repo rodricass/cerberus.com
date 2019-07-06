@@ -1,4 +1,7 @@
 /*START LAYOUT.HTML*/
+input, select, textarea {
+    max-width: none !important;
+}
 
 body {
     font-family: "Segoe UI",Arial,sans-serif;
@@ -11,7 +14,7 @@ button, .btn {
     font-size: 15px;
 }
 
-.navbar-header:hover, .nav>li>a:hover {
+.nav>li>a:hover {
     background-color: #263238;
     height: 6rem;
 }
@@ -76,12 +79,6 @@ button, .btn {
     font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
 
-.navbar-header {
-    margin-left: -7% !important;
-    padding-left: 3%;
-    margin-right: 4% !important;
-}
-
 .navbar-right {
     margin-right: -40px !important;
 }
@@ -131,8 +128,8 @@ button, .btn {
 }
 
 @media only screen and (min-width: 1400px) {
-    .breadcrumbb {
-        padding-left: 18.5rem;
+    #nombre {
+        margin-left: -13.4rem
     }
 }
 

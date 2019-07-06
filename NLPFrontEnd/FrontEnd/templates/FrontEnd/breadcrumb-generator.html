@@ -11,21 +11,21 @@
         {% else %}
             <li class="breadcrumbb-item" aria-current="page">
                 {% if item.3 == " " %}
-                <a class="breadcrumb-links" href="{% url item.2|slugify %}">
-                    {% if item.0|length < 30 %}
-                        {{item.0}}
-                    {% else %}
-                        {{item.0|truncatechars:27}}
-                    {% endif %}
-                </a>
+                    <a class="breadcrumb-links" href="{% url item.2|slugify %}">
+                        {% if item.0|length < 30 %}
+                            {{item.0}}
+                        {% else %}
+                            {{item.0|truncatechars:27}}
+                        {% endif %}
+                    </a>
                 {% else %}
-                <a class="breadcrumb-links" href="{% url item.2|slugify item.3|slugify %}">
-                    {% if item.0|length < 30 %}
-                        {{item.0}}
-                    {% else %}
-                        {{item.0|truncatechars:27}}
-                    {% endif %}
-                </a>
+                    <a class="breadcrumb-links" href="{% url item.2|slugify item.3|slugify %}">
+                        {% if item.0|length < 30 %}
+                            {{item.0}}
+                        {% else %}
+                            {{item.0|truncatechars:27}}
+                        {% endif %}
+                    </a>
                 {% endif %}
             </li>
         {% endif %}

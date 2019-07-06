@@ -6,7 +6,7 @@
 {% block container %}
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/index.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/casos.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigaciones.css' %}" />
 
 <div class="container-fluid">
     <div class="row inicio">
@@ -24,7 +24,7 @@
                                 <button type="button" class="close" onclick="location.href='{% url 'eliminar_mensaje' id_msj=mensaje.id %}';">&times;</button>
                             </div>
                         </div>
-                            <div class="body_msj" style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalNotificacion" data-urldoc="{% url 'eliminar_docInicio' id_doc=mensaje.documento.id %}" data-urlmsj="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" data-mensaje="{{mensaje.mensaje}}" data-nombrecaso="{{mensaje.caso.nombre}}" data-nombredoc="{{mensaje.documento.nombre_doc}}" data-emisor="{{mensaje.emisor}}" data-urlver="{% url 'ver_doc' id_doc=mensaje.documento.id %}">
+                            <div class="body_msj" style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalNotificacion" data-urldoc="{% url 'eliminar_docInicio' id_doc=mensaje.documento.id %}" data-urlmsj="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" data-mensaje="{{mensaje.mensaje}}" data-nombreinvestigacion="{{mensaje.investigacion.nombre}}" data-nombredoc="{{mensaje.documento.nombre_doc}}" data-emisor="{{mensaje.emisor}}" data-urlver="{% url 'ver_doc' id_doc=mensaje.documento.id %}">
                                 {% if mensaje.mensaje|length < 70 %} 
                                     {{mensaje.mensaje}}
                                 {% else %}
@@ -39,54 +39,54 @@
         </div>
         <div class="col-md-8">
             <div class="row" style="margin-top:8rem; margin-left:2rem;height:53%">
-                {% for caso in casos %}
+                {% for investigacion in investigaciones %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-7">
-                                    <h3 class="caso" title="{{caso}}">
-                                        {% if caso.nombre|length < 40 %}
-                                            {{caso}}
+                                    <h3 class="investigacion" title="{{investigacion}}">
+                                        {% if investigacion.nombre|length < 40 %}
+                                            {{investigacion}}
                                         {% else %}
-                                            {{caso.nombre|truncatechars:40}}
+                                            {{investigacion.nombre|truncatechars:40}}
                                         {% endif %}                                 
                                     </h3>
                                 </div>
                                 <div class="col-md-5">
                                     <div class="botones_moverindex">
                                         <div class="jumbocenter" style="margin-left:0!important">
-                                            <span title="Búsqueda guiada" class="buscar buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso.id camino=caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
-                                            <span title="Búsqueda general" class="buscar buscar_general"><a href="{% url 'buscador_general' caso_id=caso.id camino=caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
-                                            <span title="Búsqueda inteligente" class="buscar buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso.id camino=caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
+                                            <span title="Búsqueda guiada" class="buscar buscar_guiada"><a href="{% url 'buscador_guiado' tipo='Búsqueda' id_regex=investigacion.id investigacion_id=investigacion.id camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
+                                            <span title="Búsqueda general" class="buscar buscar_general"><a href="{% url 'buscador_general' investigacion_id=investigacion.id camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
+                                            <span title="Búsqueda inteligente" class="buscar buscar_intel"><a href="{% url 'buscador_inteligente' tipo='Búsqueda' investigacion_id=investigacion.id camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id %}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
                                         </div>
-                                        <span title="Notas" class="btn btn-nota-index" ><a href="{% url 'notas' id=caso.id  tipo='caso' camino=caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
-                                        {% if user == caso.propietario %}
-                                            <button title="Compartir caso" class="btn btn-compartir-index" data-toggle="modal" data-target="#modalAdvice" data-caso="{{caso}}" data-urlPrio="{% url 'compartir_casos' caso_id=caso.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_casos' caso_id=caso.id tipo='sin' %}" style="right:-10rem"><i class="fas fa-share-square" style="font-size:29px"></i></button>
+                                        <span title="Notas" class="btn btn-nota-index" ><a href="{% url 'notas' id=investigacion.id  tipo='investigacion' camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+                                        {% if user == investigacion.propietario %}
+                                            <button title="Compartir investigación" class="btn btn-compartir-index" data-toggle="modal" data-target="#modalAdvice" data-investigacion="{{investigacion}}" data-urlPrio="{% url 'compartir_investigaciones' investigacion_id=investigacion.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_investigaciones' investigacion_id=investigacion.id tipo='sin' %}" style="right:-10rem"><i class="fas fa-share-square" style="font-size:29px"></i></button>
                                         {% else %}
-                                            <button title="Compartir caso" class="btn btn-compartir-index" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+                                            <button title="Compartir investigación" class="btn btn-compartir-index" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
                                         {% endif %}
-                                        <button title="Adjuntar archivo" type="button" class="btn btn-adjuntar-index" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' caso.id %}"><i class="fas fa-paperclip" style="font-size:29px"></i></button>
-                                        {% if user == caso.propietario %}
-                                            <span title="Editar caso" class="btn editar-index"><a href="{% url 'editar_caso' caso_id=caso.id camino=caso.nombre|addstr:':caso|'|addstr:caso.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
+                                        <button title="Adjuntar archivo" type="button" class="btn btn-adjuntar-index" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' investigacion.id %}" data-next="home" ><i class="fas fa-paperclip" style="font-size:29px"></i></button>
+                                        {% if user == investigacion.propietario %}
+                                            <span title="Editar investigación" class="btn editar-index"><a href="{% url 'editar_investigacion' investigacion_id=investigacion.id camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
                                         {% else %}
-                                            <button title="Editar caso" class="btn editar-index" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
+                                            <button title="Editar investigación" class="btn editar-index" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
                                         {% endif %}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="panel-body" title="{{caso.descripcion}}">
-                            {% if caso.descripcion|length < 110 %}
-                                {{caso.descripcion}}
+                        <div class="panel-body" title="{{investigacion.descripcion}}">
+                            {% if investigacion.descripcion|length < 110 %}
+                                {{investigacion.descripcion}}
                             {% else %}
-                                {{caso.descripcion|truncatechars:110}}
+                                {{investigacion.descripcion|truncatechars:110}}
                             {% endif %}
                         </div>
                     </div>
                 {% empty %}
-                    {% bootstrap_alert "No existe ningún caso en curso" %}
+                    {% bootstrap_alert "No existe ninguna investigación en curso" %}
                 {% endfor %}
-                <button id="nuevoCaso" onclick="location.href='{% url 'nuevo_caso' camino=" " %}';">Nuevo caso&nbsp;&nbsp;&nbsp;</button>
+                <button id="nuevaInvestigacion" onclick="location.href='{% url 'nueva_investigacion' camino=" " %}';">Nueva investigación&nbsp;&nbsp;&nbsp;</button>
             </div>
             <div style="margin-left:3rem"><hr/></div>
             <div class="row">
@@ -98,18 +98,18 @@
                                 <div class=" {% if user.is_superuser %} col-md-7 {% else %} col-md-6 col-md-offset-1 {% endif %}">
                                     {% if user.is_superuser %}
                                     <div class="nombre_doc" title="{{documento}}" sytle="margin-left:3rem">
-                                        {% if documento.titulo|length < 25 %}
-                                           {{documento.titulo}}
+                                        {% if documento.nombre_doc|length < 25 %}
+                                           {{documento.nombre_doc}}
                                         {% else %}
-                                            {{documento.titulo|truncatechars:25}}
+                                            {{documento.nombre_doc|truncatechars:25}}
                                         {% endif %}
                                     </div>
                                     {% else %}
-                                    <div class="nombre_doc" title="{{documento.titulo}}">
-                                        {% if documento.titulo|length < 55 %}
-                                            {{documento.titulo}}
+                                    <div class="nombre_doc" title="{{documento.nombre.doc}}">
+                                        {% if documento.nombre_doc|length < 55 %}
+                                            {{documento.nombre_doc}}
                                         {% else %}
-                                            {{documento.titulo|truncatechars:55}}
+                                            {{documento.nombre_doc|truncatechars:55}}
                                         {% endif %}
                                     </div>
                                     {% endif %}
@@ -118,8 +118,8 @@
                                     <button title="Descargar" class="icons2" onclick="location.href='{% url 'ver_doc' id_doc=documento.id %}';"><i class="fas fa-download"></i></button>
                                 </div>
                                 <div class="col-md-1">
-                                    {% for caso in documento.caso.all %}
-                                        <button title="Notas" class="icons2" id="boton_nota" onclick="location.href='{% url 'notas' id=documento.id  tipo='documento' camino=caso.nombre|addstr:':caso|'|addstr:caso.id|addstr:'>*'|addstr:documento.nombre_doc %}';"><i class="fas fa-sticky-note"></i></button>
+                                    {% for investigacion in documento.investigacion.all %}
+                                        <button title="Notas" class="icons2" id="boton_nota" onclick="location.href='{% url 'notas' id=documento.id  tipo='documento' camino=investigacion.nombre|addstr:':investigacion|'|addstr:investigacion.id|addstr:'>*'|addstr:documento.nombre_doc %}';"><i class="fas fa-sticky-note"></i></button>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -152,10 +152,10 @@
                 {% csrf_token %}
                 <button type="submit" class="close trash" title="Descartar notificación"><i class="far fa-trash-alt"></i></button>
             </form>
-            <h4 class="modal-title">Notificaci&#xf3;n</h4>
+            <h4 class="modal-title">Notificación</h4>
           </div>
           <div class="modal-body">
-            <p><span class="detalles"><i>Caso &nbsp;&nbsp;&nbsp;</i></span><span id="caso"></span></p>
+            <p><span class="detalles"><i>Investigación &nbsp;&nbsp;&nbsp;</i></span><span id="investigación"></span></p>
             <p><span class="detalles"><i>Emisor: &nbsp;&nbsp;&nbsp;</i></span><span id="emisor"></span></p>
             <form id="ver_form" action="" method="post">
                 {% csrf_token %}
@@ -183,17 +183,17 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Compartir caso:&nbsp;&nbsp;<b><span id="caso_nombre"></span></b></h4>
+            <h4 class="modal-title">Compartir investigación:&nbsp;&nbsp;<b><span id="investigación_nombre"></span></b></h4>
           </div>
           <div class="modal-body">
               <div class="row">
                  <div class="col-md-7">
-                <div class="titulo">¿Con quién desea compartir el caso?:</div>
+                <div class="titulo">¿Con quién desea compartir la investigación?:</div>
                 <form id="compartir_form" action="" method="post"  class="form">
                     {% csrf_token %}
                     {% bootstrap_form form_usuario %}
                     <input type="hidden" name="next" value="{{ 'home' }}">
-                    <div class="comentario">El caso puede ser compartido tanto con privilegios de propietario (cediendo los propios) como no.</div>
+                    <div class="comentario">La investigación puede ser compartida tanto con privilegios de propietario (cediendo los propios) como no.</div>
                 </form>
               </div>
               <div class="col-md-3 ">
@@ -272,7 +272,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
+    <script src="{% static 'FrontEnd/scripts/my_scripts/modales.js' %}"></script>
     <script>
         $('#modalNotificacion').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
@@ -280,13 +280,13 @@
             var url_ver = button.data('urlver')
             var url_msj = button.data('urlmsj')
             var doc_nombre = button.data('nombredoc')
-            var caso = button.data('nombrecaso')
+            var investigacion = button.data('nombreinvestigacion')
             var emisor = button.data('emisor')
             var mensaje = button.data('mensaje')
             $('#ver_form').attr('action', url_ver)
             $('#eliminar_mensaje').attr('action', url_msj)
             $('#eliminar_documento').attr('action', url_doc)
-            $('#caso').html(caso)
+            $('#investigacion').html(investigacion)
             $('#emisor').html(emisor)
             $('#mensaje').html(mensaje)
             if (doc_nombre.length <= 35) {
@@ -308,8 +308,8 @@
             var button = $(event.relatedTarget)
             var recipient = button.data('urlprio')
             var recipient2 = button.data('urlsinprio')
-            var recipient3 = button.data('caso')
-            $('#caso_nombre').html(recipient3)
+            var recipient3 = button.data('investigacion')
+            $('#investigacion_nombre').html(recipient3)
             $("#conPrivilegios").click(function () {
                 $('#compartir_form').attr('action', recipient)
             })

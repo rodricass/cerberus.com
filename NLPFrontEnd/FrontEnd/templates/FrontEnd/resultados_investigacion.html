@@ -66,11 +66,11 @@
                             <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1">
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultadoCaso' caso_id=caso_id  resultado_id=resultado.id  tipo=resultado.busqueda %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultadoInvestigacion' investigacion_id=investigacion_id  resultado_id=resultado.id  tipo=resultado.busqueda camino=camino %}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 {% empty %}
-                    <p class="vacio" style="margin-left:25%">No hay resultados asociados al caso</p>
+                    <p class="vacio" style="margin-left:25%">No hay resultados asociados a la investigación</p>
                 {% endfor %}
             </div>
         </div>

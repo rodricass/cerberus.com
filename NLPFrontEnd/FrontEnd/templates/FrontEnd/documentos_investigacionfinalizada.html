@@ -31,10 +31,10 @@
                     <div class="row fila">
                         <div class="col-md-6 col-md-offset-1">
                             <div class="nombre_doc" title="{{documento}}">
-                                {% if documento.titulo|length < 50 %}
+                                {% if documento.nombre_doc|length < 50 %}
                                     {{documento}}
                                 {% else %}
-                                    {{documento.titulo|truncatechars:50}}
+                                    {{documento.nombre_doc|truncatechars:50}}
                                 {% endif %}
                             </div>
                         </div>
@@ -42,11 +42,11 @@
                             <button title="Abrir" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1 col-md-offset-1">
-                            <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Casos finalizados>'|addstr:nombre_caso|addstr:'>Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
+                            <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino=camino|addstr:nombre_investigacion|addstr:'>*Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
                         </div>
                     </div>
                 {% empty %}
-                    <p class="vacio" style="margin-left:25%">No hay documentos asociados al caso</p>
+                    <p class="vacio" style="margin-left:25%">No hay documentos asociados a la investigación</p>
                 {% endfor %}
             </div>
         </div>

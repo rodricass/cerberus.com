@@ -3,14 +3,14 @@
 {% load FrontEnd_extras %}
 
 {% block breadcrumb-li %}
-    <li class="breadcrumbb-item active" aria-current="page">Notas global</li>
+    <li class="breadcrumbb-item active" aria-current="page">Notas de investigaciones</li>
     {% if inicial == False %}
         <li class="breadcrumbb-item active" aria-current="page">
-            <a class="breadcrumb-links" href="{% url 'caso' id_caso %}">
-                {% if nombre_caso|length < 30 %}
-                    {{nombre_caso}}
+            <a class="breadcrumb-links" href="{% url 'investigacion' id_investigacion %}">
+                {% if nombre_investigacion|length < 30 %}
+                    {{nombre_investigacion}}
                 {% else %}
-                    {{nombre_caso|truncatechars:27}}
+                    {{nombre_investigacion|truncatechars:27}}
                 {% endif %}
             </a>
         </li>
@@ -22,13 +22,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/ver_notas.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
     <div class="row">
-        <div class="buscador col-md-11">
+        <div class="buscador col-md-11" style="margin-left:12rem">
             <form id="ver_form" action="{% url 'ver_notas' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
-                    <div class="col-md-3">
-                        <h4 style="font-size:20px !important">Ver notas de caso:</h4>
+                    <div class="col-md-4">
+                        <h4 style="font-size:20px !important">Ver notas de investigación:</h4>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-5" id="not">
                         {% bootstrap_form form_elegir %}
                     </div>
                     <div class="col-md-3">
@@ -45,10 +45,10 @@
     <div class="row" style="height: 68%;">
         {% if inicial == False %}
             <div class="col-md-6" style="border-right: 3px solid; border-color: #ff9800;">
-                <div class="row notas_caso">
+                <div class="row notas_investigacion">
                         {% for nota in notas %}
                             <div class="row {%if nota.nota|length <= 80 %} fila {% else %} fila2 {% endif %}">
-                                <div class="col-md-11"style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalAdvice" data-url="{% url 'eliminar_notacaso' id_caso=id_caso id_nota=nota.id %}" data-whatever="{{nota.nota}}">
+                                <div class="col-md-11"style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalAdvice" data-url="{% url 'eliminar_notainvestigacion' id_investigacion=id_investigacion id_nota=nota.id %}" data-whatever="{{nota.nota}}">
                                     <div class="descripcion">{{nota.descripcion}}</div>
                                     <p class="nota">
                                         {% if nota.nota|length < 165 %}
@@ -59,16 +59,16 @@
                                     </p>
                                 </div>
                                 <div class="col-md-1">
-                                    <button class="close trash" data-toggle="modal" data-target="#modalEliminar" title="Descartar nota" data-whatever="{% url 'eliminar_notacaso' id_caso=id_caso id_nota=nota.id %}"><i class="far fa-trash-alt"></i></button>
+                                    <button class="close trash" data-toggle="modal" data-target="#modalEliminar" title="Descartar nota" data-whatever="{% url 'eliminar_notainvestigacion' id_investigacion=id_investigacion id_nota=nota.id %}"><i class="far fa-trash-alt"></i></button>
                                 </div>
                             </div>
                         {% empty %}
-                            <p class="vacio">No hay notas asociadas al caso</p>
+                            <p class="vacio">No hay notas asociadas a la investigación</p>
                         {% endfor %}
                     
                 </div>
                 <hr />
-                <button id="nuevaNota" data-toggle="modal" data-target="#modalCrear" data-whatever="{% url 'crear_nota' id_caso=id_caso %}">Nueva nota&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
+                <button id="nuevaNota" data-toggle="modal" data-target="#modalCrear" data-whatever="{% url 'crear_nota' id_investigacion=id_investigacion %}">Nueva nota&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
             </div>
             <div class="col-md-5">
                 <div class="row row_vernotas">
@@ -86,11 +86,11 @@
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                <button title="Notas" class="icons" id="boton_nota" style="top:0 !important"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Notas:ver_notas>'|addstr:nombre_caso|addstr:':caso|'|addstr:id_caso|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note" style="position:relative; top:-0.8rem"></i></a></button>
+                                <button title="Notas" class="icons" id="boton_nota" style="top:0 !important"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Notas:ver_notas>'|addstr:nombre_investigacion|addstr:':investigacion|'|addstr:id_investigacion|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note" style="position:relative; top:-0.8rem"></i></a></button>
                             </div>
                         </div>
                     {% empty %}
-                        <p class="vacio" style="margin-left:30% !important">No hay documentos asociados al caso</p>
+                        <p class="vacio" style="margin-left:30% !important">No hay documentos asociados a la investigación</p>
                     {% endfor %}
                 </div>
             </div>

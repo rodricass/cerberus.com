@@ -1,16 +1,17 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
 {% load tz %}
+{% load FrontEnd_extras %}
 
 {% block breadcrumb-li %}
     <li class="breadcrumbb-item active" aria-current="page">Resultados</li>
     {% if inicial == False %}
         <li class="breadcrumbb-item active" aria-current="page">
-            <a class="breadcrumb-links" href="{% url 'caso' caso_id %}">
-                {% if nombre_caso|length < 30 %}
-                    {{nombre_caso}}
+            <a class="breadcrumb-links" href="{% url 'investigacion' investigacion_id %}">
+                {% if nombre_investigacion|length < 30 %}
+                    {{nombre_investigacion}}
                 {% else %}
-                    {{nombre_caso|truncatechars:27}}
+                    {{nombre_investigacion|truncatechars:27}}
                 {% endif %}
             </a>
         </li>
@@ -22,16 +23,16 @@
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/documentos.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/resultados.css' %}" />
     <div class="row">
-        <div class="buscador col-md-11">
+        <div class="buscador col-md-11" style="margin-left:-2rem">
             <form id="ver_form" action="{% url 'resultados' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
-                    <div class="col-md-3">
-                        <h4 style="font-size:20px !important">Ver resultados de caso:</h4>
+                    <div class="col-md-4 col-md-offset-1">
+                        <h4 style="font-size:20px !important" id="res">Ver resultados de investigación:</h4>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-5" id="res_select">
                         {% bootstrap_form form_elegir %}
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         {% buttons %}
                             <button type="submit" id="btn1" form="ver_form" class="botones btn">Buscar</button>
                         {% endbuttons %}
@@ -86,15 +87,15 @@
                         </div>
                     </div>
                     <div class="col-md-1 col-md-offset-1">
-                        <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
+                        <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id camino=camino %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
                     </div>
                     <div class="col-md-2">
-                        <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultado' caso_id=caso_id resultado_id=resultado.id tipo=resultado.busqueda %}"><i class="fas fa-trash"></i></button>
+                        <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultado' investigacion_id=investigacion_id resultado_id=resultado.id tipo=resultado.busqueda camino=camino %}"><i class="fas fa-trash"></i></button>
                         
                     </div>
                 </div>
             {% empty %}
-                <p class="vacio">No hay resultados asociados al caso</p>
+                <p class="vacio">No hay resultados asociados a la investigación</p>
             {% endfor %}
         </div>
         
@@ -102,7 +103,7 @@
     {% endif %}
     
 
-<div id="modalEliminar" class="modal fade" role="dialog">
+    <div id="modalEliminar" class="modal fade" role="dialog">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">

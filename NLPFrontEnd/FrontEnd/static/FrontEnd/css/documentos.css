@@ -10,9 +10,7 @@ body {
     width: 95% !important;
 }
 
-#id_casos {
-    width: 90%;
-    max-width: none !important;
+#id_investigaciones {
     margin-top: 0.5rem;
 }
 
@@ -231,3 +229,49 @@ textarea {
 }
 
 /******DOCUMENTOS_FINALIZADOS END******/
+
+#inv {
+    margin-left: 8rem;
+}
+
+#inv_select {
+    margin-left: -1.5rem;
+}
+
+#res_select {
+    margin-left: -9.5rem;
+}
+
+#not {
+    margin-left: -14rem
+}
+
+#doc {
+    margin-left: -8rem;
+}
+
+@media only screen and (min-width: 1400px) {
+    #inv {
+        margin-left: 0rem;
+    }
+
+    #inv_select {
+        margin-left: -7rem;
+    }
+
+    #res_select {
+        margin-left: -21rem;
+    }
+
+    #res {
+        margin-left:-4rem;
+    }
+
+    #not {
+        margin-left: -21rem
+    }
+
+    #doc {
+        margin-left: -15rem;
+    }
+}

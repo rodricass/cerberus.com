@@ -1,10 +1,11 @@
 #titulo {
     font-family: "Segoe UI",Arial,sans-serif;
-    font-size: 70px;
+    font-size: 60px;
     position: absolute;
-    margin-top: 15rem;
+    margin-top: 18rem;
     left: 0;
-    margin-left: 2rem;
+    margin-left: -3rem;
+    padding-right: 4rem;
     text-align: center;
     border-right: 3px solid;
     border-color: #ff9800;
@@ -34,7 +35,7 @@ textarea {
 }
 
 #btn1 {
-    margin-top: 7.5rem;
+    margin-top: 12rem;
     border: 2px solid #66bb6a;
     background-color: white;
     color: #2e7d32;

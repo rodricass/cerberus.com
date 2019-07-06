@@ -2,7 +2,7 @@ body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom
     margin-right: 0 !important;
 }
 
-.notas_caso {
+.notas_investigacion {
     overflow-y: auto;
     overflow-x: hidden;
     margin-left: 2%;
@@ -154,7 +154,7 @@ input {
 }
 
 @media only screen and (min-width: 1400px) {
-    .notas_caso {
+    .notas_investigacion {
         height: 80%;
     }
     .row_vernotas {

@@ -1,19 +1,21 @@
 import hashlib
 import re
 import time
+import io
 
 from django.http import Http404
 
 from .forms import DocumentoForm
 from .genericos import ExtensionArchivo
-from .models import Documento, Parrafo, EntidadesDoc, TokensDoc, Caso
+from .models import Documento, Parrafo, EntidadesDoc, TokensDoc, Investigacion
 from .genericos import TipoModelo, GetTipoToken
-#from nlp_model_gen_plugins.plugins.whatsappPlugin import get_whatsapp_extract
+from nlp_model_gen import NLPModelAdmin
+from nlp_model_gen_plugins.plugins.whatsappPlugin.whatsappPlugin import get_whatsapp_extract
 
 class ObtenerCreador:
     """Clase que sirve para obtener la instancia correcta con la cual cargar un archivo, dependiendo de la fuente de la que venga"""
 
-    def creadorArchivo(self,tipo,request,caso_id):
+    def creadorArchivo(self,tipo,request,investigacion_id):
     #Si se agrega un formato nuevo de tipo de archivo que desee procesar de manera distinta, agregar al diccionario 'tipos_archivos' y crear la clase correspondiente en 'fileuploader.py'
         
         tipos_creadores = {
@@ -22,17 +24,17 @@ class ObtenerCreador:
                 }
     
         if tipo in tipos_creadores.keys():
-            return tipos_creadores[tipo](request,caso_id)
+            return tipos_creadores[tipo](request,investigacion_id)
         else: 
             raise Http404(f'Tipo de archivo {tipo} inexistente')
 
 class CargarArchivo:
 
-    def __init__(self,request,caso_id):
+    def __init__(self,request,investigacion_id):
         """Clase encargada de cargar los archivos al sistema"""
-        caso = Caso.objects.get(id=caso_id)
-        self.modelo = TipoModelo().getModelo(caso.modelo)
-        self.caso_id = caso_id
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        self.modelo = TipoModelo().getModelo(investigacion.modelo)
+        self.investigacion_id = investigacion_id
         self.user = request.user
         self.form = DocumentoForm(request.POST,request.FILES)
         self.files = request.FILES.getlist('documento')
@@ -40,18 +42,28 @@ class CargarArchivo:
 
 class CargarArchivoUFED(CargarArchivo):
 
-    def __init__(self,request,caso_id):
+    def __init__(self,request,investigacion_id):
         """Clase encargada de cargar archivos UFED al sistema"""
-        super().__init__(request,caso_id)
+        super().__init__(request,investigacion_id)
 
     def cargar(self):
         """Verifica la forma y carga cada uno de los archivos al sistema"""
         if self.form.is_valid():
-            crear_documento_UFED(self.files)
+            self.crear_documento_UFED()
 
-    def crear_documento_UFED(self,files):
+    def crear_documento_UFED(self):
         """Crea y guarda documento en base a forma"""
-        wpp = get_whatsapp_extract(files,self.user,self.modelo.model)
+        f = []
+        for file in self.files:
+            file.seek(0)
+            data = file.read()
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
+            myfile = io.StringIO(data)
+            myfile.name = file.name
+            f.append(myfile)
+        nlp = NLPModelAdmin()
+        wpp = get_whatsapp_extract(f,nlp,self.modelo.model())
         while not wpp.is_analysed():
                 time.sleep(0.1)
         results = wpp.get_positives_results()
@@ -62,9 +74,9 @@ class CargarArchivoUFED(CargarArchivo):
 
 class CargarArchivoGeneral(CargarArchivo):
 
-    def __init__(self,request,caso_id):
+    def __init__(self,request,investigacion_id):
         """Clase encargada de cargar archivos UFED al sistema"""
-        super().__init__(request,caso_id)
+        super().__init__(request,investigacion_id)
 
     def cargar(self):
         """Verifica la forma y carga cada uno de los archivos al sistema"""
@@ -93,7 +105,7 @@ class CargarArchivoGeneral(CargarArchivo):
         lector = ExtensionArchivo().getLector(ext,file)
         texto = lector.read()
 
-        nuevo_doc = Documento(titulo=file.name,nombre_doc=file.name,documento=file,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
+        nuevo_doc = Documento(nombre_doc=file.name,documento=file,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
         nuevo_doc.save()
 
         #Divide al documento en párrafos para mejor procesamiento
@@ -102,9 +114,9 @@ class CargarArchivoGeneral(CargarArchivo):
         #Crea las entidades correspondientes a los párrafos del documento
         self.crearEntidades(nuevo_doc)
 
-        #Relaciona el documento con el usuario que lo está utilizando y con el caso correspondiente
+        #Relaciona el documento con el usuario que lo está utilizando y con la investigación correspondiente
         nuevo_doc.usuario.add(self.user)
-        nuevo_doc.caso.add(self.caso_id)
+        nuevo_doc.investigacion.add(self.investigacion_id)
 
         nuevo_doc.save()
     

@@ -1,0 +1,171 @@
+.jumbocenter {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 18px !important;
+    margin-left: 0rem;
+    margin-top: 2rem;
+    background-color: #e0e0e0;
+    height: 99%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#nombre_investigacion {
+    margin-top: 10.5rem;
+    font-size: 21px;
+    margin-left: 5rem;
+}
+
+body {
+    overflow-y: hidden;
+}
+ 
+#barra_inferior {
+    width: 97%;
+    height: 3px;
+    margin-top: 3rem;
+    margin-left: 5rem;
+    background-color: #ff9800;
+}
+
+#panel_info {
+    margin-left: 4.6rem;
+    padding-top: 2rem;
+    width: 98%;
+    height: 65%;
+}
+
+.inv_ids {
+    margin-left: 5rem;
+    margin-top: 2rem;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.info_investigacion {
+    margin-left: 0.5rem;
+    font-weight: normal;
+}
+
+#descripcion_inv {
+    column-fill: auto;
+    word-wrap: break-word !important;
+    width: 93%;
+    margin-left: -1rem;
+    margin-top: 2rem;
+    font-size: 16px;
+    max-height: 26%;
+}
+
+#usuarios_inv {
+    column-fill: auto;
+    word-wrap: break-word !important;
+    width: 93%;
+    margin-left: -5rem;
+    margin-top: 2rem;
+    font-size: 16px;
+    max-height: 16%;
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #bdbdbd;
+    text-align: center;
+    border-radius: 11px;
+}
+
+#botonera_vertical {
+    background-color: #e0e0e0;
+    margin-top: 9.9rem;
+    border-radius: 15px 0px 0px 15px;
+    padding-left: 2.8rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem
+}
+
+#separador-horizontal {
+    width: 66%;
+    height: 0.3rem;
+    background-color: white;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-docres {
+    margin-left: 0.5rem;
+}
+
+.btn-margen {
+    margin-left: 0.5rem;
+}
+
+
+
+/********************START INVESTIGACION FINALIZADA****************************/
+
+#botonera_vertical_finalizada {
+    background-color: #e0e0e0;
+    margin-top: 20rem;
+    border-radius: 15px 0px 0px 15px;
+    padding-left: 2.8rem;
+    padding-top: 2rem;
+    padding-bottom: 0.8rem
+}
+
+.btn-margen_finalizada {
+    margin-left: 0.3rem
+}
+
+.eliminar_finalizada {
+    margin-left: .5rem;
+}
+
+.btn_finalizada {
+    margin-bottom: 1rem;
+}
+
+#nota_finalizada {
+    margin-left: 0.4rem;
+}
+
+/********************END INVESTIGACION FINALIZADA******************************/
+
+@media only screen and (min-width: 1400px) {
+    #panel_info {
+        height: 70%;
+    }
+
+    #botonera_vertical {
+        margin-top: 21rem;
+    }
+
+    .btn-busqueda {
+        margin-left: 0.7rem;
+    }
+
+    .btn-docres {
+        margin-left: 1.2rem;
+    }
+
+    .btn-margen {
+        margin-left: 1rem
+    }
+
+    #nombre_investigacion {
+        margin-top: 11rem;
+    }
+
+    #botonera_vertical_finalizada {
+        margin-top: 25rem;
+    }
+
+    .btn-margen_finalizada {
+        margin-left: 1rem;
+    }
+
+    .eliminar_finalizada {
+        margin-left: 1.3rem;
+    }
+    #nota_finalizada {
+        margin-left: 1.1rem;
+    }
+}

@@ -1,0 +1,65 @@
+﻿{% extends "FrontEnd/layout.html" %}
+{% load tz %}
+{% load bootstrap3 %}
+
+{% block container %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigacion.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/investigaciones.css' %}" />
+<div class="contenedor" style="margin-bottom: 0px !important; padding-bottom: 0px !important">
+        <div class="col-md-10">
+            <div id="nombre_investigacion">
+                {{investigacion.nombre}}
+            </div>
+            <div id="barra_inferior"></div>
+            <div id="panel_info" class="jumbocenter">
+                <div id="identificador" class="inv_ids">Identificador: <span class="info_investigacion">{{investigacion.identificador}}</span></div>
+                <div class="inv_ids">Propietario: <span class="info_investigacion">{{investigacion.propietario}}</span></div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <div class="inv_ids">Usuarios: </div>
+                    </div>
+                    <div class="col-md-2 col-md-offset-1">
+                        <div id="usuarios_inv" class="info_investigacion">
+                            {% for usuario in investigacion.usuario.all %}
+                                <p style="margin-bottom: .5rem">{{usuario}}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="inv_ids">Estado: 
+                    <span class="info_investigacion">
+                        {% if investigacion.finalizado_correcto %} 
+                            <span style="color:#4caf50">Finalizado correctamente</span>
+                        {% elif investigacion.finalizado_incorrecto %} 
+                            <span style="color:#f44336">Finalizado incorrectamente</span>
+                        {% elif not eliminado %}
+                            <span style="color:#42a5f5">En curso</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="inv_ids">Modelo: <span class="info_investigacion">{{modelo}}</span></div>
+                <div class="inv_ids">Fecha de creación: <span class="info_investigacion">{{investigacion.fecha_agregado|localtime|date:"d/m/Y H:i"}}</span></div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="inv_ids">Descripción: </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div id="descripcion_inv" class="info_investigacion">{{investigacion.descripcion}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1 col-md-offset-1">
+            {% block botonera %}{% endblock %}
+        </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'FrontEnd/scripts/my_scripts/investigaciones.js' %}"></script>
+    <script src="{% static 'FrontEnd/scripts/my_scripts/modales.js' %}"></script>
+    {% block scripts_sub %}{% endblock %}
+{% endblock %}

@@ -116,7 +116,7 @@ body {
     text-align: center;
 }
 
-#nuevoCaso {
+#nuevaInvestigacion {
     width: 20rem;
     height: 4rem;
     background-color: #42a5f5;
@@ -127,11 +127,11 @@ body {
     margin-left: 77% !important;
 }
 
-#nuevoCaso:hover {
+#nuevaInvestigacion:hover {
     background-color: #1e88e5;
 }
 
-#nuevoCaso:focus {
+#nuevaInvestigacion:focus {
     outline-style: none;
 }
 
@@ -139,13 +139,6 @@ body {
     font-size: 18px;
     margin-left: 4rem;
     margin-bottom: 2rem;
-}
-
-
-#id_casos {
-    width: 90%;
-    max-width: none !important;
-    margin-top: 0.5rem;
 }
 
 .buscador {

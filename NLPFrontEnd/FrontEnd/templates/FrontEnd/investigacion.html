@@ -1,0 +1,118 @@
+﻿{% extends "FrontEnd/layout_investigacion.html" %}
+{% load bootstrap3 %}
+{% load FrontEnd_extras %}
+
+{% block breadcrumb-li %}
+    <li class="breadcrumbb-item" aria-current="page"><a class="breadcrumb-links" href="{% url 'investigaciones' %}">Investigaciones en curso</a></li>
+    <li class="breadcrumbb-item active" aria-current="page">
+        {% if investigacion.nombre|length < 30 %}
+            {{investigacion}}
+        {% else %}
+            {{investigacion.nombre|truncatechars:27}}
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block botonera %}
+    <div id="botonera_vertical">
+        <div class="row">
+            <span title="Búsqueda guiada" class="btn btn-busqueda"><a href="{% url 'buscador_guiado' tipo='Búsqueda' id_regex=investigacion.id  investigacion_id=investigacion.id camino=camino %}"><i class="far fa-compass" style="font-size:32px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Búsqueda general" class="btn btn-busqueda"><a href="{% url 'buscador_general' investigacion_id=investigacion.id camino=camino %}"><i class="fas fa-search" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Búsqueda inteligente" class="btn btn-busqueda"><a href="{% url 'buscador_inteligente' tipo='Búsqueda'  investigacion_id=investigacion.id camino=camino %}"><i class="fas fa-brain" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <div id="separador-horizontal"></div>
+        </div>
+        <div class="row">
+            <span title="Documentos" class="btn btn-docres"><a href="{% url 'documentos_investigacion' investigacion_id=investigacion.id destino=destino_documentos camino=camino %}"><i class="fas fa-file" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Resultados" class="btn btn-docres"><a href="{% url 'resultados_investigacion' investigacion_id=investigacion.id destino=destino_resultados camino=camino %}"><i class="far fa-file-alt" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Informes" class="btn btn-margen"><a href="{% url 'informes_investigacion' investigacion_id=investigacion.id destino=destino_informes camino=camino %}"><i class="fas fa-archive" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <span title="Notas" class="btn btn-margen"><a href="{% url 'notas' id=investigacion.id  tipo='investigacion' camino=camino %}"><i class="fas fa-sticky-note" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            <div id="separador-horizontal"></div>
+        </div>
+        <div class="row">
+            {% if user == investigacion.propietario %}
+                <span title="Compartir investigación" class="btn btn-margen" data-toggle="modal" data-target="#modalAdvice" data-investigacion="{{investigacion}}" data-urlPrio="{% url 'compartir_investigaciones' investigacion_id=investigacion.id tipo='con' %}" data-urlSinPrio="{% url 'compartir_investigaciones' investigacion_id=investigacion.id tipo='sin' %}"><a><i class="fas fa-share-square" style="font-size:29px"></i></a></span>
+            {% else %}
+                <button title="Compartir investigación" class="btn btn-margen" disabled><i class="fas fa-share-square" style="font-size:29px; cursor: not-allowed; pointer-events:all !important" ></i></button>
+            {% endif %}
+        </div>
+        <div class="row">
+            <span title="Adjuntar archivo" class="btn btn-margen" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_doc' investigacion.id %}" data-next="investigacion" ><a><i class="fas fa-paperclip" style="font-size:29px"></i></a></span>
+        </div>
+        <div class="row">
+            {% if user == investigacion.propietario %}
+                <span title="Editar investigación" class="btn btn-margen"><a href="{% url 'editar_investigacion' investigacion_id=investigacion.id camino=camino %}"><i class="fas fa-edit" style="font-size:30px"></i></a></span>
+            {% else %}
+                <button title="Editar investigación" class="btn btn-margen" disabled><i class="fas fa-edit" style="font-size:30px; cursor: not-allowed; pointer-events:all !important"></i></button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="modalAdvice" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Compartir investigación:&nbsp;&nbsp;<b><span id="investigacion_nombre"></span></b></h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                 <div class="col-md-7">
+                <div class="titulo">¿Con quién desea compartir el investigación?:</div>
+                <form id="compartir_form" action="" method="post"  class="form">
+                    {% csrf_token %}
+                    {% bootstrap_form form_usuario %}
+                    <input type="hidden" name="next" value="{{ 'investigacion' }}">
+                    <div class="comentario">La investigación puede ser compartida tanto con privilegios de propietario (cediendo los propios) como no.</div>
+                </form>
+              </div>
+              <div class="col-md-3 ">
+                <button id="conPrivilegios" class="btn botones-compartir" form="compartir_form">Ceder privilegios</button>
+                <button id="sinPrivilegios" class="btn botones-compartir" form="compartir_form">No ceder privilegios</button>
+                <button id="cancelar-compartir" type="button" class="btn botones-compartir" data-dismiss="modal" >Cancelar</button>
+              </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'FrontEnd/modales.html' %}
+{% endblock %}
+
+{% block scripts_sub %}
+    
+    <script>
+        $(document).ready(function() {
+            $("#eliminar_investigacion").click(function () {
+                var recipient = $(this).attr('data-whatever')
+                if ($("#forma_administrar input:checkbox:checked").length > 0)
+                {   
+                    $('#modalEliminar').modal('show');
+                }
+                $('#forma_administrar').attr('action', recipient)
+            }); 
+            $("#finalizar_investigacion").click(function(){
+                if ($("#forma_administrar input:checkbox:checked").length > 0)
+                {   
+                    $('#modalFinalizar').modal('show');
+                }
+                var recipient = $(this).attr('data-whatever')
+                $('#forma_administrar').attr('action', recipient)
+            }); 
+        });
+    </script>
+{% endblock %}

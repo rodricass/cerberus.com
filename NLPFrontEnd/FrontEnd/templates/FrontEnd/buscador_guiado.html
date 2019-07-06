@@ -13,26 +13,39 @@
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
-            <div id="jumboside" class="jumbotron">
-                <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' caso_id=caso_id camino=camino %}'"><i class="fas fa-brain"></i></button>
-                <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' caso_id=caso_id camino=camino %}'"><i class="fas fa-search"></i></button>
-                <h1 id="titulo" title="{{caso_nombre}}">
-                {% if caso_nombre|length < 10 %}
-                    {{caso_nombre}}
+            <div id="jumboside" class="jumbotron" style="margin-bottom:0px !important">
+                <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-brain"></i></button>
+                <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-search"></i></button>
+                <h1 id="titulo" title="{{investigacion_nombre}}">
+                {% if investigacion_nombre|length < 10 %}
+                    {{investigacion_nombre}}
                 {% else %}
-                    {{caso_nombre|truncatechars:8}}
+                    {{investigacion_nombre|truncatechars:8}}
                 {% endif %}
                 </h1>
                 <p id="investigacion">Buscador guiado</p>
             </div>
-            <button id="email" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_guiado' tipo=email caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Dirección e-mail</button>
-            <button id="url" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=url caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Dirección web (URL)</button>
-            <button id="tarjeta" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=tarjeta caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Tarjeta de crédito/ débito</button>
-            <button id="dni" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=dni caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Número de documento</button>
-            <button id="telefono" class="btn botones" onclick="location.href='{% url 'buscador_guiado' tipo=telefono caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Teléfono</button>
+            
+            {% for expresion in expresiones %}
+            <div class="row">
+                <div class="col-md-7 col-md-offset-1 col-btn-guiados">
+                    <button class="btn botones btn-guiada"  onclick="location.href='{% url 'buscador_guiado' tipo=expresion.nombre id_regex=expresion.id investigacion_id=investigacion_id camino=camino %}';">{{expresion.nombre}}</button>
+                </div>
+                <div class="col-md-2" style="margin-left:4rem">
+                    <input class="checks" form="forma_eliminar" name="checks_regex[]" value="{{expresion.id}}" type="checkbox" style="margin-left:2rem !important; display:none">
+                </div>
+            </div>
+            {% endfor %}
             {% if tipo != "Búsqueda" %}
                 {% if res.items|length != 0 %}
                     <button id="btn-save2" title="Guardar búsqueda" class="btn botones" data-toggle="modal" data-target="#modalAdvice"><i class="fas fa-save"></i></button>
+                {% endif %}
+            {% else %}
+                {% if user.is_superuser %}
+                    <button id="btn-agregar" title="Agregar nueva expresión" class="btn botones2" data-toggle="modal" data-target="#modalAgregar"><i class="fas fa-plus"></i></button>
+                    <button id="eliminar-regex" title="Eliminar expresiones" class="btn botones2" data-toggle="modal" data-target="#modalEliminar"><i class="far fa-trash-alt"></i></button>
+                    <button id="cancelar-regex" title="Cancelar selección" class="btn botones2"><i class="fas fa-times"></i></button>
+                    <button id="btn-select" title="Seleccionar expresiones" class="btn botones2 btn-2"><i class="fas fa-check"></i></button>
                 {% endif %}
             {% endif %}
         </div>
@@ -58,7 +71,7 @@
                     </div>
                 </div>
                 <div id="cuerpo" style="margin-top:1rem">
-                    <form id="guardar" action="{% url 'guardar_resultadoGuiado' tipo=tipo caso_id=caso_id camino='*'|addstr:caso_nombre %}" method="post">
+                    <form id="guardar" action="{% url 'guardar_resultadoGuiado' tipo=tipo investigacion_id=investigacion_id camino=camino %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="resultado_json" value="{{json}}">
                     </form>
@@ -135,6 +148,23 @@
       </div>
     </div>
 
+    <div id="modalEliminar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+              <form action="{% url 'eliminar_regex' tipo=tipo id_regex=investigacion_id investigacion_id=investigacion_id camino=camino %}"  id="forma_eliminar" method="post">
+                {% csrf_token %}    
+            </form>
+            <p class="modal-advice">¿Desea borrar los elementos seleccionados?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default aceptar" type="submit" form="forma_eliminar">Aceptar</button>
+            <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>    
+
     <div id="modalAdvice" class="modal fade" role="dialog">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -149,6 +179,35 @@
     
       </div>
     </div>
+
+    {% if user.is_superuser %}
+    <div id="modalAgregar" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Agregar expresión regular</h4>
+          </div>
+          <div class="modal-body">
+            <form id="agregar_form" action="{% url 'buscador_guiado' tipo='Búsqueda' id_regex=investigacion_id investigacion_id=investigacion_id camino=camino %}" method="post"  class="form">
+                {% csrf_token %}
+                {% bootstrap_form form_agregar %}
+            </form>
+          </div>
+          <div class="modal-footer">
+            <div class="row">
+                <div class="col-md-6" style="padding-right:unset">
+                    <button class="btn btn-default aceptar_agregar" style="width:98%" type="submit" form="agregar_form">Crear</button>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-default cancelar_agregar" style="width:100%" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endif %}
 
 {% endblock %}
  
@@ -182,5 +241,26 @@
             }
             $('#parrafo_texto').html(parrafo)
         })
+        $('#btn-select').click(function () {
+            $('.btn-guiada').animate({
+                width: "120%"
+            }, );
+            $(".checks").show();
+            $("#btn-agregar").hide();
+            $('#btn-select').hide();
+            $("#eliminar-regex").show();
+            $("#cancelar-regex").show();
+        }); 
+        $('#cancelar-regex').click(function () {
+            $('.btn-guiada').animate({
+                width: "26rem"
+            }, );
+            $(".checks").hide();
+            $(".checks").prop('checked', false);
+            $("#btn-agregar").show();
+            $('#btn-select').show();
+            $("#eliminar-regex").hide();
+            $("#cancelar-regex").hide();
+        });
     </script>
 {% endblock scripts %}

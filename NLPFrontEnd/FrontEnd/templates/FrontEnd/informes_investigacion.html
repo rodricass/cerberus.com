@@ -58,7 +58,7 @@
                     </div>
                     </div>
                 {% empty %}
-                    <p class="vacio" style="margin-left:25%">No hay informes asociados al caso</p>
+                    <p class="vacio" style="margin-left:25%">No hay informes asociados a la investigación</p>
                 {% endfor %}
             </div>
         </div>
@@ -72,7 +72,7 @@
             <p class="modal-advice">¿Eliminar informe?</p>
             <form id="borrarForm" action="" method="post">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ 'FrontEnd/informes_caso.html' }}">
+                <input type="hidden" name="next" value="{{ 'FrontEnd/informes_investigacion.html' }}">
             </form>
           </div>
           <div class="modal-footer">

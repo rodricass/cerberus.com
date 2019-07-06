@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from .models import Caso, Documento, Nota, ResultadoHeader
+from .models import Investigacion, Documento, Nota, ResultadoHeader, Regex
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -20,15 +20,15 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                    'class': 'form-control',
                                    'placeholder':'Contraseña',}))
 
-class CasoForm(forms.ModelForm):
-    """Forma para completar la información correspondiente a los casos"""
+class InvestigacionForm(forms.ModelForm):
+    """Forma para completar la información correspondiente a las investigaciones"""
     class Meta:
-        model = Caso
+        model = Investigacion
         fields = ['identificador','nombre','descripcion','modelo']
         labels = {'nombre':'','identificador':'','descripcion':'','modelo':'Modelo',}
-        widgets = {'nombre': forms.TextInput({'placeholder':'Nombre del caso'}),
-                   'identificador': forms.TextInput({'placeholder':'Identificador del caso'}),
-                   'descripcion': forms.Textarea({'placeholder':'Descripción del caso'})}
+        widgets = {'nombre': forms.TextInput({'placeholder':'Nombre de la investigación'}),
+                   'identificador': forms.TextInput({'placeholder':'Identificador de la investigación'}),
+                   'descripcion': forms.Textarea({'placeholder':'Descripción de la investigación'})}
 
 class DocumentoForm(forms.ModelForm):
     """Forma para completar la información correspondiente a los documentos"""
@@ -38,35 +38,30 @@ class DocumentoForm(forms.ModelForm):
         labels = {'documento':'','tipo_archivo':''}
         widgets = {'documento':forms.ClearableFileInput({'accept':'.txt,.docx','class':'documentos','multiple':True})}
 
-        #'nombre_doc':forms.HiddenInput({'class':'nombres'}),
-        #           'titulo':forms.TextInput({'placeholder':'Nombre del documento',
-        #                                     'class':'nombres'}),
-        #           'descripcion_doc':forms.Textarea({'placeholder':'Descripción del documento (opcional)'}),
-
-class CasoFormEdit(forms.ModelForm):
-    """Forma para completar la información correspondiente a los casos"""
+class InvestigacionFormEdit(forms.ModelForm):
+    """Forma para completar la información correspondiente a las investigaciones"""
     class Meta:
-        model = Caso
+        model = Investigacion
         fields = ['identificador','nombre','descripcion']
-        widgets = {'nombre': forms.TextInput({'placeholder':'Nombre del caso'}),
-                   'identificador': forms.TextInput({'placeholder':'Identificador del caso'}),
-                   'descripcion': forms.Textarea({'placeholder':'Descripción del caso'})}
+        widgets = {'nombre': forms.TextInput({'placeholder':'Nombre de la investigación'}),
+                   'identificador': forms.TextInput({'placeholder':'Identificador de la investigación'}),
+                   'descripcion': forms.Textarea({'placeholder':'Descripción de la investigación'})}
 
 class BuscadorGeneralForm(forms.Form):
-    """Forma para completar con alguna frase a buscar dentro de los archivos de un caso"""
+    """Forma para completar con alguna frase a buscar dentro de los archivos de una investigacion"""
     busqueda = forms.CharField(label='',
                                widget=forms.Textarea({
                                    'placeholder':'Inserte texto a buscar'}))
 
-class BuscadorCasosForm(forms.Form):
-    """Forma para mostrar los casos del usuario"""
+class BuscadorInvestigacionesForm(forms.Form):
+    """Forma para mostrar los investigaciones del usuario"""
     def __init__(self, user, *args, **kwargs):
-        super(BuscadorCasosForm, self).__init__(*args, **kwargs)
-        casos = Caso.objects.filter(usuario=user).filter(eliminado=False).filter(finalizado_correcto=False).filter(finalizado_incorrecto=False).order_by('-fecha_agregado')
-        self.fields['casos'] = forms.ChoiceField(label='', choices=[(caso.id,caso.nombre) for caso in casos])
+        super(BuscadorInvestigacionesForm, self).__init__(*args, **kwargs)
+        investigaciones = Investigacion.objects.filter(usuario=user).filter(eliminado=False).filter(finalizado_correcto=False).filter(finalizado_incorrecto=False).order_by('-fecha_agregado')
+        self.fields['investigaciones'] = forms.ChoiceField(label='', choices=[(investigacion.id,investigacion.nombre if len(investigacion.nombre)<73 else f'{investigacion.nombre[:73]}..') for investigacion in investigaciones])
 
 class UsuariosForm(forms.Form):
-    """Forma para mostrar los casos del usuario"""
+    """Forma para mostrar los investigaciones del usuario"""
     def __init__(self, user, *args, **kwargs):
         super(UsuariosForm, self).__init__(*args, **kwargs)
         usuarios = User.objects.exclude(id=user.id)
@@ -90,3 +85,13 @@ class UsuarioNuevoForm(forms.Form):
                                     widget=forms.PasswordInput({
                                    'placeholder':'Contraseña'}))
 
+
+class RegexForm(forms.ModelForm):
+    """Forma para crear expresiones regulares"""
+    class Meta:
+        model = Regex
+        fields = ['nombre','patron','orden']
+        labels = {'nombre':'', 'patron':'', 'orden':''}
+        widgets = {'nombre': forms.TextInput({'placeholder':'Nombre'}),
+                   'patron': forms.TextInput({'placeholder':'Patrón'}),
+                   'orden': forms.NumberInput({'placeholder':'Orden'})}

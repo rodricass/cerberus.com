@@ -23,14 +23,14 @@ $('#modalAdvice').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var recipient = button.data('urlprio');
     var recipient2 = button.data('urlsinprio');
-    var recipient3 = button.data('caso');
+    var recipient3 = button.data('investigacion');
     if (recipient3.length <= 40) {
-        $('#caso_nombre').html(recipient3);
+        $('#investigacion_nombre').html(recipient3);
     }
     else {
         subnom = recipient3.substring(0, 35);
-        $('#caso_nombre').html(subnom + "...");
-        $('#caso_nombre').attr('title', recipient3);
+        $('#investigacion_nombre').html(subnom + "...");
+        $('#investigacion_nombre').attr('title', recipient3);
     }
     $("#conPrivilegios").click(function () {
         $('#compartir_form').attr('action', recipient);

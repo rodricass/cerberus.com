@@ -3,7 +3,7 @@
 {% block navbar %}
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/style.css' %}" />
-    <div class="navbar navbar-fixed-top ">
+    <div class="navbar navbar-fixed-top " style="margin-left:-6.9%">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -22,9 +22,9 @@
                                 <span class="caret" style="color: white !important;border-top-color: white !important;border-bottom-color: white !important;margin-top:1rem;"></span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li class="investigaciones_menu"><a href="{% url 'casos' %}">EN CURSO</a></li>
+                              <li class="investigaciones_menu"><a href="{% url 'investigaciones' %}">EN CURSO</a></li>
                               <li class="divider"></li>
-                              <li class="investigaciones_menu"><a href="{% url 'casos_finalizados' %}">FINALIZADAS</a></li>
+                              <li class="investigaciones_menu"><a href="{% url 'investigaciones_finalizadas' %}">FINALIZADAS</a></li>
                             </ul>
                         </div>
                     </li>

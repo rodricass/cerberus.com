@@ -1,22 +1,21 @@
 ﻿{% extends "FrontEnd/layout.html" %}
 {% load bootstrap3 %}
-{% load FrontEnd_extras %}
 
 {#Generador automatico en base al camino_array del path de origen de la breadcrumbb navbar#}
 {% block breadcrumb-li %}
     {% include 'FrontEnd/breadcrumb-generator.html' %}  
-    <li class="breadcrumbb-item active" aria-current="page">Crear caso</li>
+    <li class="breadcrumbb-item active" aria-current="page">Editar investigación</li>
 {% endblock %}
 
 {% block content %}
     {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/nuevo_caso.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/nueva_investigacion.css' %}" />
     <div class="row" style="margin-top:5%">
         <div class="col-md-3">
-            <span id="titulo">Nuevo caso</span>
+            <span id="titulo">Editar investigación</span>
         </div>
         <div class="col-md-offset-1 col-md-8">
-            <form style="margin-top:10rem" action="{% url 'nuevo_caso' camino=" " %}" method="post" class="form">
+            <form id="editar_form" style="margin-top:8rem;" method="post" action="{% url 'editar_investigacion' investigacion_id=investigacion.id camino=camino %}" class="form">
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-md-9">
@@ -24,8 +23,8 @@
                     </div>
                     <div class="col-md-2">
                         {% buttons %}
-                            <button id="btn1" type="submit" class="btn botones">Crear caso</button>
-                            <button id="btn2" onclick="location.href='{% url 'casos' %}';" class="btn botones">Cancelar</button>
+                            <button type="submit" id="btn1" form="editar_form" class="botones btn">Aceptar</button>
+                            <button id="btn2" onclick="location.href='{% url 'investigacion' investigacion_id=investigacion.id %}';" class="botones btn">Cancelar</button>
                         {% endbuttons %}
                     </div>
                 </div>               
@@ -36,6 +35,3 @@
 
 {% endblock content %}
 
-{% block scripts %} 
-     <script src="{% static 'FrontEnd/scripts/my_scripts/nuevo_caso.js' %}"></script>
-{% endblock scripts %}

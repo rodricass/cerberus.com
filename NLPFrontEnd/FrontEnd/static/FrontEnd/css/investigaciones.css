@@ -10,10 +10,6 @@ input, textarea {
     max-width: none !important;
 }
 
-.panel {
-    cursor: pointer;
-}
-
 .editar {
     cursor: pointer;
     position: relative;
@@ -128,14 +124,13 @@ input, textarea {
     right: -10.7rem;
 }
 
-.caso {
+.investigacion {
     position: absolute;
     top: 0;
     margin-top: 1rem;
-    cursor: pointer;
 }
 
-#crear_caso {
+#crear_investigacion {
     position: fixed;
     width: 22rem;
     height: 5rem;
@@ -145,11 +140,11 @@ input, textarea {
     box-shadow: 5px 10px 18px #888888;
 }
 
-#crear_caso:hover {
+#crear_investigacion:hover {
     background-color: #ef6c00;
 }
 
-#crear_caso:focus {
+#crear_investigacion:focus {
      outline-style: none;
 }
 
@@ -157,7 +152,7 @@ input, textarea {
     height: 6.5rem;
 }
 
-#eliminar_caso {
+#eliminar_investigacion {
     display: none;
     position: fixed;
     width: 22rem;
@@ -169,11 +164,11 @@ input, textarea {
     box-shadow: 5px 10px 18px #888888;
 }
 
-#eliminar_caso:hover {
+#eliminar_investigacion:hover {
     background-color: #c62828;
 }
 
-#finalizar_caso {
+#finalizar_investigacion {
     display: none;
     position: fixed;
     width: 22rem;
@@ -184,11 +179,11 @@ input, textarea {
     box-shadow: 5px 10px 18px #888888;
 }
 
-#finalizar_caso:hover {
+#finalizar_investigacion:hover {
     background-color: #43a047;
 }
 
-#seleccionar_casos {
+#seleccionar_investigaciones {
     background-color: #1e88e5;
     position: fixed;
     margin-top: 7rem;
@@ -199,7 +194,7 @@ input, textarea {
     box-shadow: 5px 10px 18px #888888;
 }
 
-#seleccionar_casos:hover {
+#seleccionar_investigaciones:hover {
     background-color: #1565c0;
 }
 
@@ -366,11 +361,15 @@ input, textarea {
     color: white;
 }
 
-.btns-casos:focus {
+.btns-investigaciones:focus {
     color: #2a6496;
 }
 
-/*******START CASOS FINALIZADOS********/
+.contenedor_investigacion {
+    cursor: pointer;
+}
+
+/*******START INVESTIGACIONES FINALIZADAS********/
 .botones_panel {
     background-color: transparent;
     color: #428bca;
@@ -418,7 +417,7 @@ input, textarea {
 }
 
 
-/*******END CASOS FINALIZADOS*********/
+/*******END INVESTIGACIONES FINALIZADAS*********/
 
 body.modal-open, .modal-open .navbar-fixed-top, .modal-open .navbar-fixed-bottom {
     margin-right: 0 !important;

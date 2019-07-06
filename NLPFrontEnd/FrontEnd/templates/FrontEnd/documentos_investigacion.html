@@ -31,10 +31,10 @@
                     <div class="row fila">
                         <div class="col-md-6 col-md-offset-1">
                             <div class="nombre_doc" title="{{documento}}">
-                                {% if documento.titulo|length < 45 %}
+                                {% if documento.nombre_doc|length < 45 %}
                                     {{documento}}
                                 {% else %}
-                                    {{documento.titulo|truncatechars:45}}
+                                    {{documento.nombre_doc|truncatechars:45}}
                                 {% endif %}
                             </div>
                         </div>
@@ -42,21 +42,21 @@
                             <button title="Abrir" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1">
-                            <button title="Notas" class="icons" id="boton_nota" style="margin-left:2.2rem"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Casos en curso>'|addstr:nombre_caso|addstr:'>Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
+                            <button title="Notas" class="icons" id="boton_nota" style="margin-left:2.2rem"><a href="{% url 'notas' id=documento.id  tipo='documento' camino=camino|addstr:'>*Documentos' %}"><i class="fas fa-sticky-note"></i></a></button>
                         </div>
                         <div class="col-md-1">
                         {% if documento.propietario_doc != user %}
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_investigacion=id_investigacion %}"><i class="fas fa-trash"></i></button>
                         {% else %}
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc_caso' id_doc=documento.id id_caso=id_caso camino=camino %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc_investigacion' id_doc=documento.id id_investigacion=id_investigacion camino=camino %}"><i class="fas fa-trash"></i></button>
                         {% endif %}
                     </div>
                     </div>
                 {% empty %}
-                    <p class="vacio" style="margin-left:25%">No hay documentos asociados al caso</p>
+                    <p class="vacio" style="margin-left:25%">No hay documentos asociados a la investigación</p>
                 {% endfor %}
             </div>
-            <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docCaso' caso_id=id_caso camino='Casos en curso:casos>'|addstr:nombre_caso|addstr:':caso|'|addstr:id_caso %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
+            <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docInvestigacion' investigacion_id=id_investigacion camino=camino %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
         </div>
         
     </div>
@@ -71,7 +71,7 @@
           <div class="modal-body">
             <form id="enviar_form" action="" method="post"  class="form">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos_caso.html' }}">
+                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos_investigacion.html' }}">
                 <textarea rows="6" cols="70" name="mensaje" form="enviar_form" placeholder="Motivo por el cual desea su eliminación" required></textarea>
             </form>
           </div>
@@ -91,7 +91,7 @@
             <p class="modal-advice">¿Eliminar documento?</p>
             <form id="borrarForm" action="" method="post">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos_caso.html' }}">
+                <input type="hidden" name="next" value="{{ 'FrontEnd/documentos_investigacion.html' }}">
             </form>
           </div>
           <div class="modal-footer">
@@ -109,5 +109,5 @@
 
 {% block scripts %} 
      <script src="{% static 'FrontEnd/scripts/my_scripts/documentos.js' %}"></script>
-     <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
+     <script src="{% static 'FrontEnd/scripts/my_scripts/modales.js' %}"></script>
 {% endblock scripts %}

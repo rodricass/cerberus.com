@@ -14,22 +14,22 @@
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
-                <h1 id="titulo" title="{{caso_nombre}}">
-                {% if caso_nombre|length < 10 %}
-                    {{caso_nombre}}
+                <h1 id="titulo" title="{{investigacion_nombre}}">
+                {% if investigacion_nombre|length < 10 %}
+                    {{investigacion_nombre}}
                 {% else %}
-                    {{caso_nombre|truncatechars:8}}
+                    {{investigacion_nombre|truncatechars:8}}
                 {% endif %}
                 </h1>
-                <button id="arrow-left" title="Búsqueda general" class="btn int-left flechas" style="left:1.5rem" onclick="location.href='{% url 'buscador_general' caso_id=caso_id camino=camino %}'"><i class="fas fa-search"></i></button>
-                <button id="arrow-right" title="Búsqueda guiada" class="btn int-right flechas" style="left:83%" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' caso_id=caso_id camino=camino %}'"><i class="far fa-compass"></i></button>
+                <button id="arrow-left" title="Búsqueda general" class="btn int-left flechas" style="left:1.5rem" onclick="location.href='{% url 'buscador_general' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-search"></i></button>
+                <button id="arrow-right" title="Búsqueda guiada" class="btn int-right flechas" style="left:83%" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' id_regex=investigacion_id investigacion_id=investigacion_id camino=camino %}'"><i class="far fa-compass"></i></button>
                 <p id="investigacion">Buscador inteligente</p>
             </div>
-            <button id="pers" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_inteligente' tipo=pers caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Personas</button>
-            <button id="org" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=org caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Organizaciones</button>
-            <button id="loc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=loc caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Locaciones</button>
-            <button id="drog" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=modelo caso_id=caso_id camino='*'|addstr:caso_nombre %}';">{{modelo}}</button>
-            <button id="misc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=lex caso_id=caso_id camino='*'|addstr:caso_nombre %}';">Léxicos detectados</button>
+            <button id="pers" class="btn botones" style="margin-top:0rem;" onclick="location.href='{% url 'buscador_inteligente' tipo=pers investigacion_id=investigacion_id camino=camino %}';">Personas</button>
+            <button id="org" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=org investigacion_id=investigacion_id camino=camino %}';">Organizaciones</button>
+            <button id="loc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=loc investigacion_id=investigacion_id camino=camino %}';">Locaciones</button>
+            <button id="drog" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=modelo investigacion_id=investigacion_id camino=camino %}';">{{modelo}}</button>
+            <button id="misc" class="btn botones" onclick="location.href='{% url 'buscador_inteligente' tipo=lex investigacion_id=investigacion_id camino=camino %}';">Léxicos detectados</button>
             {% if tipo != "Búsqueda" %}
                 {% if res|length != 0 %}
                     {% if tipo != "Léxicos detectados" %}
@@ -69,10 +69,10 @@
                         </div>
                     </div>
                     <div id="cuerpo" style="margin-top:1rem;">
-                        <form action="{% url 'buscador_inteligente' tipo=tipo caso_id=caso_id camino='*'|addstr:caso_nombre %}" id="forma_eliminar" method="post">
+                        <form action="{% url 'buscador_inteligente' tipo=tipo investigacion_id=investigacion_id camino=camino %}" id="forma_eliminar" method="post">
                             {% csrf_token %}    
                         </form>
-                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo caso_id=caso_id camino='*'|addstr:caso_nombre %}" method="post">
+                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo investigacion_id=investigacion_id camino=camino %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="resultado_json" value="{{json}}">
                         </form>
@@ -93,7 +93,7 @@
                                         <input class="checks" form="forma_eliminar" name="checks2[]" value="{{item.7}}" type="checkbox" style="margin-left:2rem !important;">
                                     </div>
                                     <div class="col-md-3 col-md-offset-1">
-                                        <p class="edit head" style="margin-left:-0.5rem"><i class="fas fa-pencil-alt" style="cursor:pointer" data-toggle="modal" data-target="#modalEditar" data-url="{% url 'editar_entidad' tipo=tipo id_ent=item.7 id_caso=caso_id camino='*'|addstr:caso_nombre %}" data-whatever="{{item.0}}"></i></p>
+                                        <p class="edit head" style="margin-left:-0.5rem"><i class="fas fa-pencil-alt" style="cursor:pointer" data-toggle="modal" data-target="#modalEditar" data-url="{% url 'editar_entidad' tipo=tipo id_ent=item.7 id_investigacion=investigacion_id camino=camino %}" data-whatever="{{item.0}}"></i></p>
                                     </div>
                                     <div class="col-md-1">
                                         <p class="plus2" style="margin-left:-3.2rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.3 %}" data-docNombre="{{item.4}}" data-posInicial="{{item.1}}" data-string="{{item.0}}" data-string_original="{{item.8}}" data-posFinal="{{item.2}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}" ></i></p>
@@ -137,7 +137,7 @@
                         </div>
                     </div>
                     <div id="cuerpo" style="margin-top:1rem;">
-                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo caso_id=caso_id camino='*'|addstr:caso_nombre %}" method="post">
+                        <form id="guardar" action="{% url 'guardar_resultadoInteligente' tipo=tipo investigacion_id=investigacion_id camino=camino %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="resultado_json" value="{{json}}">
                         </form>
@@ -251,7 +251,7 @@
                     </p>
                 </form>
                 <hr/>
-                <p id="parrafo_texto" style="max-height:35%; overflow-y:auto; overflow-x:hidden;"></p>
+                <p id="parrafo_texto" style=""></p>
             </div>
             
         </div>

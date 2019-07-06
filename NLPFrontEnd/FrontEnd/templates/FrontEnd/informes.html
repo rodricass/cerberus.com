@@ -6,11 +6,11 @@
     <li class="breadcrumbb-item active" aria-current="page">Informes</li>
     {% if inicial == False %}
         <li class="breadcrumbb-item active" aria-current="page">
-            <a class="breadcrumb-links" href="{% url 'caso' id_caso %}">
-                {% if nombre_caso|length < 30 %}
-                    {{nombre_caso}}
+            <a class="breadcrumb-links" href="{% url 'investigacion' id_investigacion %}">
+                {% if nombre_investigacion|length < 30 %}
+                    {{nombre_investigacion}}
                 {% else %}
-                    {{nombre_caso|truncatechars:27}}
+                    {{nombre_investigacion|truncatechars:27}}
                 {% endif %}
             </a>
         </li>
@@ -25,10 +25,10 @@
         <div class="buscador col-md-11">
             <form id="ver_form" action="{% url 'informes' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
-                    <div class="col-md-3">
-                        <h4 style="font-size:20px !important">Ver informes de caso:</h4>
+                    <div class="col-md-3" id="inv">
+                        <h4 style="font-size:20px !important">Ver informes de investigación:</h4>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-5" id="inv_select">
                         {% bootstrap_form form %}
                     </div>
                     <div class="col-md-3">
@@ -82,7 +82,7 @@
                     </div>
                 </div>
             {% empty %}
-                <p class="vacio">No hay informes asociados al caso</p>
+                <p class="vacio">No hay informes asociados a la investigación</p>
             {% endfor %}
         </div>
         

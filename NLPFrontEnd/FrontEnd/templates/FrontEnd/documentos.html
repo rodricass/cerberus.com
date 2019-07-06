@@ -6,11 +6,11 @@
     <li class="breadcrumbb-item active" aria-current="page">Documentos</li>
     {% if inicial == False %}
         <li class="breadcrumbb-item active" aria-current="page">
-            <a class="breadcrumb-links" href="{% url 'caso' id_caso %}">
-                {% if nombre_caso|length < 30 %}
-                    {{nombre_caso}}
+            <a class="breadcrumb-links" href="{% url 'investigacion' id_investigacion %}">
+                {% if nombre_investigacion|length < 30 %}
+                    {{nombre_investigacion}}
                 {% else %}
-                    {{nombre_caso|truncatechars:27}}
+                    {{nombre_investigacion|truncatechars:27}}
                 {% endif %}
             </a>
         </li>
@@ -24,10 +24,10 @@
         <div class="buscador col-md-11">
             <form id="editar_form" action="{% url 'documentos' %}" style="margin-top:11rem;" method="post"  class="form">
                 {% csrf_token %}
-                    <div class="col-md-3">
-                        <h4 style="font-size:20px !important">Ver documentos de caso:</h4>
+                    <div class="col-md-4">
+                        <h4 style="font-size:20px !important">Ver documentos de investigación:</h4>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-5" id="doc">
                         {% bootstrap_form form %}
                     </div>
                     <div class="col-md-3">
@@ -45,10 +45,10 @@
                 <div class="row fila">
                     <div class="col-md-6 col-md-offset-1">
                         <div class="nombre_doc" title="{{documento}}">
-                            {% if documento.titulo|length < 70 %}
+                            {% if documento.nombre_doc|length < 70 %}
                                 {{documento}}
                             {% else %}
-                                {{documento.titulo|truncatechars:70}}
+                                {{documento.nombre_doc|truncatechars:70}}
                             {% endif %}
                         </div>
                     </div>
@@ -56,21 +56,21 @@
                         <button title="Descargar" class="icons"><a href="{% url 'ver_doc' id_doc=documento.id %}"><i class="fas fa-download"></i></a></button>
                     </div>
                     <div class="col-md-1">
-                        <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino='Documentos:documentos>*'|addstr:nombre_caso|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note"></i></a></button>
+                        <button title="Notas" class="icons" id="boton_nota"><a href="{% url 'notas' id=documento.id  tipo='documento' camino=camino|addstr:'>*'|addstr:documento.nombre_doc %}"><i class="fas fa-sticky-note"></i></a></button>
                     </div>
                     <div class="col-md-1">
                         {% if documento.propietario_doc != user %}
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalAdvice" data-whatever="{% url 'mensaje_nuevo' id_doc=documento.id  id_investigacion=id_investigacion %}"><i class="fas fa-trash"></i></button>
                         {% else %}
-                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc' id_doc=documento.id id_caso=id_caso %}"><i class="fas fa-trash"></i></button>
+                            <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_doc' id_doc=documento.id id_investigacion=id_investigacion %}"><i class="fas fa-trash"></i></button>
                         {% endif %}
                     </div>
                 </div>
             {% empty %}
-                <p class="vacio">No hay documentos asociados al caso</p>
+                <p class="vacio">No hay documentos asociados a la investigación</p>
             {% endfor %}
         </div>
-        <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docDocumentos' caso_id=id_caso %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
+        <button id="nuevoDoc" data-toggle="modal" data-target="#modal-adjuntar" data-whatever="{% url 'agregar_docDocumentos' investigacion_id=id_investigacion %}">Agregar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" style="font-size:12px"></i></button>
         
         
     {% endif %}
@@ -124,5 +124,5 @@
 
 {% block scripts %} 
      <script src="{% static 'FrontEnd/scripts/my_scripts/documentos.js' %}"></script>
-     <script src="{% static 'FrontEnd/scripts/my_scripts/modelos.js' %}"></script>
+     <script src="{% static 'FrontEnd/scripts/my_scripts/modales.js' %}"></script>
 {% endblock scripts %}

@@ -13,37 +13,37 @@ from .genericos import TipoModelo, TipoArchivo
 
 # Create your models here.
 
-class Caso(models.Model):
-    """Casos o investigaciones en curso"""
+class Investigacion(models.Model):
+    """Investigaciones en curso"""
 
-    #Nombre asociado al caso
+    #Nombre asociado a la investigación
     nombre = models.CharField(max_length=100)
 
-    #Identificador específico del caso
+    #Identificador específico de la investigación
     identificador = models.CharField(max_length=40, unique=True)
 
-    #Descripción del caso
+    #Descripción de la investigación
     descripcion = models.TextField()
 
-    #Propietario del caso
-    propietario = models.ForeignKey(User, related_name="propietario_caso")
+    #Propietario de la investigación
+    propietario = models.ForeignKey(User, related_name="propietario_investigacion")
 
-    #Usuarios del caso
+    #Usuarios de la investigación
     usuario = models.ManyToManyField(User)
 
-    #Fecha en que se creó el caso
+    #Fecha en que se creó la investigación
     fecha_agregado = models.DateTimeField(auto_now_add=True)
 
     #Eliminado lógico
     eliminado = models.BooleanField()    
 
-    #Si el caso está finalizado correctamente o no
+    #Si la investigación está finalizada correctamente o no
     finalizado_correcto = models.BooleanField()
 
-    #Si el caso está finalizado incorrectamente o no
+    #Si la investigación está finalizada incorrectamente o no
     finalizado_incorrecto = models.BooleanField()
 
-    #Modelo que se utilizará a lo largo del caso para hacer las búsquedas inteligentes
+    #Modelo que se utilizará a lo largo de la investigación para hacer las búsquedas inteligentes
     MODEL_CHOICES = TipoModelo().getModelChoices()
     modelo = models.CharField(max_length=10, choices=MODEL_CHOICES, default=MODEL_CHOICES[0])
 
@@ -74,12 +74,6 @@ class Documento(models.Model):
     #Nombre original del documento obtenido en base al archivo subido
     nombre_doc = models.CharField(max_length=100)
 
-    #Título puesto por el usuario
-    titulo = models.CharField(max_length=100)
-
-    #Descripción breve del documento
-    descripcion_doc = models.TextField(blank='True')
-
     #Dirección donde será almacenado el documento en el servidor
     documento = models.FileField(upload_to=directorio)
 
@@ -92,19 +86,19 @@ class Documento(models.Model):
 
 #************************************************************************************************************************************
 
-    #AUNQUE CADA DOCUMENTO ÚNICAMENTE SE ENCUENTRA ASOCIADO A UN CASO Y A UN USUARIO (PROPIETARIO SIEMPRE), SE DEJA EL CÓDIGO PARA QUE
-    #SEA POSIBLE EXPANDIRLO A LA POSIBILIDAD EN QUE LOS DOCUMENTOS SE ENCUENTREN COMPARTIDOS ENTRE CASOS  
+    #AUNQUE CADA DOCUMENTO ÚNICAMENTE SE ENCUENTRA ASOCIADO A UNA INVESTIGACIÓN Y A UN USUARIO (PROPIETARIO SIEMPRE), SE DEJA EL CÓDIGO PARA QUE
+    #SEA POSIBLE EXPANDIRLO A LA POSIBILIDAD EN QUE LOS DOCUMENTOS SE ENCUENTREN COMPARTIDOS ENTRE INVESTIGACIONES  
 
     #El propietario del documento solamente se utiliza para seguimiento de la cadena de custodia de los documentos,
-    #un documento puede encontrarse en varios casos, con lo cual su propietario no tiene porque coincidir obligatoriamente 
-    #con el del propietario del caso.
+    #un documento puede encontrarse en varias investigaciones, con lo cual su propietario no tiene porque coincidir obligatoriamente 
+    #con el del propietario de la investigación.
     propietario_doc = models.ForeignKey(User, related_name="propietario_user")
 
     #Usuarios del documento
     usuario = models.ManyToManyField(User)
 
-    #Casos a los que pertenece el documento
-    caso = models.ManyToManyField(Caso, blank=True)
+    #Investigaciones a las que pertenece el documento
+    investigacion = models.ManyToManyField(Investigacion, blank=True)
 
     #Hash md5 del documento para asegurar integridad y para verificas si el documento ya existe dentro del sistema
     hash_md5 = models.CharField(max_length=32)
@@ -114,7 +108,7 @@ class Documento(models.Model):
 
 #*************************************************************************************************************************************
 
-    #Fecha en que se adjunto el documento a un caso
+    #Fecha en que se adjunto el documento a una investigación
     fecha_agregado = models.DateTimeField(auto_now_add=True)
 
     #Eliminado lógico
@@ -124,7 +118,7 @@ class Documento(models.Model):
 
     def __str__(self):
         """Devuelve una frase representativa del modelo"""
-        return self.titulo
+        return self.nombre_doc
 
 class Parrafo(models.Model):
     """Entidad que almacena un párrafo de un texto de determinado documento"""
@@ -225,8 +219,8 @@ class Mensaje(models.Model):
     #Documento a eliminar
     documento = models.ForeignKey(Documento)
 
-    #Caso al cual el documento se encuentra asociado
-    caso = models.ForeignKey(Caso)
+    #Investigación a la cual el documento se encuentra asociado
+    investigacion = models.ForeignKey(Investigacion)
 
     #Eliminado lógico de un mensaje
     eliminado = models.BooleanField()
@@ -266,10 +260,10 @@ class NotaDocumento(Nota):
 
     entidad = models.ForeignKey(Documento)
 
-class NotaCaso(Nota):
+class NotaInvestigacion(Nota):
     """Entidad que almacena una nota o comentario de un documento"""
 
-    entidad = models.ForeignKey(Caso)
+    entidad = models.ForeignKey(Investigacion)
 
 class ResultadoHeader(models.Model):
     """Entidad que almacena el header de resultado parcial de búsqueda"""
@@ -277,8 +271,8 @@ class ResultadoHeader(models.Model):
     #Fecha en la cuál se guardó
     fecha = models.DateTimeField(auto_now_add=True)
 
-    #Caso al que pertence la búsqueda
-    caso = models.ForeignKey(Caso)
+    #Investigación a la que pertence la búsqueda
+    investigacion = models.ForeignKey(Investigacion)
 
     #Tipo de búsqueda guardada (general/guiada/inteligente)
     busqueda = models.CharField(max_length=15)
@@ -286,10 +280,10 @@ class ResultadoHeader(models.Model):
     #Parámetro por el cuál se realizo la búsqueda
     tipo = models.CharField(max_length=15)
 
-    #Estado actual del resultado respecto al caso (True=actualizado/False=no actualizado)
+    #Estado actual del resultado respecto a la investigacion (True=actualizado/False=no actualizado)
     estado = models.BooleanField()
 
-    #Documentos asociados al caso en el momento exacto en que se hizo la búsqueda
+    #Documentos asociados a la investigacion en el momento exacto en que se hizo la búsqueda
     documentos = models.ManyToManyField(Documento)
 
     #Usuario que general el resultado
@@ -437,8 +431,8 @@ class ResultadoBusqGuiada(models.Model):
 class Informe(models.Model):
     """Almacena la ubicación de donde se encuentra guardado un informe"""
 
-    #Caso del cual refiere el informe
-    caso = models.ForeignKey(Caso)
+    #Investigación de la cual refiere el informe
+    investigacion = models.ForeignKey(Investigacion)
 
     #Usuario que general el informe
     propietario = models.ForeignKey(User, related_name="propietario_informe")
@@ -457,4 +451,20 @@ class Informe(models.Model):
 
     history = HistoricalRecords()
 
+class Regex(models.Model):
+    """Almacena todas las regex que el administrador cree para la búsqueda guiada"""
+
+    #Nombre que aparecerá en el botón identificatorio
+    nombre = models.CharField(max_length=28)
+
+    #Patrón regex que se utilizará para matchear
+    patron = models.CharField(max_length=100)
+
+    #Número entero para establecer la prioridad en la cual mostrar los botones
+    orden = models.IntegerField()
+
+    #Eliminado lógico
+    eliminado = models.BooleanField()
+
+    history = HistoricalRecords()
     

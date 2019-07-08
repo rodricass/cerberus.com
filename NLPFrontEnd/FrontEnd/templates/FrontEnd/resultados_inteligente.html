@@ -105,8 +105,16 @@
             var string = button.data('string')
             var string_original = button.data('string_original')
             var parrafo = button.data('parrafo')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = String(button.data('parrafo'))
-            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             if (string == string_original) {
                 $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>"+string_original+"</span>")
@@ -128,7 +136,7 @@
                 $('#nombre_doc').html(subdoc + "...")
                 $('#nombre_doc').attr('title', doc_nombre)
             }
-            $('#parrafo_texto').html(parrafo)
+            $('#parrafo_texto').html(parrafo_aux)
         })
     </script>
 {% endblock scripts %}

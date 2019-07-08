@@ -14,9 +14,18 @@
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron" style="margin-bottom:0px !important">
+                {% if notas %}
+                    <div>
+                        <div id="notificacion_nota" class="nota-bell" title="Existen notas asociadas a la investigación o sus documentos"><a id="bell-a" href="{% url 'ver_notas_especifica' investigacion_id=investigacion_id %}"><i class="fas fa-bell"></i></a><div id="circulo_rojo"></div></div>
+                    </div>
+                {% else %}
+                    <div>
+                        <div id="no_notificacion_nota" class="nota-bell" title="No existen notas asociadas a la investigación o sus documentos"><i class="fas fa-bell"></i></div>
+                    </div>
+                {% endif %}
                 <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-brain"></i></button>
                 <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-search"></i></button>
-                <h1 id="titulo" title="{{investigacion_nombre}}">
+                <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion_nombre}}">
                 {% if investigacion_nombre|length < 10 %}
                     {{investigacion_nombre}}
                 {% else %}
@@ -99,11 +108,13 @@
                                   <ul class="dropdown-menu" style="top:59% !important; height:">
                                       {% for item in value %}
                                         <li>
+                                            <a href="#" title="{{item.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.0 %}" data-docNombre="{{item.1}}" data-posInicial="{{item.2}}" data-string="{{key}}" data-posFinal="{{item.3}}" data-parrafo="{{item.5}}" data-parrafoNro="{{item.4}}" data-preparrafo="{{item.6}}" data-postparrafo="{{item.7}}">
                                             {% if item.1|length < 25 %}
-                                                <a href="#" title="{{item.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.0 %}" data-docNombre="{{item.1}}" data-posInicial="{{item.2}}" data-string="{{key}}" data-posFinal="{{item.3}}" data-parrafo="{{item.5}}" data-parrafoNro="{{item.4}}">{{item.1}}</a>
+                                                {{item.1}}
                                             {% else %}
-                                                <a href="#" title="{{item.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.0 %}" data-docNombre="{{item.1}}" data-posInicial="{{item.2}}" data-string="{{key}}" data-posFinal="{{item.3}}" data-parrafo="{{item.5}}" data-parrafoNro="{{item.4}}">{{item.1|truncatechars:25}}...</a>
+                                                {{item.1|truncatechars:25}}
                                             {% endif %}
+                                            </a>
                                         </li>
                                       {% endfor %}
                                   </ul>
@@ -220,10 +231,18 @@
             var doc_nombre = button.data('docnombre')
             var pos_inicial = button.data('posinicial')
             var pos_final = button.data('posfinal')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var string = button.data('string')
             var parrafo = button.data('parrafo')
             var parrafo = String(button.data('parrafo'))
-            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
+            if (preparrafo == "") {
+                 parrafo_aux = parrafo + "<br><br>" + postparrafo
+             }
+             else {
+                 parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             $('#ap_string').html(string)
             $('#ver_form').attr('action', url)
@@ -239,7 +258,7 @@
                 $('#nombre_doc').html(subdoc + "...")
                 $('#nombre_doc').attr('title', doc_nombre)
             }
-            $('#parrafo_texto').html(parrafo)
+            $('#parrafo_texto').html(parrafo_aux)
         })
         $('#btn-select').click(function () {
             $('.btn-guiada').animate({

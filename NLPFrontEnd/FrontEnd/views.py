@@ -24,6 +24,7 @@ import time
 from django.utils.safestring import SafeString
 from docx import Document
 from docx.shared import Pt
+from docx.enum.text import WD_COLOR_INDEX
 from django.db.models import Q
 from django.views.generic.edit import FormView
 
@@ -675,6 +676,25 @@ def ver_notas(request):
     return render(request,'FrontEnd/ver_notas.html',context)
  
 @login_required
+def ver_notas_especifica(request,investigacion_id):
+    form_elegir = BuscadorInvestigacionesForm(request.user)
+    form_crear = NotaForm()
+    investigacion = Investigacion.objects.get(id=investigacion_id)
+    documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
+    notas = NotaInvestigacion.objects.filter(entidad=investigacion_id).filter(eliminado=False).order_by('-fecha_agregado')
+    context = {
+                'form_elegir':form_elegir,
+                'form_crear': form_crear,
+                "title":'Notas de investigaciones',
+                'id_investigacion': investigacion_id,
+                'nombre_investigacion': investigacion.nombre,
+                'documentos': documentos,
+                'inicial': False,
+                'notas': notas,
+               }
+    return render(request,'FrontEnd/ver_notas.html',context)
+
+@login_required
 def crear_nota(request, id_investigacion):
     """Crea una nota a una investigación en la pantalla de ver_notas"""
     investigacion = Investigacio.objects.get(id=id_investigacion)
@@ -715,6 +735,17 @@ def buscador_general(request,investigacion_id,camino):
     context = {"investigacion":investigacion,
                'title':'Buscador general',
                }
+    notas = False
+    notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+    if len(notas_investigacion) > 0:
+        notas = True
+    else:
+        documentos = investigacion.documento_set.all()
+        for documento in documentos:
+            notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+            if len(notas_documentos) > 0:
+                notas = True
+    context["notas"] = notas
     if request.method != "POST":
         #Solicita la página de búsqueda
         form = BuscadorGeneralForm()    
@@ -731,10 +762,19 @@ def buscador_general(request,investigacion_id,camino):
             id_fila = 0
             for documento in documentos:
                 parrafos = Parrafo.objects.filter(doc=documento)
-                for parrafo in parrafos:
+                l = len(parrafos)
+                for index, parrafo in enumerate(parrafos):
                     aux = posiciones(parrafo.parrafo,string)
                     if len(aux) > 0:
-                        resultados.append([documento.nombre_doc,documento.id,parrafo.nro,parrafo.parrafo,aux,id_fila])
+                        if index > 0:
+                            previous = parrafos[index - 1].parrafo
+                        else:
+                            previous = ""
+                        if index < (l - 1):
+                            next = parrafos[index + 1].parrafo
+                        else:
+                            next = ""
+                        resultados.append([documento.nombre_doc,documento.id,parrafo.nro,parrafo.parrafo,aux,id_fila,previous,next])
                         id_fila += 1
             context["res"] = resultados
             resultados_json = json.dumps(resultados)
@@ -765,6 +805,16 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
     """Genera la vista para las búsquedas inteligentes"""
 
     investigacion = Investigacion.objects.get(id=investigacion_id)
+    notas = False
+    notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+    if len(notas_investigacion) > 0:
+        notas = True
+    else:
+        documentos = investigacion.documento_set.all()
+        for documento in documentos:
+            notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+            if len(notas_documentos) > 0:
+                notas = True
     if request.method == "POST":
         ids_eliminar = request.POST.getlist('checks2[]')
         for id in ids_eliminar:
@@ -784,6 +834,7 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
                 "econ":"Económicos",
                 "investigacion_id":investigacion.id,
                 'title':'Buscador inteligente',
+                'notas': notas,
                 }
     documentos = investigacion.documento_set.all().order_by('-fecha_agregado')
     resultado = []
@@ -792,13 +843,41 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
             tokens = TokensDoc.objects.filter(doc=documento).filter(eliminado=False)
             for t in tokens:
                 parrafo = Parrafo.objects.get(id=t.parrafo.id)
-                resultado.append([t.aparicion,t.categoria,t.lema,t.tipo,t.frase,parrafo.nro,parrafo.parrafo,documento.id,documento.nombre_doc,t.id])
+                index = parrafo.nro
+                if index > 0:
+                    index_previous = index - 1
+                    previous_obj = Parrafo.objects.filter(nro=index_previous).filter(doc=parrafo.doc)
+                    for p in previous_obj:
+                        previous = p.parrafo
+                else:
+                    previous = ""
+                index_next = index + 1
+                next_obj = Parrafo.objects.filter(nro=index_next).filter(doc=parrafo.doc)
+                if len(next_obj) == 0:
+                    next = ""
+                else:
+                    for p in next_obj:
+                        next = p.parrafo
+                resultado.append([t.aparicion,t.categoria,t.lema,t.tipo,t.frase,parrafo.nro,parrafo.parrafo,documento.id,documento.nombre_doc,t.id,previous,next])
     else:
         for documento in documentos:
             entidad = EntidadesDoc.objects.filter(doc=documento).filter(tipo=GetEntidad().getEntidad(tipo)).filter(eliminado=False)
             for e in entidad:
                 parrafo = Parrafo.objects.get(id=e.parrafo.id)
-                resultado.append([e.string, e.start, e.end, e.doc.id, documento.nombre_doc, parrafo.nro, parrafo.parrafo, e.id, e.string_original])
+                index = parrafo.nro
+                previous = ""
+                next = ""
+                if index > 0:
+                    index_previous = index - 1
+                    previous_obj = Parrafo.objects.filter(nro=index_previous).filter(doc=parrafo.doc)
+                    for p in previous_obj:
+                        previous = p.parrafo
+                index_next = index + 1
+                next_obj = Parrafo.objects.filter(nro=index_next).filter(doc=parrafo.doc)
+                if len(next_obj) > 0:
+                    for p in next_obj:
+                        next = p.parrafo
+                resultado.append([e.string, e.start, e.end, e.doc.id, documento.nombre_doc, parrafo.nro, parrafo.parrafo, e.id, e.string_original,previous,next])
     context["res"] = resultado
     resultados_json = json.dumps(resultado)
     context["json"] = resultados_json
@@ -818,6 +897,17 @@ def buscador_guiado(request,tipo,id_regex,investigacion_id,camino):
                   'title':'Buscador guiado',
                   }
 
+    notas = False
+    notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+    if len(notas_investigacion) > 0:
+        notas = True
+    else:
+        documentos = investigacion.documento_set.all()
+        for documento in documentos:
+            notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+            if len(notas_documentos) > 0:
+                notas = True
+    context["notas"] = notas
     if request.user.is_superuser:
         form_agregar = RegexForm()
         context['form_agregar'] = form_agregar
@@ -833,13 +923,12 @@ def buscador_guiado(request,tipo,id_regex,investigacion_id,camino):
         expresiones = Regex.objects.filter(eliminado=False).order_by('orden')
         context["expresiones"] = expresiones
         if tipo != "Búsqueda":
-            print("entro")
             resultados = buscar_regex(tipo, investigacion, id_regex)
             d_res = defaultdict(list)
             for resultado in resultados:
-                d_res[resultado[2]].append((resultado[0],resultado[1],resultado[3],resultado[4],resultado[5],resultado[6]))
+                d_res[resultado[2]].append((resultado[0],resultado[1],resultado[3],resultado[4],resultado[5],resultado[6],resultado[7],resultado[8]))
             #resultado[0]: documento.id; resultado[1]: documento.nombre_doc; resultado[2]: m.group; resultado[3]: m.start(); resultado[4]: m.end(); 
-            #resultad[5]: parrafo.nro; resultado[6]: parrafo.parrafo
+            #resultad[5]: parrafo.nro; resultado[6]: parrafo.parrafo; resultado[7]: previous; resultado[8]: next
             resultados = dict(d_res)
             context["res"] = resultados
             resultados_json = json.dumps(resultados)
@@ -875,9 +964,16 @@ def buscar_regex(tipo, investigacion, id_regex):
     resultados = []
     for documento in documentos:
         parrafos = Parrafo.objects.filter(doc_id= documento.id)
-        for parrafo in parrafos:
+        l = len(parrafos)
+        for index, parrafo in enumerate(parrafos):
+            previous = ""
+            next = ""
+            if index > 0:
+                previous = parrafos[index - 1].parrafo
+            if index < (l - 1):
+                next = parrafos[index + 1].parrafo
             for m in reg.finditer(parrafo.parrafo):
-                resultados.append((documento.id, documento.nombre_doc, m.group(), m.start(), m.end(), parrafo.nro, parrafo.parrafo))
+                resultados.append((documento.id, documento.nombre_doc, m.group(), m.start(), m.end(), parrafo.nro, parrafo.parrafo, previous, next))
     return resultados
 
 def guardar_resultadoGeneral(request,investigacion_id,expresion,camino):
@@ -906,7 +1002,7 @@ def guardar_resultadoGeneral(request,investigacion_id,expresion,camino):
             for aparicion in fila[4]:
                 id = f'{fila[5]}.{aparicion}'
                 documento = Documento.objects.get(id=fila[1])
-                resultadoGen = ResultadoBusqGeneral(parrafo_nro=fila[2],posicion=aparicion,documento=documento,documento_nombre=fila[0],parrafo=fila[3],header=resultado_header)
+                resultadoGen = ResultadoBusqGeneral(parrafo_nro=fila[2],posicion=aparicion,documento=documento,documento_nombre=fila[0],parrafo=fila[3],header=resultado_header,parrafo_ant=fila[6],parrafo_next=fila[7])
                 if id in destacados:
                     resultadoGen.destacado =True
                 else:
@@ -932,16 +1028,18 @@ def guardar_resultadoGuiado(request,tipo,investigacion_id,camino):
         context = {"tipo":tipo,
                    "investigacion_nombre":investigacion.nombre,
                    "camino":camino,
-                   "email":"Email",
-                   "dni":"Documento",
-                   "tarjeta":"Tarjeta",
-                   "telefono":"Teléfono",
-                   "url": "URL",
                    "investigacion_id":investigacion.id,
                    "res": resultado,
                    "title":'Buscador guiado',
                    "json":resultado_json,
                    }
+        if request.user.is_superuser:
+            form_agregar = RegexForm()
+            context['form_agregar'] = form_agregar
+
+        expresiones = Regex.objects.filter(eliminado=False).order_by('orden')
+        context["expresiones"] = expresiones
+
         for key, value in resultado.items():
             header_general = ResultadoBusqGuiadaGeneral(clave=key,cantidadTotal=len(value),header=resultado_header)
             if key in destacados:
@@ -951,7 +1049,7 @@ def guardar_resultadoGuiado(request,tipo,investigacion_id,camino):
             header_general.save()
             for item in value:
                 documento = Documento.objects.get(id=item[0])
-                resultadoGui = ResultadoBusqGuiada(documento=documento,documento_nombre=item[1],start=item[2],end=item[3],parrafo_nro=item[4],parrafo=item[5],general=header_general)
+                resultadoGui = ResultadoBusqGuiada(documento=documento,documento_nombre=item[1],start=item[2],end=item[3],parrafo_nro=item[4],parrafo=item[5],general=header_general,parrafo_ant=item[6],parrafo_next=item[7])
                 resultadoGui.save()
         return render(request,'FrontEnd/buscador_guiado.html', context)
 
@@ -990,11 +1088,11 @@ def guardar_resultadoInteligente(request,tipo,investigacion_id,camino):
         for item in resultado:
             if tipo != "Léxicos detectados":
                 entidad = EntidadesDoc.objects.get(id=item[7])
-                resultadoInt = ResultadoBusqInteligente(doc=entidad.doc,string=entidad.string,string_original=entidad.string_original,start=entidad.start,end=entidad.end,parrafo_nro=entidad.parrafo.nro,parrafo=entidad.parrafo.parrafo,header=resultado_header)
+                resultadoInt = ResultadoBusqInteligente(doc=entidad.doc,string=entidad.string,string_original=entidad.string_original,start=entidad.start,end=entidad.end,parrafo_nro=entidad.parrafo.nro,parrafo=entidad.parrafo.parrafo,parrafo_ant=item[9],parrafo_next=item[10],header=resultado_header)
                 id = item[7] 
             else:
                 token = TokensDoc.objects.get(id=item[9])
-                resultadoInt = ResultadoBusqInteligenteTokens(doc=token.doc,aparicion=token.aparicion,tipo=token.tipo,frase=token.frase,lema=token.lema,categoria=token.categoria,parrafo=token.parrafo,parrafo_nro=token.parrafo.nro,header=resultado_header)
+                resultadoInt = ResultadoBusqInteligenteTokens(doc=token.doc,aparicion=token.aparicion,tipo=token.tipo,frase=token.frase,lema=token.lema,categoria=token.categoria,parrafo=token.parrafo.parrafo,parrafo_nro=token.parrafo.nro,parrafo_ant=item[10],parrafo_next=item[11],header=resultado_header)
                 id = item[9]
             if str(id) in destacados:
                 resultadoInt.destacado = True
@@ -1165,7 +1263,7 @@ def ver_resultado(request,resultado_id,tipo,camino):
             guiadas = ResultadoBusqGuiada.objects.filter(general=tupla)
             aux_guiadas = []
             for guiada in guiadas:
-                aux_guiadas.append([guiada.documento.id,guiada.documento_nombre,guiada.start,guiada.end,guiada.parrafo,guiada.parrafo_nro])
+                aux_guiadas.append([guiada.documento.id,guiada.documento_nombre,guiada.start,guiada.end,guiada.parrafo,guiada.parrafo_nro,guiada.parrafo_ant,guiada.parrafo_next])
             aux.append([tupla.clave,tupla.destacado,tupla.cantidadTotal,aux_guiadas])
 
         context['tuplas'] = aux
@@ -1233,10 +1331,13 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
     p3 = document.add_paragraph('Las apariciones en ')
     p3.add_run('negrita').bold = True
     p3.add_run(' son aquellas que han sido señaladas como destacadas.')
-    paragraph_format2 = p3.paragraph_format
-    paragraph_format2.space_after = Pt(50)
 
-    document.add_paragraph(f'"{resultado.tipo}"')
+    document.add_heading('         ',0)
+    p_tipo = document.add_paragraph()
+    p_tipo.add_run(f'"{resultado.tipo}"').bold = True
+    paragraph_format2 = p_tipo.paragraph_format
+    paragraph_format2.space_before = Pt(25)
+    document.add_heading('         ',0)
 
     tipo_busq = {
             "Guiada":ResultadoBusqGuiadaGeneral,
@@ -1264,87 +1365,174 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
             else:
                 p4 = document.add_paragraph(tupla.clave)
             paragraph_format = p4.paragraph_format
-            paragraph_format.space_before = Pt(50)
+            paragraph_format.space_before = Pt(30)
+            paragraph_format.space_after = Pt(30)
             t = document.add_paragraph('Cantidad de apariciones: ')
             t.add_run(str(tupla.cantidadTotal))
-            table = document.add_table(1,4)
-            table.style = 'TableGrid'
-            heading_cells = table.rows[0].cells
-            heading_cells[0].text = 'Documento'
-            heading_cells[1].text = 'Nro. párrafo'
-            heading_cells[2].text = 'Pos. inicial'
-            heading_cells[3].text = 'Pos. final'
             for guiada in guiadas:
+                table = document.add_table(1,4)
+                table.style = 'TableGrid'
+                heading_cells = table.rows[0].cells
+                heading_cells[0].text = 'Documento'
+                heading_cells[1].text = 'Nro. párrafo'
+                heading_cells[2].text = 'Pos. inicial'
+                heading_cells[3].text = 'Pos. final'
                 cells = table.add_row().cells
                 cells[0].text = guiada.documento_nombre
                 cells[1].text = str(guiada.parrafo_nro)
                 cells[2].text = str(guiada.start)
                 cells[3].text = str(guiada.end)
+                p_pre = document.add_paragraph()
+                p_pre.add_run(guiada.parrafo_ant).italic = True
+                clave = guiada.parrafo[guiada.start:guiada.end]
+                if guiada.start != 0:
+                    parrafo_pre = guiada.parrafo[:guiada.start]
+                    p = document.add_paragraph()
+                    p.add_run(parrafo_pre).italic = True
+                else:
+                    p = document.add_paragraph()
+                pos_fin = guiada.end + 1
+                c = p.add_run(clave)
+                c.italic = True
+                font = c.font
+                font.highlight_color = WD_COLOR_INDEX.YELLOW
+                parrafo_post = guiada.parrafo[pos_fin:]
+                p.add_run(parrafo_post).italic = True
+                p_post = document.add_paragraph()
+                p_post.add_run(guiada.parrafo_next).italic = True
+                paragraph_format = p_pre.paragraph_format
+                paragraph_format.space_before = Pt(20)
+            document.add_heading('         ',0)
     else:
         
         if busqueda == "Inteligente":
+            documentos = resultado.documentos.all()
             if resultado.tipo != lexicos:
-                table = document.add_table(1, 5)
-                table.style = 'TableGrid'
-                table.autofit = True
-                heading_cells = table.rows[0].cells
-                heading_cells[0].text = 'Aparición'
-                heading_cells[1].text = 'Nro. párrafo'
-                heading_cells[2].text = 'Pos. inicial'
-                heading_cells[3].text = 'Pos. final'
-                heading_cells[4].text = 'Documento'
-                for tupla in tuplas:
-                    cells = table.add_row().cells
-                    if tupla.destacado:
-                        cells[0].paragraphs[0].add_run(tupla.string).bold=True
-                    else:
-                        cells[0].text = tupla.string
-                    cells[1].text = str(tupla.parrafo_nro)
-                    cells[2].text = str(tupla.start)
-                    cells[3].text = str(tupla.end)
-                    cells[4].text = str(tupla.doc.nombre_doc)
+                for documento in documentos:
+                    tuplas_doc = tuplas.filter(doc=documento)
+                    p = document.add_paragraph()
+                    p.add_run(documento.nombre_doc).bold = True
+                    paragraph_format = p.paragraph_format
+                    paragraph_format.space_before = Pt(30)
+                    paragraph_format.space_after = Pt(30)
+                    for tupla in tuplas_doc:
+                        table = document.add_table(1, 4)
+                        table.style = 'TableGrid'
+                        table.autofit = True
+                        heading_cells = table.rows[0].cells
+                        heading_cells[0].text = 'Aparición'
+                        heading_cells[1].text = 'Nro. párrafo'
+                        heading_cells[2].text = 'Pos. inicial'
+                        heading_cells[3].text = 'Pos. final'
+                        cells = table.add_row().cells
+                        if tupla.destacado:
+                            cells[0].paragraphs[0].add_run(tupla.string).bold=True
+                        else:
+                            cells[0].text = tupla.string
+                        cells[1].text = str(tupla.parrafo_nro)
+                        cells[2].text = str(tupla.start)
+                        cells[3].text = str(tupla.end)
+                        escribir_parrafo(document,tupla)
+                    document.add_heading('         ',0)
             else:
-                table = document.add_table(1, 6)
-                table.style = 'TableGrid'
-                table.autofit = True
-                heading_cells = table.rows[0].cells
-                heading_cells[0].text = 'Aparición'
-                heading_cells[1].text = 'Base léxica'
-                heading_cells[2].text = 'Categoría'
-                heading_cells[3].text = 'Tipo'
-                heading_cells[4].text = 'Documento'
-                heading_cells[5].text = 'Nro. párrafo'
-                for tupla in tuplas:
+                for documento in documentos:
+                    tuplas_doc = tuplas.filter(doc=documento)
+                    p = document.add_paragraph()
+                    p.add_run(documento.nombre_doc).bold = True
+                    paragraph_format = p.paragraph_format
+                    paragraph_format.space_before = Pt(30)
+                    paragraph_format.space_after = Pt(30)
+                    for tupla in tuplas_doc:
+                        table = document.add_table(1, 5)
+                        table.style = 'TableGrid'
+                        table.autofit = True
+                        heading_cells = table.rows[0].cells
+                        heading_cells[0].text = 'Aparición'
+                        heading_cells[1].text = 'Base léxica'
+                        heading_cells[2].text = 'Categoría'
+                        heading_cells[3].text = 'Tipo'
+                        heading_cells[4].text = 'Nro. párrafo'
+                        cells = table.add_row().cells
+                        if tupla.destacado:
+                            cells[0].paragraphs[0].add_run(tupla.aparicion).bold=True
+                        else:
+                            cells[0].text = tupla.aparicion
+                        cells[1].text = str(tupla.lema)
+                        cells[2].text = str(tupla.categoria)
+                        cells[3].text = str(tupla.tipo)
+                        cells[4].text = str(tupla.parrafo_nro)
+                        flag = False
+                        if tupla.parrafo_ant != "":
+                            p_pre = document.add_paragraph(tupla.parrafo_ant)
+                            paragraph_format = p_pre.paragraph_format
+                            paragraph_format.space_before = Pt(20)
+                        else:
+                            flag = True
+                        p = document.add_paragraph()
+                        p.add_run(tupla.parrafo).italic = True
+                        if flag:
+                            paragraph_format = p.paragraph_format
+                            paragraph_format.space_before = Pt(20)
+                        p_post = document.add_paragraph(tupla.parrafo_next)
+                        paragraph_format = p_post.paragraph_format
+                        paragraph_format.space_after = Pt(20)
+                    document.add_heading('         ',0)
+        else:
+            documentos = resultado.documentos.all()
+            for documento in documentos:
+                tuplas_doc = tuplas.filter(documento=documento)
+                p = document.add_paragraph()
+                p.add_run(documento.nombre_doc).bold = True
+                paragraph_format = p.paragraph_format
+                paragraph_format.space_before = Pt(30)
+                paragraph_format.space_after = Pt(30)
+                for tupla in tuplas_doc:
+                    table = document.add_table(1, 3)
+                    table.style = 'TableGrid'
+                    table.autofit = True
+                    heading_cells = table.rows[0].cells
+                    heading_cells[0].text = 'Aparición'
+                    heading_cells[1].text = 'Nro. párrafo'
+                    heading_cells[2].text = 'Pos. inicial'
                     cells = table.add_row().cells
                     if tupla.destacado:
-                        cells[0].paragraphs[0].add_run(tupla.aparicion).bold=True
+                        cells[0].paragraphs[0].add_run(resultado.tipo).bold=True
                     else:
-                        cells[0].text = tupla.aparicion
-                    cells[1].text = str(tupla.lema)
-                    cells[2].text = str(tupla.categoria)
-                    cells[3].text = str(tupla.tipo)
-                    cells[4].text = str(tupla.doc.nombre_doc)
-                    cells[5].text = str(tupla.parrafo_nro)
-
-        else:
-            table = document.add_table(1, 4)
-            table.style = 'TableGrid'
-            table.autofit = True
-            heading_cells = table.rows[0].cells
-            heading_cells[0].text = 'Aparición'
-            heading_cells[1].text = 'Nro. párrafo'
-            heading_cells[2].text = 'Pos. inicial'
-            heading_cells[3].text = 'Documento'
-            for tupla in tuplas:
-                cells = table.add_row().cells
-                if tupla.destacado:
-                    cells[0].paragraphs[0].add_run(resultado.tipo).bold=True
-                else:
-                    cells[0].text = resultado.tipo
-                cells[1].text = str(tupla.parrafo_nro)
-                cells[2].text = str(tupla.posicion)
-                cells[3].text = str(tupla.documento_nombre)
-    
+                        cells[0].text = resultado.tipo
+                    cells[1].text = str(tupla.parrafo_nro)
+                    cells[2].text = str(tupla.posicion)
+                    flag = False
+                    if tupla.parrafo_ant != "":
+                        p_pre = document.add_paragraph()
+                        p_pre.add_run(tupla.parrafo_ant).italic = True
+                        paragraph_format = p_pre.paragraph_format
+                        paragraph_format.space_before = Pt(20)
+                    else:
+                        flag = True
+                    pos_inicial = tupla.posicion
+                    pos_final = pos_inicial + len(resultado.tipo)
+                    clave = tupla.parrafo[pos_inicial:pos_final]
+                    if pos_inicial != 0:
+                        parrafo_pre = tupla.parrafo[:pos_inicial]
+                        p = document.add_paragraph()
+                        p.add_run(parrafo_pre).italic = True
+                    else:
+                        p = document.add_paragraph()
+                    c = p.add_run(clave)
+                    c.italic = True
+                    font = c.font
+                    font.highlight_color = WD_COLOR_INDEX.YELLOW
+                    parrafo_post = tupla.parrafo[pos_final:]
+                    p.add_run(parrafo_post).italic = True
+                    if flag:
+                        paragraph_format = p.paragraph_format
+                        paragraph_format.space_before = Pt(20)
+                    p_post = document.add_paragraph()
+                    p_post.add_run(tupla.parrafo_next).italic = True
+                    paragraph_format = p_post.paragraph_format
+                    paragraph_format.space_after = Pt(20)
+                document.add_heading('         ',0)
+                
     informe = Informe(investigacion=resultado.investigacion,eliminado=False,busqueda=resultado.busqueda,propietario=request.user)
     informe.save()
 
@@ -1359,6 +1547,37 @@ def crearInforme(request,resultado_id,tipo_informe,camino):
     document.save(dominio)
 
     return HttpResponseRedirect(reverse('ver_resultado',args=[resultado_id,busqueda,camino]))
+
+def escribir_parrafo(document,tupla):
+    """Escribe un parrafo en un archivo"""
+    flag = False
+    if tupla.parrafo_ant != "":
+        p_pre = document.add_paragraph()
+        p_pre.add_run(tupla.parrafo_ant).italic = True
+        paragraph_format = p_pre.paragraph_format
+        paragraph_format.space_before = Pt(20)
+    else:
+        flag = True
+    clave = tupla.parrafo[tupla.start:tupla.end]
+    if tupla.start != 0:
+        parrafo_pre = tupla.parrafo[:tupla.start]
+        p = document.add_paragraph()
+        p.add_run(parrafo_pre).italic = True
+    else:
+        p = document.add_paragraph()
+    c = p.add_run(clave)
+    c.italic = True
+    font = c.font
+    font.highlight_color = WD_COLOR_INDEX.YELLOW
+    parrafo_post = tupla.parrafo[tupla.end:]
+    p.add_run(parrafo_post).italic = True
+    if flag:
+        paragraph_format = p.paragraph_format
+        paragraph_format.space_before = Pt(20)
+    p_post = document.add_paragraph()
+    p_post.add_run(tupla.parrafo_next).italic = True
+    paragraph_format = p_post.paragraph_format
+    paragraph_format.space_after = Pt(20)
 
 @login_required
 def informes(request):

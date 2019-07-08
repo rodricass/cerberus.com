@@ -315,6 +315,12 @@ class ResultadoBusqGeneral(models.Model):
     #Texto del párrafo
     parrafo = models.TextField()
 
+    #Texto del párrafo
+    parrafo_ant = models.TextField()
+    
+    #Texto del párrafo
+    parrafo_next = models.TextField()
+
     #Header correspondiente al resultado
     header = models.ForeignKey(ResultadoHeader)
 
@@ -346,6 +352,12 @@ class ResultadoBusqInteligente(models.Model):
 
     #Texto del párrafo
     parrafo = models.TextField()
+    
+    #Texto del párrafo
+    parrafo_ant = models.TextField()
+    
+    #Texto del párrafo
+    parrafo_next = models.TextField()
 
     #Header correspondiente al resultado
     header = models.ForeignKey(ResultadoHeader)
@@ -377,7 +389,13 @@ class ResultadoBusqInteligenteTokens(models.Model):
     categoria = models.CharField(max_length=50)
 
     #Párrafo del texto al que pertence la entidad
-    parrafo = models.ForeignKey(Parrafo)
+    parrafo = models.TextField()
+
+    #Texto del párrafo
+    parrafo_ant = models.TextField()
+    
+    #Texto del párrafo
+    parrafo_next = models.TextField()
 
     #Número de párrafo
     parrafo_nro = models.IntegerField()
@@ -422,6 +440,12 @@ class ResultadoBusqGuiada(models.Model):
 
     #Texto del párrafo
     parrafo = models.TextField()
+
+    #Texto del párrafo
+    parrafo_ant = models.TextField()
+    
+    #Texto del párrafo
+    parrafo_next = models.TextField()
 
     #Búsqueda guiada general correspondiente
     general = models.ForeignKey(ResultadoBusqGuiadaGeneral)

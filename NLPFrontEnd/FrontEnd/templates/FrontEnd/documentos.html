@@ -110,7 +110,7 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button id="eliminar_doc" class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -125,4 +125,12 @@
 {% block scripts %} 
      <script src="{% static 'FrontEnd/scripts/my_scripts/documentos.js' %}"></script>
      <script src="{% static 'FrontEnd/scripts/my_scripts/modales.js' %}"></script>
+     <script>
+          $('#eliminar_doc').click(function () {
+             $('#loading').show();
+             $('#modalEliminar').modal('hide');
+             $('.container-fluid').css("opacity", "0.4");
+             $('.container').css("opacity", "0.4");
+         });
+     </script>
 {% endblock scripts %}

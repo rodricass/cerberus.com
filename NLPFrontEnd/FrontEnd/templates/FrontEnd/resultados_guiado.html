@@ -51,7 +51,7 @@
                       <ul class="dropdown-menu">
                           {% for guiada in tupla.3 %}
                             <li>
-                                <a href="#" title="{{guiada.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=guiada.0 %}" data-docNombre="{{guiada.1}}" data-posInicial="{{guiada.2}}" data-string="{{tupla.0}}" data-posFinal="{{guiada.3}}" data-parrafo="{{guiada.4}}" data-parrafoNro="{{guiada.5}}">
+                                <a href="#" title="{{guiada.1}}" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=guiada.0 %}" data-docNombre="{{guiada.1}}" data-posInicial="{{guiada.2}}" data-string="{{tupla.0}}" data-posFinal="{{guiada.3}}" data-parrafo="{{guiada.4}}" data-parrafoNro="{{guiada.5}}" data-preparrafo="{{guiada.6}}" data-postparrafo="{{guiada.7}}">
                                 {% if guiada.1|length < 30 %}
                                     {{guiada.1}}
                                 {% else %}
@@ -109,8 +109,18 @@
             var pos_final = button.data('posfinal')
             var string = button.data('string')
             var parrafo = button.data('parrafo')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = String(button.data('parrafo'))
-            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+           parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
+           console.log(preparrafo)
+           console.log(postparrafo)
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             $('#ap_string').html(string)
             $('#ver_form').attr('action', url)
@@ -126,7 +136,7 @@
                 $('#nombre_doc').html(subdoc + "...")
                 $('#nombre_doc').attr('title', doc_nombre)
             }
-            $('#parrafo_texto').html(parrafo)
+            $('#parrafo_texto').html(parrafo_aux)
         })
     </script>
 {% endblock scripts %}

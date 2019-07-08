@@ -55,7 +55,7 @@
                     <div class="pos_final fuente" style="margin-top:-0.5rem">{{tupla.tipo}}</div>
                 </div>
                 <div class="col-md-1">
-                    <p class="plus2" style="margin-left:-3.2rem !important; margin-top:0.8rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=tupla.doc.id %}" data-docNombre="{{tupla.doc.titulo}}" data-aparicion="{{tupla.aparicion}}" data-categoria="{{tupla.categoria}}" data-lema="{{tupla.lema}}" data-tipo="{{tupla.tipo}}" data-parrafo="{{tupla.parrafo.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" ></i></p>
+                    <p class="plus2" style="margin-left:-3.2rem !important; margin-top:0.8rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=tupla.doc.id %}" data-docNombre="{{tupla.doc.titulo}}" data-aparicion="{{tupla.aparicion}}" data-categoria="{{tupla.categoria}}" data-lema="{{tupla.lema}}" data-tipo="{{tupla.tipo}}" data-parrafo="{{tupla.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" data-preparrafo="{{tupla.parrafo_ant}}" data-postparrafo="{{tupla.parrafo_next}}"></i></p>
                 </div>
             </div>
         </div>
@@ -104,12 +104,18 @@
             var categoria = button.data('categoria')
             var lema = button.data('lema')
             var tipo = button.data('tipo')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = button.data('parrafo')
             var parrafo = String(button.data('parrafo'))
-            parrafo = parrafo.replace(new RegExp(aparicion,'g'), "<span style='background-color:#ffff8d'>"+aparicion+"</span>")
-            console.log(parrafo)
+            parrafo = parrafo.replace(new RegExp(aparicion, 'g'), "<span style='background-color:#ffff8d'>" + aparicion + "</span>")
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
-            console.log(parrafo_nro)
             $('#aparicion').html(aparicion)
             $('#ver_form2').attr('action', url)
             $('#parrafo_nro2').html(parrafo_nro)
@@ -124,7 +130,7 @@
                 $('#nombre_doc2').html(subdoc + "...")
                 $('#nombre_doc2').attr('title', doc_nombre)
             }
-            $('#parrafo_texto2').html(parrafo)
+            $('#parrafo_texto2').html(parrafo_aux)
         })
     </script>
 {% endblock scripts %}

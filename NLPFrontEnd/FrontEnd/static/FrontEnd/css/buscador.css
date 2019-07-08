@@ -53,6 +53,46 @@ body {
     color: white;
 }
 
+.nota-bell {
+    position: relative;
+    margin-left: 24rem;
+}
+
+#notificacion_nota {
+    transform: rotate(25deg);
+    display: inline-block;
+    cursor: pointer;
+    color: white;
+}
+
+#notificacion_nota:hover {
+    transform: rotate(0deg);
+
+}
+
+#bell-a {
+    color: white;
+}
+
+#bell-a:hover {
+    color: #333;
+
+}
+
+#no_notificacion_nota {
+    color: #9e9e9e
+}
+
+#circulo_rojo {
+    position: absolute;
+    height: 0.8rem;
+    width: 0.8rem;
+    background-color: #d50000;
+    margin-left: 1.2rem;
+    margin-top: -2.4rem;
+    border-radius: 50px;
+}
+
 .botones:hover {
     background-color: #ef6c00;
     outline-style: none;
@@ -188,6 +228,9 @@ body {
     }
     .col-btn-guiados {
         margin-left: 2.5rem;
+    }
+    .nota-bell {
+        margin-left: 29rem;
     }
 }
 

@@ -75,6 +75,7 @@ urlpatterns = [
     url(r'^ver_notas/eliminar_notainvestigacion/(?P<id_investigacion>\d+)/(?P<id_nota>\d+)/$', views.eliminar_notainvestigacion, name='eliminar_notainvestigacion'),
     url(r'^notas/(?P<id>\d+)/(?P<tipo>[A-z úé]+)/(?P<camino>.+)/$', views.notas, name='notas'),
     url(r'^ver_notas/crear_nota/(?P<id_investigacion>\d+)/$', views.crear_nota, name='crear_nota'),
+    url(r'^ver_notas_especifica/(?P<investigacion_id>\d+)/$', views.ver_notas_especifica, name='ver_notas_especifica'),
     url(r'^ver_notas/$', views.ver_notas, name='ver_notas'),
 
     #Informes

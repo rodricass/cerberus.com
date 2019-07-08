@@ -14,7 +14,16 @@
     <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
-                <h1 id="titulo" title="{{investigacion_nombre}}">
+                {% if notas %}
+                    <div>
+                        <div id="notificacion_nota" class="nota-bell" title="Existen notas asociadas a la investigación o sus documentos"><a id="bell-a" href="{% url 'ver_notas_especifica' investigacion_id=investigacion_id %}"><i class="fas fa-bell"></i></a><div id="circulo_rojo"></div></div>
+                    </div>
+                {% else %}
+                    <div>
+                        <div id="no_notificacion_nota" class="nota-bell" title="No existen notas asociadas a la investigación o sus documentos"><i class="fas fa-bell"></i></div>
+                    </div>
+                {% endif %}
+                <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion_nombre}}">
                 {% if investigacion_nombre|length < 10 %}
                     {{investigacion_nombre}}
                 {% else %}
@@ -96,7 +105,7 @@
                                         <p class="edit head" style="margin-left:-0.5rem"><i class="fas fa-pencil-alt" style="cursor:pointer" data-toggle="modal" data-target="#modalEditar" data-url="{% url 'editar_entidad' tipo=tipo id_ent=item.7 id_investigacion=investigacion_id camino=camino %}" data-whatever="{{item.0}}"></i></p>
                                     </div>
                                     <div class="col-md-1">
-                                        <p class="plus2" style="margin-left:-3.2rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.3 %}" data-docNombre="{{item.4}}" data-posInicial="{{item.1}}" data-string="{{item.0}}" data-string_original="{{item.8}}" data-posFinal="{{item.2}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}" ></i></p>
+                                        <p class="plus2" style="margin-left:-3.2rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=item.3 %}" data-docNombre="{{item.4}}" data-posInicial="{{item.1}}" data-string="{{item.0}}" data-string_original="{{item.8}}" data-posFinal="{{item.2}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}" data-preparrafo="{{item.9}}" data-postparrafo="{{item.10}}"></i></p>
                                     </div>
                                 </div>
                             </div>
@@ -161,7 +170,7 @@
                                         <p class="head" style="padding-top:0!important">{{item.2}}</p>
                                     </div>
                                     <div class="col-md-1 col-md-offset-2" style="padding-top:0.5rem" >
-                                        <p class="plus2" style="margin-left:0;margin-top:0"><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=item.7 %}" data-docNombre="{{item.8}}" data-aparicion="{{item.0}}" data-categoria="{{item.1}}" data-lema="{{item.2}}" data-tipo="{{item.3}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}"></i></p>
+                                        <p class="plus2" style="margin-left:0;margin-top:0"><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetallesToken" data-url="{% url 'ver_doc' id_doc=item.7 %}" data-docNombre="{{item.8}}" data-aparicion="{{item.0}}" data-categoria="{{item.1}}" data-lema="{{item.2}}" data-tipo="{{item.3}}" data-parrafo="{{item.6}}" data-parrafoNro="{{item.5}}" data-preparrafo="{{item.10}}" data-postparrafo="{{item.11}}"></i></p>
                                     </div>
                                 </div>
                             </div>
@@ -307,9 +316,17 @@
             var pos_final = button.data('posfinal')
             var string = button.data('string')
             var string_original = button.data('string_original')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = button.data('parrafo')
             var parrafo = String(button.data('parrafo'))
-            parrafo = parrafo.replace(new RegExp(string,'g'), "<span style='background-color:#ffff8d'>"+string+"</span>")
+            parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             if (string == string_original) {
                 $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>"+string_original+"</span>")
@@ -331,7 +348,7 @@
                 $('#nombre_doc').html(subdoc + "...")
                 $('#nombre_doc').attr('title', doc_nombre)
             }
-            $('#parrafo_texto').html(parrafo)
+            $('#parrafo_texto').html(parrafo_aux)
         })
         $('#modalDetallesToken').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
@@ -341,8 +358,16 @@
             var categoria = button.data('categoria')
             var lema = button.data('lema')
             var tipo = button.data('tipo')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = String(button.data('parrafo'))
             parrafo = parrafo.replace(new RegExp(aparicion,'g'), "<span style='background-color:#ffff8d'>"+aparicion+"</span>")
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             $('#aparicion').html(aparicion)
             $('#ver_form2').attr('action', url)
@@ -358,7 +383,7 @@
                 $('#nombre_doc2').html(subdoc + "...")
                 $('#nombre_doc2').attr('title', doc_nombre)
             }
-            $('#parrafo_texto2').html(parrafo)
+            $('#parrafo_texto2').html(parrafo_aux)
         })
     </script>
 {% endblock scripts %}

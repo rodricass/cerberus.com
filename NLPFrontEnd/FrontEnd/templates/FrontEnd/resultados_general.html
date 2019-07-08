@@ -50,7 +50,7 @@
                     <div class="pos fuente">{{tupla.posicion}}</div>
                 </div>
                 <div class="col-md-1">
-                    <p class="plus2" style="margin-left:5.8rem !important; margin-top:0.9rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=tupla.documento.id %}" data-docNombre="{{tupla.documento_nombre}}" data-posInicial="{{tupla.posicion}}" data-string="{{header.tipo}}" data-parrafo="{{tupla.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" ></i></p>
+                    <p class="plus2" style="margin-left:5.8rem !important; margin-top:0.9rem !important" ><i class="fas fa-plus" data-toggle="modal" data-target="#modalDetalles" data-url="{% url 'ver_doc' id_doc=tupla.documento.id %}" data-docNombre="{{tupla.documento_nombre}}" data-posInicial="{{tupla.posicion}}" data-string="{{header.tipo}}" data-parrafo="{{tupla.parrafo}}" data-parrafoNro="{{tupla.parrafo_nro}}" data-preparrafo="{{tupla.parrafo_ant}}" data-postparrafo="{{tupla.parrafo_next}}"></i></p>
                 </div>
             </div>
         </div>
@@ -96,12 +96,20 @@
             var doc_nombre = button.data('docnombre')
             var pos_inicial = button.data('posinicial')
             var string = button.data('string')
+            var preparrafo = button.data('preparrafo')
+            var postparrafo = button.data('postparrafo')
             var parrafo = button.data('parrafo')
             var parrafo = String(button.data('parrafo'))
             var parrafo = String(button.data('parrafo'))
             var pos_final = pos_inicial + string.length
             var partial_string = parrafo.substring(pos_inicial, pos_final);
-            parrafo = parrafo.replace(new RegExp(partial_string), "<span style='background-color:#ffff8d'>"+partial_string+"</span>")
+            parrafo = parrafo.replace(new RegExp(partial_string), "<span style='background-color:#ffff8d'>" + partial_string + "</span>")
+            if (preparrafo == "") {
+                parrafo_aux = parrafo + "<br><br>" + postparrafo
+            }
+            else {
+                parrafo_aux = preparrafo + "<br><br>" + parrafo + "<br><br>" + postparrafo
+            }
             var parrafo_nro = button.data('parrafonro')
             $('#ap_string').html(string)
             $('#ver_form').attr('action', url)
@@ -116,7 +124,7 @@
                 $('#nombre_doc').html(subdoc + "...")
                 $('#nombre_doc').attr('title', doc_nombre)
             }
-            $('#parrafo_texto').html(parrafo)
+            $('#parrafo_texto').html(parrafo_aux)
         })
     </script>
 {% endblock scripts %}

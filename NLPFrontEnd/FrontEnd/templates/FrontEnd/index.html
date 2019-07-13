@@ -90,21 +90,12 @@
             </div>
             <div style="margin-left:3rem"><hr/></div>
             <div class="row">
-                <div class=" {% if user.is_superuser %} col-md-8 {% else %} col-md-12 {% endif %}">
+                <div class="col-md-12">
                     <div id="docs"><i>Documentos agregados recientemente</i></div>
-                    <div id="contenedor" style="{% if user.is_superuser %} width: 50rem; {% endif %}">
+                    <div id="contenedor">
                         {% for documento in documentos %}
-                            <div class="row fila" style=" {% if user.is_superuser %} padding-right:0;margin-left:3rem {% else %} margin-left:8rem {% endif %}">
-                                <div class=" {% if user.is_superuser %} col-md-7 {% else %} col-md-6 col-md-offset-1 {% endif %}">
-                                    {% if user.is_superuser %}
-                                    <div class="nombre_doc" title="{{documento}}" sytle="margin-left:3rem">
-                                        {% if documento.nombre_doc|length < 25 %}
-                                           {{documento.nombre_doc}}
-                                        {% else %}
-                                            {{documento.nombre_doc|truncatechars:25}}
-                                        {% endif %}
-                                    </div>
-                                    {% else %}
+                            <div class="row fila" style="margin-left:8rem">
+                                <div class="col-md-6 col-md-offset-1">
                                     <div class="nombre_doc" title="{{documento.nombre.doc}}">
                                         {% if documento.nombre_doc|length < 55 %}
                                             {{documento.nombre_doc}}
@@ -112,7 +103,6 @@
                                             {{documento.nombre_doc|truncatechars:55}}
                                         {% endif %}
                                     </div>
-                                    {% endif %}
                                 </div>
                                 <div class="col-md-1 col-md-offset-1">
                                     <button title="Descargar" class="icons2" onclick="location.href='{% url 'ver_doc' id_doc=documento.id %}';"><i class="fas fa-download"></i></button>
@@ -128,14 +118,6 @@
                         {% endfor %}
                     </div>
                 </div>
-                {% if user.is_superuser %}
-                    <div class="col-md-3">
-                        <div id="cont_usuario">
-                            <button class="botones_usuario" id="crearUsuario" data-toggle="modal" data-target="#modalCrear" data-url="{% url 'crear_usuario' %}">Crear usuario</button>
-                            <button class="botones_usuario" id="eliminarUsuario" data-toggle="modal" data-target="#modalEliminar" data-url="{% url 'eliminar_usuario' %}">Eliminar usuario</button>
-                        </div>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -208,66 +190,6 @@
     
       </div>
     </div>
-
-    <div id="modalCrear" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content modalcrear">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Crear usuario</h4>
-          </div>
-          <div class="modal-body" style="padding-bottom: 0.1rem">
-            <form id="crear_form" action="" method="post"  class="form">
-                {% csrf_token %}
-                {% if user.is_superuser %}
-                    {% bootstrap_form form_crear %}
-                {% endif %}
-            </form>
-          </div>
-          <div class="modal-footer" style="padding: 19px 0px 20px!important">
-            <div class="row">
-                <div class="col-md-6">
-                    <button  id="btn-crear"class="btn btn-default btn_crear" type="submit" form="crear_form">Crear</button>
-                </div>
-                <div class="col-md-6">
-                    <button id="btn_elim" type="button" class="btn btn-default btn_crear" data-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
-          </div>
-        </div>
-    
-      </div>
-    </div>   
-    
-    <div id="modalEliminar" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content modalcrear">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Eliminar usuario</h4>
-          </div>
-          <div class="modal-body" style="padding-bottom: 0.1rem">
-            <form id="eliminar_form" action="" method="post"  class="form">
-                {% csrf_token %}
-                {% if user.is_superuser %}
-                    {% bootstrap_form form_usuario %}
-                {% endif %}
-            </form>
-          </div>
-          <div class="modal-footer" style="padding: 19px 0px 20px!important">
-            <div class="row">
-                <div class="col-md-6">
-                    <button  id="btn-crear"class="btn btn-default btn_crear" type="submit" form="eliminar_form">Eliminar</button>
-                </div>
-                <div class="col-md-6">
-                    <button id="btn_elim" type="button" class="btn btn-default btn_crear" data-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
-          </div>
-        </div>
-    
-      </div>
-    </div>  
 
 {% endblock %}
 

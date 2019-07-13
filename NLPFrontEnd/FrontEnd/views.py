@@ -66,27 +66,6 @@ def home(request):
         context['form_usuario'] = form_usuario
     return render(request,'FrontEnd/index.html',context)
 
-def crear_usuario(request):
-    """Crea usuario nuevo"""
-    if request.method == 'POST':
-        form = UsuarioNuevoForm(request.POST)
-        if form.is_valid():
-            nombre = form.cleaned_data['nombre']
-            contraseña = form.cleaned_data['contraseña']
-            user = User.objects.create_user(nombre, '', contraseña)
-            user.save()
-
-    return HttpResponseRedirect(reverse('home'))
-
-def eliminar_usuario(request):
-    """Elimina usuario existente"""
-    if request.method == 'POST':
-        usuario = request.POST.get('usuarios')
-        usuario_instance = User.objects.get(id=usuario)
-        usuario_instance.delete()
-
-    return HttpResponseRedirect(reverse('home'))
-
 def logout_view(request):
     """Cierra sesión de usuario"""
     logout(request)

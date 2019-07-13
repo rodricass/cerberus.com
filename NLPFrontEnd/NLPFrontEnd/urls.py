@@ -104,8 +104,6 @@ urlpatterns = [
     # Home
     url(r'^eliminar_docInicio/(?P<id_doc>\d+)/$', views.eliminar_docInicio, name='eliminar_docInicio'),
     url(r'^eliminar_mensaje/(?P<id_msj>\d+)/$', views.eliminar_mensaje, name='eliminar_mensaje'),
-    url(r'^eliminar_usuario/$', views.eliminar_usuario, name='eliminar_usuario'),
-    url(r'^crear_usuario/$', views.crear_usuario, name='crear_usuario'),
     url(r'^$', views.home, name='home'),
 ]
 

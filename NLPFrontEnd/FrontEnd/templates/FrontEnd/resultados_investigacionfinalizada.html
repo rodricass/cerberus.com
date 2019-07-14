@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         <div class="col-md-1 col-md-offset-1" style="margin-left:8rem!important">
-                            <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
+                            <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id camino=camino %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                     </div>
                 {% empty %}

@@ -1,1 +1,2 @@
 C:\Users\rodri\source\repos\NLP\NLPFrontEnd\obj\Debug\NLPFrontEnd.pyproj.CoreCompileInputs.cache
+E:\Documentos\Cerberus-2.0\cerberus.com\NLPFrontEnd\obj\Debug\NLPFrontEnd.pyproj.CoreCompileInputs.cache

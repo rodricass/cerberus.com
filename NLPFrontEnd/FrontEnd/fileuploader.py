@@ -4,12 +4,14 @@ import time
 import io
 
 from django.http import Http404
+from collections import defaultdict
+
 
 from .forms import DocumentoForm
 from .genericos import ExtensionArchivo
 from .models import Documento, Parrafo, EntidadesDoc, TokensDoc, Investigacion
 from .genericos import TipoModelo, GetTipoToken
-from nlp_model_gen import NLPModelAdmin
+from .myclasses import nlp
 from nlp_model_gen_plugins.plugins.whatsappPlugin.whatsappPlugin import get_whatsapp_extract
 
 class ObtenerCreador:
@@ -61,14 +63,74 @@ class CargarArchivoUFED(CargarArchivo):
                 data = data.decode("utf-8")
             myfile = io.StringIO(data)
             myfile.name = file.name
+            myfile.data_encode = data
+            myfile.doc_uploaded = file
             f.append(myfile)
-        nlp = NLPModelAdmin()
-        wpp = get_whatsapp_extract(f,nlp,self.modelo.model())
-        while not wpp.is_analysed():
+        wpp = get_whatsapp_extract(f,nlp,self.modelo.model)
+
+        while not (wpp.get_status()["is_analyzed"] or wpp.get_status()["has_error"]):
                 time.sleep(0.1)
+        if wpp.get_status()["has_error"]:
+            raise Http404("Error al procesar la solicitud")
+
         results = wpp.get_positives_results()
-        print("deberia imprimir los resultados")
-        print(results)
+
+        d_res = defaultdict(list)
+        for resultado in results:
+            r = {"from":resultado['from'],
+                 "timestamp":resultado['timestamp'],
+                 "content":resultado['content'],
+                 "analysis_task_id":resultado['analysis_task_id'],
+                 "analysis_result":resultado['analysis_result']}
+            d_res[resultado['filename']].append(r)
+
+        for file in f:
+
+            texto = file.read()
+
+            hash_md5 = hashlib.md5()
+            hash_sha = hashlib.sha1()
+            
+            hash_md5.update(file.data_encode.encode('utf-8'))
+            hash_sha.update(file.data_encode.encode('utf-8'))
+            hash_md5 = hash_md5.hexdigest()
+            hash_sha1 = hash_sha.hexdigest()
+
+            propietario_doc = self.user
+
+            #Parsea el documento en base a si es txt o docx
+            nombre, punto, ext = file.name.rpartition(".")
+            ext = ext.lower()
+
+            nuevo_doc = Documento(nombre_doc=file.name,documento=file.doc_uploaded,texto=texto,propietario_doc=propietario_doc,hash_md5=hash_md5,hash_sha1=hash_sha1,eliminado=False)
+            nuevo_doc.save()
+
+            #Relaciona el documento con el usuario que lo está utilizando y con la investigación correspondiente
+            nuevo_doc.usuario.add(self.user)
+            nuevo_doc.investigacion.add(self.investigacion_id)
+
+            nuevo_doc.save()
+
+            tuplas = d_res[file.name]
+
+            #Crea los párrafos correspondientes al documento
+            for index,tupla in enumerate(tuplas):
+                parrafo = Parrafo(nro=index, doc_id=nuevo_doc.id, parrafo=tupla['content'], eliminado=False)
+                parrafo.save()
+                self.crearEntidadesWPP(tupla['analysis_result'],nuevo_doc,parrafo)
+
+
+    def crearEntidadesWPP(self,results,documento,parrafo):
+        """Analiza los resultados obtenidos mediante el parseador de wpp y crea las entidades y tokens"""
+        if not results['error']:
+            if results['ner_positive']:
+                for n in results['ner_results']:
+                    ent_aux = EntidadesDoc(doc=documento, tipo=n['label'], string=n['text'], string_original=n['text'], start=n['start_pos'], end=n['end_pos'], parrafo=parrafo, incorrecta=False, eliminado=False)
+                    ent_aux.save()
+            if results['tokenizer_positive']:
+                for t in results['tokenizer_results']:
+                    token_aux = TokensDoc(doc=documento, aparicion=t['token_text'],tipo=GetTipoToken().getTipoToken(t['part_of_speech']),frase=t['sentence'],lema=t['base_form'],categoria=t['analysis_result']['category_detected'],parrafo=parrafo, eliminado=False)
+                    token_aux.save()
 
 
 
@@ -152,7 +214,7 @@ class CargarArchivoGeneral(CargarArchivo):
         
         for entidad in resultado_ner:
             parrafo = Parrafo.objects.get(id=entidad[4])
-            ent_aux = EntidadesDoc(doc=documento, tipo=entidad[3], string=entidad[0], string_original=entidad[0], start=entidad[1], end=entidad[2], parrafo=parrafo, eliminado=False)
+            ent_aux = EntidadesDoc(doc=documento, tipo=entidad[3], string=entidad[0], string_original=entidad[0], start=entidad[1], end=entidad[2], parrafo=parrafo, incorrecta=False, eliminado=False)
             ent_aux.save()
 
         for token in resultado_tokenizer:

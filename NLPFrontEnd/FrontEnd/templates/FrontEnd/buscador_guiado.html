@@ -11,7 +11,7 @@
 {% block container %}
 {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
-    <div class="row" style="margin-top: 8rem; height: 80%; width: 100%">
+    <div id="row-principal" class="row" style="margin-top: 8rem; height: 80%; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron" style="margin-bottom:0px !important">
                 {% if notas %}
@@ -183,7 +183,7 @@
             <p class="modal-advice">¿Guardar resultado?</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="guardar">Guardar</button>
+            <button id="guardar_res" class="btn btn-default aceptar" type="submit" form="guardar">Guardar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -280,6 +280,11 @@
             $('#btn-select').show();
             $("#eliminar-regex").hide();
             $("#cancelar-regex").hide();
+        });
+        $('#guardar_res').click(function () {
+           $('#loading').show();
+           $('#modalAdvice').modal('hide');
+           $('#row-principal').css("opacity", "0.4");
         });
     </script>
 {% endblock scripts %}

@@ -13,7 +13,7 @@
         <div id="columna" class="col-md-3" style="overflow-y:auto; overflow-x:hidden; height:93.5%">
             {% for mensaje in mensajes %}
                 <div class="row">
-                    <div class="mensaje" style="column-fill:auto; word-wrap: break-word !important;" >
+                    <div class="mensaje" style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalNotificacion" data-urldoc="{% url 'eliminar_docInicio' id_doc=mensaje.documento.id %}" data-urlmsj="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" data-mensaje="{{mensaje.mensaje}}" data-nombreinvestigacion="{{mensaje.investigacion.nombre}}" data-nombredoc="{{mensaje.documento.nombre_doc}}" data-emisor="{{mensaje.emisor}}" data-urlver="{% url 'ver_doc' id_doc=mensaje.documento.id %}">
                         <div class="row">
                             <div class="col-md-10">
                                 <div class="header_msj">
@@ -21,10 +21,13 @@
                                 </div>
                             </div>
                             <div class="col-md-1" style="margin-left:2.3rem !important">
-                                <button type="button" class="close" onclick="location.href='{% url 'eliminar_mensaje' id_msj=mensaje.id %}';">&times;</button>
+                                <form id="forma_eliminar_msj" action="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" method="post"  class="form">
+                                    {% csrf_token %}
+                                <button id="cruz" type="button" class="close" >&times;</button>
+                                </form>
                             </div>
                         </div>
-                            <div class="body_msj" style="column-fill:auto; word-wrap: break-word !important;" data-toggle="modal" data-target="#modalNotificacion" data-urldoc="{% url 'eliminar_docInicio' id_doc=mensaje.documento.id %}" data-urlmsj="{% url 'eliminar_mensaje' id_msj=mensaje.id %}" data-mensaje="{{mensaje.mensaje}}" data-nombreinvestigacion="{{mensaje.investigacion.nombre}}" data-nombredoc="{{mensaje.documento.nombre_doc}}" data-emisor="{{mensaje.emisor}}" data-urlver="{% url 'ver_doc' id_doc=mensaje.documento.id %}">
+                            <div class="body_msj" style="column-fill:auto; word-wrap: break-word !important;">
                                 {% if mensaje.mensaje|length < 70 %} 
                                     {{mensaje.mensaje}}
                                 {% else %}
@@ -151,7 +154,7 @@
           <div class="modal-footer">
             <form id="eliminar_documento" action="" method="post">
                 {% csrf_token %}
-                <button class="btn btn-default" type="submit" form="eliminar_documento">Eliminar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-trash" style="opacity: .8!important"></i></button>
+                <button id="eliminar_doc_inicio" class="btn btn-default" type="submit" form="eliminar_documento">Eliminar documento&nbsp;&nbsp;&nbsp;<i class="fas fa-trash" style="opacity: .8!important"></i></button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
             </form>
           </div>
@@ -185,6 +188,21 @@
               </div>
               </div>
               
+          </div>
+        </div>
+    
+      </div>
+    </div>
+
+    <div id="modalEliminarMsj" class="modal modal2 fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content modal-content2">
+          <div class="modal-body modal-body2">
+            <p class="modal-advice2">¿Eliminar mensaje?</p>
+          </div>
+          <div class="modal-footer modal-footer2">
+            <button class="btn btn-default aceptar2" type="submit" form="forma_eliminar_msj">Eliminar</button>
+            <button type="button" class="btn btn-default cancelar2" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
     
@@ -251,5 +269,15 @@
             var recipient = button.data('url') 
             $('#eliminar_form').attr('action',recipient)
         })
+        $('#eliminar_doc_inicio').click(function () {
+           $('#loading').show();
+           $('#modalNotificacion').modal('hide');
+           $('.container-fluid').css("opacity", "0.4");
+           $('.container').css("opacity", "0.4");
+        });
+        $('#cruz').click(function (e) {
+            e.stopPropagation();
+            $('#modalEliminarMsj').modal('show');
+        });
     </script>
 {% endblock scripts %}

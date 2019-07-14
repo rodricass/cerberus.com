@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         <div class="col-md-1 col-md-offset-1" style="margin-left:6.5rem!important">
-                            <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
+                            <button title="Abrir" class="icons"><a href="{% url 'ver_resultado' tipo=resultado.busqueda resultado_id=resultado.id camino=camino %}" target="_blank"><i class="fas fa-folder-open"></i></a></button>
                         </div>
                         <div class="col-md-1">
                             <button title="Eliminar" class="icons" data-toggle="modal" data-target="#modalEliminar" data-whatever="{% url 'eliminar_resultadoInvestigacion' investigacion_id=investigacion_id  resultado_id=resultado.id  tipo=resultado.busqueda camino=camino %}"><i class="fas fa-trash"></i></button>

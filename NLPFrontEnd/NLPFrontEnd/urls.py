@@ -62,7 +62,7 @@ urlpatterns = [
     url(r'^investigaciones/finalizadas/(?P<investigacion_id>\d+)/$', views.investigacion_finalizada, name='investigacion_finalizada'),
 
     #Documentos
-    url(r'^documentos/mensaje_nuevo/(?P<id_doc>\d+)/(?P<id_investigacion>\d+)/$', views.mensaje_nuevo, name='mensaje_nuevo'),
+    url(r'^documentos/mensaje_nuevo/(?P<id_doc>\d+)/(?P<id_investigacion>\d+)/(?P<camino>.+)/$', views.mensaje_nuevo, name='mensaje_nuevo'),
     url(r'^documentos/eliminar_doc/(?P<id_doc>\d+)/(?P<id_investigacion>\d+)/$', views.eliminar_doc, name='eliminar_doc'),
     url(r'^documentos/eliminar_doc_investigacion/(?P<id_doc>\d+)/(?P<id_investigacion>\d+)/(?P<camino>.+)/$', views.eliminar_doc_investigacion, name='eliminar_doc_investigacion'),
     url(r'^documentos/agregar_docDocumentos/(?P<investigacion_id>\d+)/$', views.agregar_docDocumentos, name='agregar_docDocumentos'),

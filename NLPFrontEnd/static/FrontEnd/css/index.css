@@ -1,0 +1,379 @@
+.btn:focus {
+    outline-style: none;
+}
+
+.botones {
+    height: 7rem;
+    padding-top: 6%;
+    border-radius: 25px;
+    margin-left:4rem;
+}
+
+.texto {
+    justify-content: center;
+}
+
+#columna {
+    margin-top: 5.9rem;
+    background-color: #e0e0e0;
+    height: 90.5%;
+    padding-left: 2rem;
+    width: 28% !important;
+    padding-top: 1.5rem;
+}
+
+#titulo_col {
+    font-size: 25px;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.inicio {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: -2rem !important;
+    height: 96.8%;
+}
+
+body {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.header_msj {
+    font-size: 15px;
+    margin-top: 1.5rem;
+}
+
+.footer_msj {
+    margin-top: 2rem;
+    margin-left: 50%
+}
+
+.body_msj {
+    margin-top: 1rem;
+}
+
+.mensaje {
+    border-radius: 10px;
+    background-color: #f5f5f5;
+    padding: 1rem 2rem 3rem 2rem;
+    cursor: pointer;
+    width: 95%;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.mensaje:hover {
+    background-color: #eeeeee;
+}
+
+.trash {
+    margin-top: 1.2rem !important;
+    margin-right: 2rem !important;
+    opacity: .6 !important;
+}
+
+.trash:hover {
+    opacity: .9 !important;
+}
+
+.detalles {
+    font-size: 14px;
+}
+
+#ver_documento {
+    background-color: #1e88e5;
+    height: 3rem;
+    width: 9rem;
+    color: white;
+    text-align:center;
+    padding-top:0.4rem;
+    padding-left:0.5rem;
+}
+
+#ver_documento:hover {
+    background-color: #1565c0;
+    color: white;
+}
+
+#ver_documento:focus {
+    outline-style: none;
+}
+
+.vacio {
+    position: relative;
+    margin-top: 60%;
+    font-size: 20px;
+    text-align: center;
+}
+
+.vacio2 {
+    position: relative;
+    margin-top: 7%;
+    font-size: 15px;
+    text-align: center;
+}
+
+#nuevaInvestigacion {
+    width: 20rem;
+    height: 4rem;
+    background-color: #42a5f5;
+    color: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 5px 10px 18px #888888;
+    margin-left: 77% !important;
+}
+
+#nuevaInvestigacion:hover {
+    background-color: #1e88e5;
+}
+
+#nuevaInvestigacion:focus {
+    outline-style: none;
+}
+
+#docs {
+    font-size: 18px;
+    margin-left: 4rem;
+    margin-bottom: 2rem;
+}
+
+.buscador {
+    position: absolute !important;
+    top: 1rem;
+    margin-left: 5rem;
+}
+
+.buscador:focus {
+    outline-style: none;
+}
+
+.botones {
+    width: 18rem;
+    height: 4rem;
+    border-radius: 20px;
+}
+
+#btn1 {
+    background-color: #1e88e5;
+    color: white;
+}
+
+#btn1:hover {
+    background-color: #1565c0;
+    color: white;
+}
+
+#btn1:focus {
+    outline-style: none !important;
+}
+
+#boton_nota {
+    margin-left: 2rem;
+}
+
+.barra {
+    margin-top: 10rem;
+}
+
+.nombre_doc {
+    margin-top: 1rem;
+    font-size: 15px;
+    text-align: justify;
+    cursor: context-menu;
+}
+
+.icons2 {
+    margin-top: 1.2rem;
+    font-size: 20px;
+    color: #428bca;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+}
+
+.icons2:hover {
+    color: #0d47a1;
+}
+
+.icons2:focus {
+    outline-style: none;
+}
+
+.fila:hover {
+    background-color: #eceff1;
+}
+
+.fila {
+    height: 4rem;
+}
+
+#contenedor {
+    height: 20%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#cont_usuario {
+    background-color: #eeeeee;
+    margin-top: 2rem;
+    padding-top: 0.5rem;
+    padding-left: 4.7rem;
+    padding-right: 4.7rem;
+    width: 29rem;
+    border-radius: 10px;
+    height: 15rem;
+}
+
+@media only screen and (min-width: 1400px) {
+    #contenedor{
+        height: 25%;
+    }
+    #cont_usuario {
+        margin-top: 5rem;
+    }
+}
+
+.botones_usuario {
+    width: 20rem;
+    height: 4rem;
+    border-radius: 20px;
+    border: 2px solid #4db6ac;
+    margin-top: 2rem;
+    color: white;
+}
+
+.botones_usuario:focus {
+    outline-style: none;
+}
+
+#crearUsuario {
+    background-color: #4db6ac;
+    border: none;
+}
+
+#crearUsuario:hover {
+    background-color: #009688;
+}
+
+#eliminarUsuario {
+    border-color: #4db6ac;
+    background-color: white;
+    color: #4db6ac
+}
+
+#eliminarUsuario:hover {
+    background-color: #009688;
+    color: white;
+    border: none;
+}
+
+.modalcrear {
+    width: 40rem;
+    margin-left: 18%;
+    margin-top: 10%;
+}
+
+.btn_crear {
+    width: 18rem;
+    margin-left: 0;
+}
+
+#btn_elim {
+    position: absolute;
+    right: 3rem;
+}
+
+#btn-crear {
+    margin-left: 1.8rem;
+}
+
+.form-control {
+    max-width: none !important;
+}
+
+.editar-index {
+    cursor: pointer;
+    position: relative;
+    top: -4.6rem;
+    left: 12rem;
+    background-color: transparent;
+    color: #428bca;
+}
+
+.editar-index:hover {
+    color: #2a6496;
+    background-color: transparent;
+}
+
+.editar-index:focus {
+    outline-style: none;
+}
+
+
+.btn-adjuntar-index {
+    position: relative;
+    display: inline-block;
+    top: -4.4rem;
+    right: -13.2rem;
+    border: none;
+    background-color: transparent;
+    color: #428bca;
+}
+
+.btn-adjuntar-index:hover {
+    color: #2a6496;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-adjuntar-index:focus {
+    outline-style: none;
+    color: #2a6496;
+    background-color: transparent;
+    color: #2a6496;
+
+}
+
+.btn-nota-index {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    top: -4.4rem;
+    right: -20.2rem;
+}
+
+.btn-nota-index:hover {
+    color: #2a6496;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-compartir-index {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    color: #428bca;
+    top: -4.5rem;
+    right: -10rem;
+}
+
+.btn-compartir-index:hover {
+    color: #2a6496;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-compartir-index:focus {
+    outline-style: none;
+    color: #2a6496;
+
+}
+
+.botones_moverindex {
+    height: 0;
+}
+

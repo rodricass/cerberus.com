@@ -165,6 +165,9 @@ class EntidadesDoc(models.Model):
     #Párrafo del texto al que pertence la entidad
     parrafo = models.ForeignKey(Parrafo, null=True)
 
+    #Entidad incorrecta
+    incorrecta = models.BooleanField()
+
     #Eliminado lógico de una entidad 
     eliminado = models.BooleanField()
 

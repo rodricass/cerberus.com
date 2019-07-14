@@ -15,8 +15,8 @@ class ParrafoAdmin(SimpleHistoryAdmin):
     list_filter = ('eliminado','doc')
 
 class EntidadesDocAdmin(SimpleHistoryAdmin):
-    list_display = ('string', 'tipo', 'start', 'end', 'eliminado')
-    list_filter = ('tipo', 'eliminado')
+    list_display = ('string', 'tipo', 'start', 'end', 'incorrecta', 'eliminado')
+    list_filter = ('tipo', 'incorrecta','eliminado')
 
 class TokensDocAdmin(SimpleHistoryAdmin):
     list_display = ('aparicion', 'tipo', 'lema', 'categoria', 'eliminado')

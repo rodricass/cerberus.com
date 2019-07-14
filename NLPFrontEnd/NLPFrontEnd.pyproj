@@ -1537,7 +1537,6 @@
     <Content Include="FrontEnd\templates\FrontEnd\resultados_inteligente_tokens.html" />
     <Content Include="FrontEnd\templates\FrontEnd\ver_notas.html" />
     <Content Include="requirements.txt" />
-    <Content Include="db.sqlite3" />
     <Content Include="FrontEnd\static\FrontEnd\content\bootstrap.css" />
     <Content Include="FrontEnd\static\FrontEnd\content\bootstrap.min.css" />
     <Content Include="FrontEnd\static\FrontEnd\content\site.css" />

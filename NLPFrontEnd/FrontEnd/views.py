@@ -223,8 +223,9 @@ def eliminar_doc(request, id_doc, id_investigacion):
                'formDoc':formDoc,
                'documentos':documentos,
                'inicial':False,
-               'id_investigacion':id_investigacion}
-    return render(request,next,context)
+               'id_investigacion':id_investigacion,
+               'title':'Documentos'}
+    return render(request,'FrontEnd/documentos.html',context)
 
 @login_required
 def eliminar_doc_investigacion(request,id_doc,id_investigacion,camino):
@@ -261,12 +262,13 @@ def ver_doc(request, id_doc):
     return response
 
 @login_required
-def mensaje_nuevo(request, id_doc, id_investigacion):
+def mensaje_nuevo(request, id_doc, id_investigacion, camino):
     """Genera una solicitud de eliminación para el propietario del documento"""
     form = BuscadorInvestigacionesForm(request.user)
     formDoc = DocumentoForm()
     context = {'form':form,
                'formDoc': formDoc,}
+    next='/'
     if request.method == 'POST':
         next = request.POST.get('next', '/')
         msj = request.POST.get('mensaje')
@@ -284,6 +286,7 @@ def mensaje_nuevo(request, id_doc, id_investigacion):
         context['documentos'] = documentos
         context['inicial'] = False
         context['id_investigacion'] = id_investigacion
+        context['camino'] = camino
     return render(request,next,context)
 
 @login_required
@@ -380,7 +383,7 @@ def editar_investigacion(request,investigacion_id,camino):
         form = InvestigacionFormEdit(instance=investigacion, data=request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('investigaciones'))
+            return HttpResponseRedirect(reverse('investigacion',args=[investigacion_id]))
     else:
         #Solicita el investigacion para ser modificado, con información precargada
         form = InvestigacionFormEdit(instance=investigacion)
@@ -799,7 +802,7 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
         for id in ids_eliminar:
              entidades = EntidadesDoc.objects.filter(id=id)
              for entidad in entidades:
-                entidad.eliminado = True
+                entidad.incorrecta = True
                 entidad.save()
     
     context = {"tipo":tipo,
@@ -840,7 +843,7 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
                 resultado.append([t.aparicion,t.categoria,t.lema,t.tipo,t.frase,parrafo.nro,parrafo.parrafo,documento.id,documento.nombre_doc,t.id,previous,next])
     else:
         for documento in documentos:
-            entidad = EntidadesDoc.objects.filter(doc=documento).filter(tipo=GetEntidad().getEntidad(tipo)).filter(eliminado=False)
+            entidad = EntidadesDoc.objects.filter(doc=documento).filter(tipo=GetEntidad().getEntidad(tipo)).filter(incorrecta=False)
             for e in entidad:
                 parrafo = Parrafo.objects.get(id=e.parrafo.id)
                 index = parrafo.nro

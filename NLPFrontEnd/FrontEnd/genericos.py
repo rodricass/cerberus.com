@@ -82,7 +82,7 @@ class TipoModelo:
     
     tipos_modelos = {
             'DRUG':'Drogas',
-            'ECON':'Económico',
+            'ECON':'Económicos',
             }
 
     def getModelo(self,tipo):

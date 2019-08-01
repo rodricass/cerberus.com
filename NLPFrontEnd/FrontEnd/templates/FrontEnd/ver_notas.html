@@ -182,6 +182,9 @@
             var recipient = button.data('whatever')
             console.log(recipient)
             $('#borrarForm').attr('action', recipient)
-        })
+         })
+         $('.eliminarNota').click(function () {
+           $('#modalAdvice').modal('hide');
+        });
      </script>
 {% endblock scripts %}

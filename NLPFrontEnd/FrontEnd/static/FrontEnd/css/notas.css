@@ -65,6 +65,15 @@ input {
     cursor: pointer;
 }
 
+@media only screen and (min-width: 1400px) {
+    .fila {
+        height: 20%;
+    }
+    .fila2 {
+        height: 25%;
+    }
+}
+
 .vacio {
     position: relative;
     margin-top: 25%;

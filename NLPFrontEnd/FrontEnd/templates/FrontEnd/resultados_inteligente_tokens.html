@@ -131,6 +131,17 @@
                 $('#nombre_doc2').attr('title', doc_nombre)
             }
             $('#parrafo_texto2').html(parrafo_aux)
-        })
+        });
+        $('#eliminar_res').click(function () {
+           $('#loading').show();
+           $('#modalEliminar').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
+        $('.btn-guardar_inf').click(function () {
+           $('#loading').show();
+           $('#modalInformes1').modal('hide');
+           $('#modalInformes2').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
     </script>
 {% endblock scripts %}

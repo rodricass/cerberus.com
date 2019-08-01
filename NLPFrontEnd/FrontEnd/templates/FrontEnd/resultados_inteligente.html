@@ -117,7 +117,7 @@
             }
             var parrafo_nro = button.data('parrafonro')
             if (string == string_original) {
-                $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>"+string_original+"</span>")
+                $('#aparicion_original').html("<span class='detalles'><i>Aparición: &nbsp;&nbsp;&nbsp;</i></span><span id='ap_string'>" + string_original + "</span>")
                 $('#aparicion_editada').remove()
             }
             else {
@@ -137,6 +137,17 @@
                 $('#nombre_doc').attr('title', doc_nombre)
             }
             $('#parrafo_texto').html(parrafo_aux)
-        })
+        });
+        $('#eliminar_res').click(function () {
+           $('#loading').show();
+           $('#modalEliminar').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
+        $('.btn-guardar_inf').click(function () {
+           $('#loading').show();
+           $('#modalInformes1').modal('hide');
+           $('#modalInformes2').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
     </script>
 {% endblock scripts %}

@@ -2,6 +2,8 @@ from django.contrib import admin
 from FrontEnd.models import *
 from simple_history.admin import SimpleHistoryAdmin
 
+admin.site.site_header = 'Cerberus administration'
+
 class InvestigacionAdmin(SimpleHistoryAdmin):
     list_display = ('nombre', 'propietario', 'fecha_agregado', 'modelo', 'eliminado', 'finalizado_correcto', 'finalizado_incorrecto')
     list_filter = ('propietario', 'eliminado', 'fecha_agregado', 'modelo', 'usuario', 'finalizado_correcto', 'finalizado_incorrecto')

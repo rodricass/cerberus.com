@@ -679,9 +679,9 @@ def ver_notas_especifica(request,investigacion_id):
 @login_required
 def crear_nota(request, id_investigacion):
     """Crea una nota a una investigación en la pantalla de ver_notas"""
-    investigacion = Investigacio.objects.get(id=id_investigacion)
+    investigacion = Investigacion.objects.get(id=id_investigacion)
     documentos = investigacion.documento_set.filter(eliminado=False).order_by('-fecha_agregado')
-    notas = NotaInvestigacio.objects.filter(entidad=id_investigacion).filter(eliminado=False).order_by('-fecha_agregado')
+    notas = NotaInvestigacion.objects.filter(entidad=id_investigacion).filter(eliminado=False).order_by('-fecha_agregado')
     form_elegir = BuscadorInvestigacionesForm(request.user)
     form_crear = NotaForm()
     context = {
@@ -696,7 +696,7 @@ def crear_nota(request, id_investigacion):
     if request.method == 'POST':
         form = NotaForm(request.POST)
         nueva_nota = form.save(commit=False)
-        notaHija = NotaInvestigacio(nota=nueva_nota.nota, descripcion=nueva_nota.descripcion, eliminado=False)
+        notaHija = NotaInvestigacion(nota=nueva_nota.nota, descripcion=nueva_nota.descripcion, eliminado=False)
         notaHija.entidad = investigacion
         notaHija.save()
     return render(request,'FrontEnd/ver_notas.html',context)
@@ -812,8 +812,6 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
                 "loc":"Locaciones",
                 "lex":"Léxicos detectados",
                 "pers":"Personas",
-                "drog":"Drogas",
-                "econ":"Económicos",
                 "investigacion_id":investigacion.id,
                 'title':'Buscador inteligente',
                 'notas': notas,
@@ -967,13 +965,28 @@ def guardar_resultadoGeneral(request,investigacion_id,expresion,camino):
         destacados = request.POST.getlist('checks3[]')
         investigacion = Investigacion.objects.get(id=investigacion_id)
         documentos = investigacion.documento_set.filter(eliminado=False)
+
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        notas = False
+        notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+        if len(notas_investigacion) > 0:
+            notas = True
+        else:
+            documentos = investigacion.documento_set.all()
+            for documento in documentos:
+                notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+                if len(notas_documentos) > 0:
+                    notas = True
+        breadcumb_path = parser_camino(camino)
         context = {'investigacion':investigacion,
                    'camino':camino,
                    'expresion':expresion,
                    'res':resultado,
                    'json':resultado_json,
                    'form':form,
+                   'notas': notas,
                    'title':'Buscador general',
+                   'camino_array' : breadcumb_path,
                    }
         resultado_header = ResultadoHeader(investigacion=investigacion,busqueda='General',tipo=expresion,estado=True,eliminado=False,propietario=request.user)
         resultado_header.save()
@@ -1007,6 +1020,20 @@ def guardar_resultadoGuiado(request,tipo,investigacion_id,camino):
         for d in documentos:
             resultado_header.documentos.add(d)
         resultado_header.save()
+
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        notas = False
+        notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+        if len(notas_investigacion) > 0:
+            notas = True
+        else:
+            documentos = investigacion.documento_set.all()
+            for documento in documentos:
+                notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+                if len(notas_documentos) > 0:
+                    notas = True
+        breadcumb_path = parser_camino(camino)
+
         context = {"tipo":tipo,
                    "investigacion_nombre":investigacion.nombre,
                    "camino":camino,
@@ -1014,7 +1041,10 @@ def guardar_resultadoGuiado(request,tipo,investigacion_id,camino):
                    "res": resultado,
                    "title":'Buscador guiado',
                    "json":resultado_json,
+                   "camino_array":breadcumb_path,
+                   "notas": notas,
                    }
+
         if request.user.is_superuser:
             form_agregar = RegexForm()
             context['form_agregar'] = form_agregar
@@ -1047,21 +1077,35 @@ def guardar_resultadoInteligente(request,tipo,investigacion_id,camino):
         destacados = request.POST.getlist('checks3[]')
         investigacion = Investigacion.objects.get(id=investigacion_id)
         documentos = investigacion.documento_set.filter(eliminado=False)
+
+        investigacion = Investigacion.objects.get(id=investigacion_id)
+        notas = False
+        notas_investigacion = NotaInvestigacion.objects.filter(entidad=investigacion).filter(eliminado=False)
+        if len(notas_investigacion) > 0:
+            notas = True
+        else:
+            documentos = investigacion.documento_set.all()
+            for documento in documentos:
+                notas_documentos = NotaDocumento.objects.filter(entidad=documento).filter(eliminado=False)
+                if len(notas_documentos) > 0:
+                    notas = True
+        breadcumb_path = parser_camino(camino)
         context = {"tipo":tipo,
                    "investigacion_nombre":investigacion.nombre,
                    "camino":camino,
-                   "modelo":investigacion.modelo,
+                   "camino_array":breadcumb_path,
+                   "modelo":TipoModelo().getModeloString(investigacion.modelo),
                    "org":"Organizaciones",
                    "loc":"Locaciones",
                    "lex":"Léxicos detectados",
                    "pers":"Personas",
-                   "drog":"Drogas",
-                   "econ":"Económicos",
                    "title":'Buscador inteligente',
                    "investigacion_id":investigacion.id,
                    "res":resultado,
                    "json":resultado_json,
+                   "notas": notas,
                    }
+
         resultado_header = ResultadoHeader(investigacion=investigacion,busqueda='Inteligente',tipo=tipo,estado=True,eliminado=False,propietario=request.user)
         resultado_header.save()
         for d in documentos:
@@ -1191,6 +1235,7 @@ def eliminar_resultado(request,investigacion_id,resultado_id,tipo,camino):
 
     resultados = generar_resultados(request,investigacion_id)
     form_elegir = BuscadorInvestigacionesForm(request.user)
+    investigacion = Investigacion.objects.get(id=investigacion_id)
     context = { 
                 'title':'Resultados',
                 'form_elegir':form_elegir,
@@ -1198,6 +1243,7 @@ def eliminar_resultado(request,investigacion_id,resultado_id,tipo,camino):
                 'inicial':False,
                 'investigacion_id': investigacion_id,
                 'camino':camino,
+                'nombre_investigacion':investigacion.nombre,
                }
 
     return render(request,'FrontEnd/resultados.html', context)

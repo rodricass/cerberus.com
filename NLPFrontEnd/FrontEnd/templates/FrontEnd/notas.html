@@ -15,7 +15,7 @@
             <div class="row" style="overflow-y:auto; overflow-x:hidden; height:70%">
             {% for nota in notas %}
                 <div class="row {%if nota.nota|length <= 80 %} fila {% else %} fila2 {% endif %}" >
-                    <div class="col-md-10" style="column-fill:auto; word-wrap: break-word !important; margin-left:3rem;" data-toggle="modal" data-target="#modalAdvice" data-whatever="{{nota.nota}}">
+                    <div class="col-md-10" style="column-fill:auto; word-wrap: break-word !important; margin-left:3rem;" data-toggle="modal" data-target="#modalAdvice" data-whatever="{{nota.nota}}" data-url="{% url 'eliminar_nota' id=id id_nota=nota.id tipo=tipo camino=camino %}">
                         <p class="descripcion">{{nota.descripcion}}</p>
                         <p class="nota">
                             {% if nota.nota|length < 180 %}
@@ -62,7 +62,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn eliminarNota btn-block" data-toggle="modal" data-target="#modalEliminar" >Eliminar nota&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-trash"></i></button>
+            <button id="eliminar_nota" class="btn eliminarNota btn-block" data-toggle="modal" data-target="#modalEliminar" data-whatever="">Eliminar nota&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-trash"></i></button>
           </div>
         </div>
     
@@ -113,7 +113,9 @@
         $('#modalAdvice').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var recipient = button.data('whatever')
+        var url = button.data('url')
         $('#contenidoNota').html(recipient)
+        $('#eliminar_nota').attr('data-whatever', url)
         })
         $('#modalDescripcion').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
@@ -128,5 +130,8 @@
             console.log(recipient)
             $('#borrarForm').attr('action', recipient)
         })
+        $('#eliminar_nota').click(function () {
+           $('#modalAdvice').modal('hide');
+        });
     </script>
 {% endblock scripts %}

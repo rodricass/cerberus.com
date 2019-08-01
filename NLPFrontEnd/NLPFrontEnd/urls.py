@@ -31,7 +31,7 @@ urlpatterns = [
 
     #Investigaciones en curso
     url(r'^investigaciones/buscador_inteligente/editar_entidad/(?P<tipo>[A-z úé]+)/(?P<id_ent>\d+)/(?P<id_investigacion>\d+)/(?P<camino>.+)/$', views.editar_entidad, name='editar_entidad'),
-    url(r'^investigaciones/buscador_inteligente/guardar_resultadoInteligente/(?P<tipo>[A-z úé]+)/(?P<investigacion_id>\d+)/(?P<camino>.+)/$', views.guardar_resultadoInteligente, name='guardar_resultadoInteligente'),
+    url(r'^investigaciones/buscador_inteligente/guardar_resultadoInteligente/(?P<tipo>[A-z óúé]+)/(?P<investigacion_id>\d+)/(?P<camino>.+)/$', views.guardar_resultadoInteligente, name='guardar_resultadoInteligente'),
     url(r'^investigaciones/buscador_guiado/guardar_resultadoGuiado/(?P<tipo>.+)/(?P<investigacion_id>\d+)/(?P<camino>.+)/$', views.guardar_resultadoGuiado, name='guardar_resultadoGuiado'),
     url(r'^investigaciones/buscado_general/guardar_resultadoGeneral/(?P<investigacion_id>\d+)/(?P<expresion>.+)/(?P<camino>.+)/$', views.guardar_resultadoGeneral, name='guardar_resultadoGeneral'),
     url(r'^investigaciones/buscador_inteligente/(?P<tipo>[A-z óúé]+)/(?P<investigacion_id>\d+)/(?P<camino>.+)/$', views.buscador_inteligente, name='buscador_inteligente'),

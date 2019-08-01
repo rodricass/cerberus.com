@@ -113,7 +113,7 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button class="btn btn-default aceptar" id="eliminar_res" type="submit" form="borrarForm">Eliminar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -132,5 +132,10 @@
             console.log(recipient)
             $('#borrarForm').attr('action', recipient)
         })
+        $('#eliminar_res').click(function () {
+           $('#loading').show();
+           $('#modalEliminar').modal('hide');
+           $('.container').css("opacity", "0.4");
+        });
     </script>
 {% endblock scripts %}

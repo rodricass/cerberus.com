@@ -75,6 +75,8 @@ class CargarArchivoUFED(CargarArchivo):
 
         results = wpp.get_positives_results()
 
+        print(results)
+
         d_res = defaultdict(list)
         for resultado in results:
             r = {"from":resultado['from'],

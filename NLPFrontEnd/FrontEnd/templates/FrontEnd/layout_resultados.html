@@ -6,7 +6,7 @@
 {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/buscador.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'FrontEnd/css/layout_resultados.css' %}" />
-    <div class="row row_resultados" style="margin-top: 8rem; width: 100%">
+    <div id="row_principal" class="row row_resultados" style="margin-top: 8rem; width: 100%">
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
                 <h2 id="titulo" title="{{header.investigacion.nombre}}">
@@ -64,7 +64,7 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
+            <button id="eliminar_res" class="btn btn-default aceptar" type="submit" form="borrarForm">Eliminar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -79,7 +79,7 @@
             <p class="modal-advice">¿Crear informe general?</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="forma_informe1">Confirmar</button>
+            <button class="btn btn-default aceptar btn-guardar_inf" type="submit" form="forma_informe1">Confirmar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -94,7 +94,7 @@
             <p class="modal-advice">¿Crear informe destacados?</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="forma_informe2">Confirmar</button>
+            <button class="btn btn-default aceptar btn-guardar_inf" type="submit" form="forma_informe2">Confirmar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>

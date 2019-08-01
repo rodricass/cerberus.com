@@ -39,10 +39,10 @@
                     <div class="row fila">
                         <div class="col-md-2">
                             <div class="nombre_doc estado" style="margin-left:7.5rem !important">
-                                {% if resultados.estado %}
-                                    <img src="..\imagenes\check.png" >
+                                {% if resultado.estado %}
+                                    <i class="far fa-check-circle" title="Búsqueda actualizada" style="font-size:18px; margin-top:0.2rem; color:#388e3c"></i>
                                 {% else %}
-                                    <img src="..\imagenes\error.png" >
+                                    <i class="far fa-times-circle" title="Búsqueda desactualizada" style="font-size:18px; margin-top:0.2rem; color:#d32f2f"></i>
                                 {% endif %}
                             </div>
                         </div>

@@ -101,7 +101,7 @@
 
 {% block scripts %}
     <script>
-       $('#modalDetalles').on('show.bs.modal', function (event) {
+        $('#modalDetalles').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
             var url = button.data('url')
             var doc_nombre = button.data('docnombre')
@@ -112,9 +112,9 @@
             var preparrafo = button.data('preparrafo')
             var postparrafo = button.data('postparrafo')
             var parrafo = String(button.data('parrafo'))
-           parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
-           console.log(preparrafo)
-           console.log(postparrafo)
+            parrafo = parrafo.replace(new RegExp(string, 'g'), "<span style='background-color:#ffff8d'>" + string + "</span>")
+            console.log(preparrafo)
+            console.log(postparrafo)
             if (preparrafo == "") {
                 parrafo_aux = parrafo + "<br><br>" + postparrafo
             }
@@ -137,6 +137,17 @@
                 $('#nombre_doc').attr('title', doc_nombre)
             }
             $('#parrafo_texto').html(parrafo_aux)
-        })
+        });
+        $('#eliminar_res').click(function () {
+           $('#loading').show();
+           $('#modalEliminar').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
+        $('.btn-guardar_inf').click(function () {
+           $('#loading').show();
+           $('#modalInformes1').modal('hide');
+           $('#modalInformes2').modal('hide');
+           $('#row_principal').css("opacity", "0.4");
+        });
     </script>
 {% endblock scripts %}

@@ -10,10 +10,10 @@
         <div class="col-md-3" style="margin-left:2rem">
             <div id="jumboside" class="jumbotron">
                 <h2 id="titulo" title="{{header.investigacion.nombre}}">
-                    {% if header.investigacion.nombre|length < 10 %}
+                    {% if header.investigacion.nombre|length < 15 %}
                         {{header.investigacion.nombre}}
                     {% else %}
-                        {{header.investigacion.nombre|truncatechars:8}}
+                        {{header.investigacion.nombre|truncatechars:13}}
                     {% endif %}
                 </h2>
                 <p id="investigación">Búsqueda {{header.busqueda}}</p>

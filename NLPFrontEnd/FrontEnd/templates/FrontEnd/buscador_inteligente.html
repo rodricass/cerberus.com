@@ -24,10 +24,10 @@
                     </div>
                 {% endif %}
                 <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion_nombre}}">
-                {% if investigacion_nombre|length < 10 %}
+                {% if investigacion_nombre|length < 15 %}
                     {{investigacion_nombre}}
                 {% else %}
-                    {{investigacion_nombre|truncatechars:8}}
+                    {{investigacion_nombre|truncatechars:13}}
                 {% endif %}
                 </h1>
                 <button id="arrow-left" title="Búsqueda general" class="btn int-left flechas" style="left:1.5rem" onclick="location.href='{% url 'buscador_general' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-search"></i></button>
@@ -196,7 +196,7 @@
             <p class="modal-advice">¿Desea borrar los elementos seleccionados?</p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-default aceptar" type="submit" form="forma_eliminar">Aceptar</button>
+            <button id="btn-eliminar-int" class="btn btn-default aceptar" type="submit" form="forma_eliminar">Aceptar</button>
             <button type="button" class="btn btn-default cancelar" data-dismiss="modal">Cancelar</button>
           </div>
         </div>
@@ -389,6 +389,11 @@
            $('#loading').show();
            $('#modalAdvice2').modal('hide');
            $('#row-principal').css("opacity", "0.4");
+        });
+        $('#btn-eliminar-int').click(function () {
+           $('#loading').show();
+           $('#modalAdvice').modal('hide');
+           $('#row-principal').css("opacity","0.4");
         });
     </script>
 {% endblock scripts %}

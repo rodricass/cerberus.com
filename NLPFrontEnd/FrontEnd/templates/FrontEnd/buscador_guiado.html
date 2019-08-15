@@ -26,10 +26,10 @@
                 <button id="arrow-left" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-brain"></i></button>
                 <button id="arrow-right" title="Búsqueda general" class="btn flechas" onclick="location.href='{% url 'buscador_general' investigacion_id=investigacion_id camino=camino %}'"><i class="fas fa-search"></i></button>
                 <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion_nombre}}">
-                {% if investigacion_nombre|length < 10 %}
+                {% if investigacion_nombre|length < 15 %}
                     {{investigacion_nombre}}
                 {% else %}
-                    {{investigacion_nombre|truncatechars:8}}
+                    {{investigacion_nombre|truncatechars:13}}
                 {% endif %}
                 </h1>
                 <p id="investigacion">Buscador guiado</p>

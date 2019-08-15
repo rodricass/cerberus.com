@@ -16,20 +16,21 @@
             <span id="titulo">Nueva investigación</span>
         </div>
         <div class="col-md-offset-1 col-md-8">
-            <form style="margin-top:10rem" action="{% url 'nueva_investigacion' camino=" " %}" method="post" class="form">
-                {% csrf_token %}
+            
                 <div class="row">
                     <div class="col-md-9">
-                        {% bootstrap_form form %}
+                        <form id="crear_form" style="margin-top:10rem" action="{% url 'nueva_investigacion' camino=" " %}" method="post" class="form">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                        </form>
                     </div>
                     <div class="col-md-2">
                         {% buttons %}
-                            <button id="btn1" type="submit" class="btn botones">Crear</button>
+                            <button id="btn1" type="submit" class="btn botones" style="margin-top:23rem" form="crear_form">Crear</button>
                             <button id="btn2" onclick="location.href='{% url 'investigaciones' %}';" class="btn botones">Cancelar</button>
                         {% endbuttons %}
                     </div>
                 </div>               
-            </form>
         </div>
         
     </div>

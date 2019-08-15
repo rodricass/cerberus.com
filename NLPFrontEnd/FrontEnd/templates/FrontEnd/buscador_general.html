@@ -25,10 +25,10 @@
                 {% endif %}
                 <button id="arrow-left" style="top:12.3rem" title="Búsqueda guiada" class="btn flechas" onclick="location.href='{% url 'buscador_guiado' tipo='Búsqueda' id_regex=investigacion.id investigacion_id=investigacion.id camino=camino %}'"><i class="far fa-compass"></i></button>
                 <button id="arrow-right" title="Búsqueda inteligente" class="btn flechas" onclick="location.href='{% url 'buscador_inteligente' tipo='Búsqueda' investigacion_id=investigacion.id camino=camino %}'"><i class="fas fa-brain" ></i></button>
-                {% if investigacion.nombre|length < 10 %}
+                {% if investigacion.nombre|length < 15 %}
                     <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion.nombre}}">{{investigacion.nombre}}</h1>
                 {% else %}
-                    <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion.nombre}}">{{investigacion.nombre|truncatechars:8}}</h1>
+                    <h1 id="titulo" style="margin-top:-.3rem" title="{{investigacion.nombre}}">{{investigacion.nombre|truncatechars:13}}</h1>
                 {% endif %}
                 <p id="investigacion">Buscador general</p>
             </div>

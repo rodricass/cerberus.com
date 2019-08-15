@@ -824,6 +824,7 @@ def buscador_inteligente(request,tipo,investigacion_id,camino):
             for t in tokens:
                 parrafo = Parrafo.objects.get(id=t.parrafo.id)
                 index = parrafo.nro
+                previous = ""
                 if index > 0:
                     index_previous = index - 1
                     previous_obj = Parrafo.objects.filter(nro=index_previous).filter(doc=parrafo.doc)
